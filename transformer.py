@@ -21,10 +21,9 @@ input_sequences = np.random.uniform(min_val, max_val, size=(num_samples, input_s
 # target_embeddings = input_sequences*fixed_multiplier
 
 # Create a multiplier array with increasing values from 1 to the length of input_sequences
-multiplier_array = np.arange(1, num_samples + 1).reshape(-1, 1, 1)
+multiplier_array = np.arange(1, input_embedding_size + 1).reshape(1, 1, -1)
 # Element-wise multiplication between input_sequences and multiplier_array
-target_embeddings = input_sequences * multiplier_array
-target_embeddings = target_embeddings + 13
+target_embeddings = input_sequences * multiplier_array + 15
 
 # target_embeddings = input_sequences
 
@@ -44,13 +43,12 @@ val_target = target_embeddings[split_index:]
 def transformer_model():
     inputs = tf.keras.Input(shape=(input_sequence_length, input_embedding_size))
     # Multi-head self-attention layer
-    attention_output = layers.MultiHeadAttention(num_heads=10, key_dim=input_embedding_size, dropout=0.1)(inputs,
-                                                                                                          inputs)
+    attention_output = layers.MultiHeadAttention(num_heads=10, key_dim=input_embedding_size, dropout=0.1)(inputs, inputs)
     attention_output = layers.LayerNormalization(epsilon=1e-6)(attention_output + inputs)
     # Feedforward layer
     outputs = layers.Conv1D(filters=512, kernel_size=1, activation='relu')(attention_output)
     outputs = layers.GlobalAveragePooling1D()(outputs)
-    outputs = layers.Dense(target_embedding_size)(outputs)
+    # outputs = layers.Dense(target_embedding_size)(outputs)
 
     # Regularization
     outputs = layers.Dropout(0.1)(outputs)
@@ -81,7 +79,7 @@ val_target_norm = normalize_data(val_target_reshaped)
 
 # Compile the model
 transformer = transformer_model()
-custom_optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
+custom_optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
 # Retrain the model with normalized data
 transformer.compile(optimizer=custom_optimizer, loss='mean_squared_error')
 transformer.fit(train_input_norm, train_target_norm, validation_data=(val_input_norm, val_target_norm), epochs=10,
