@@ -23,7 +23,7 @@ input_sequences = np.random.uniform(min_val, max_val, size=(num_samples, input_s
 # Create a multiplier array with increasing values from 1 to the length of input_sequences
 multiplier_array = np.arange(1, input_embedding_size + 1).reshape(1, 1, -1)
 # Element-wise multiplication between input_sequences and multiplier_array
-target_embeddings = input_sequences * multiplier_array + 15
+target_embeddings = input_sequences * multiplier_array
 
 # target_embeddings = input_sequences
 
@@ -40,7 +40,7 @@ val_target = target_embeddings[split_index:]
 
 
 # Transformer Model definition
-def transformer_model():
+def transformer_model(input_sequence_length, input_embedding_size, target_embedding_size):
     inputs = tf.keras.Input(shape=(input_sequence_length, input_embedding_size))
     # Multi-head self-attention layer
     attention_output = layers.MultiHeadAttention(num_heads=10, key_dim=input_embedding_size, dropout=0.1)(inputs, inputs)
@@ -60,32 +60,32 @@ def transformer_model():
     return model
 
 
-# Reshape target embeddings to match model output shape
-train_target_reshaped = np.mean(train_target, axis=1)
-val_target_reshaped = np.mean(val_target, axis=1)
+# # Reshape target embeddings to match model output shape
+# train_target_reshaped = np.mean(train_target, axis=1)
+# val_target_reshaped = np.mean(val_target, axis=1)
 
 
 # Normalizing input and output data
 def normalize_data(data):
-    mean = np.mean(data, axis=(0, 1))
-    std = np.std(data, axis=(0, 1))
+    mean = np.mean(data)
+    std = np.std(data)
     return (data - mean) / std
 
 
-train_input_norm = normalize_data(train_input)
-val_input_norm = normalize_data(val_input)
-train_target_norm = normalize_data(train_target_reshaped)
-val_target_norm = normalize_data(val_target_reshaped)
-
-# Compile the model
-transformer = transformer_model()
-custom_optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
-# Retrain the model with normalized data
-transformer.compile(optimizer=custom_optimizer, loss='mean_squared_error')
-transformer.fit(train_input_norm, train_target_norm, validation_data=(val_input_norm, val_target_norm), epochs=10,
-                batch_size=64)
-
-# Check performance
-predictions_norm = transformer.predict(val_input_norm)
-mse_norm = mean_squared_error(val_target_norm, predictions_norm)
-print(f"Normalized Mean Squared Error: {mse_norm}")
+# train_input_norm = normalize_data(train_input)
+# val_input_norm = normalize_data(val_input)
+# train_target_norm = normalize_data(train_target_reshaped)
+# val_target_norm = normalize_data(val_target_reshaped)
+#
+# # Compile the model
+# transformer = transformer_model(input_sequence_length, input_embedding_size, target_embedding_size)
+# custom_optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+# # Retrain the model with normalized data
+# transformer.compile(optimizer=custom_optimizer, loss='mean_squared_error')
+# transformer.fit(train_input_norm, train_target_norm, validation_data=(val_input_norm, val_target_norm), epochs=10,
+#                 batch_size=64)
+#
+# # Check performance
+# predictions_norm = transformer.predict(val_input_norm)
+# mse_norm = mean_squared_error(val_target_norm, predictions_norm)
+# print(f"Normalized Mean Squared Error: {mse_norm}")

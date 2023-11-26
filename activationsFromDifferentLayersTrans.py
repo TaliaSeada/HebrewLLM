@@ -48,7 +48,7 @@ for dataset_to_use in list_of_datasets:
         translated_sentence = tokenizer.decode(translated_tokens[0][0], skip_special_tokens=True)
 
         for layer in layers_to_use:
-            last_hidden_state = translated_tokens.encoder_hidden_states[layer][0]
+            last_hidden_state = translated_tokens.encoder_hidden_states[layer][0][-1]
             dfs[layer].at[i, 'embeddings'] = [last_hidden_state.numpy().tolist()]
             dfs[layer].at[i, 'translation'] = translated_sentence
             print("processing: " + str(i) + ", translation:" + translated_sentence)
