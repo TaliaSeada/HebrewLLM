@@ -40,29 +40,55 @@ val_target = target_embeddings[split_index:]
 
 
 # Transformer Model definition
-def transformer_model(input_sequence_length, input_embedding_size, target_embedding_size):
-    inputs = tf.keras.Input(shape=(input_sequence_length, input_embedding_size))
+def transformer_model(input_embedding_size, target_embedding_size):
+    inputs = tf.keras.Input(shape=(input_embedding_size,))
+
+    # Reshape the input to make it compatible with MultiHeadAttention
+    reshaped_inputs = layers.Reshape((1, input_embedding_size))(inputs)
+
     # Multi-head self-attention layer
-    attention_output = layers.MultiHeadAttention(num_heads=10, key_dim=input_embedding_size, dropout=0.1)(inputs, inputs)
-    attention_output = layers.LayerNormalization(epsilon=1e-6)(attention_output + inputs)
+    attention_output = layers.MultiHeadAttention(num_heads=10, key_dim=input_embedding_size, dropout=0.1)(
+        reshaped_inputs, reshaped_inputs)
+    attention_output = layers.LayerNormalization(epsilon=1e-6)(attention_output + reshaped_inputs)
+
     # Feedforward layer
     outputs = layers.Conv1D(filters=512, kernel_size=1, activation='relu')(attention_output)
     outputs = layers.GlobalAveragePooling1D()(outputs)
-    # outputs = layers.Dense(target_embedding_size)(outputs)
 
     # Regularization
     outputs = layers.Dropout(0.1)(outputs)
-    # outputs = layers.BatchNormalization()(outputs)
 
     # Output layer
     outputs = layers.Dense(target_embedding_size)(outputs)
+
     model = tf.keras.Model(inputs=inputs, outputs=outputs, name="transformer_model")
     return model
 
+# # Transformer Model definition (including sequence length)
+# def transformer_model(input_sequence_length, input_embedding_size, target_embedding_size):
+#     inputs = tf.keras.Input(shape=(input_sequence_length, input_embedding_size))
+#
+#     # Multi-head self-attention layer
+#     attention_output = layers.MultiHeadAttention(num_heads=10, key_dim=input_embedding_size, dropout=0.1)(inputs, inputs)
+#     attention_output = layers.LayerNormalization(epsilon=1e-6)(attention_output + inputs)
+#     # Feedforward layer
+#     outputs = layers.Conv1D(filters=512, kernel_size=1, activation='relu')(attention_output)
+#     outputs = layers.GlobalAveragePooling1D()(outputs)
+#     # outputs = layers.Dense(target_embedding_size)(outputs)
+#
+#     # Regularization
+#     outputs = layers.Dropout(0.1)(outputs)
+#     # outputs = layers.BatchNormalization()(outputs)
+#
+#     # Output layer
+#     outputs = layers.Dense(target_embedding_size)(outputs)
+#     model = tf.keras.Model(inputs=inputs, outputs=outputs, name="transformer_model")
+#     return model
 
-# # Reshape target embeddings to match model output shape
-# train_target_reshaped = np.mean(train_target, axis=1)
-# val_target_reshaped = np.mean(val_target, axis=1)
+
+# Reshape target embeddings to match model output shape
+train_target_reshaped = np.mean(train_target, axis=1)
+val_target_reshaped = np.mean(val_target, axis=1)
 
 
 # Normalizing input and output data
@@ -71,7 +97,7 @@ def normalize_data(data):
     std = np.std(data)
     return (data - mean) / std
 
-
+#
 # train_input_norm = normalize_data(train_input)
 # val_input_norm = normalize_data(val_input)
 # train_target_norm = normalize_data(train_target_reshaped)
@@ -84,7 +110,7 @@ def normalize_data(data):
 # transformer.compile(optimizer=custom_optimizer, loss='mean_squared_error')
 # transformer.fit(train_input_norm, train_target_norm, validation_data=(val_input_norm, val_target_norm), epochs=10,
 #                 batch_size=64)
-#
+
 # # Check performance
 # predictions_norm = transformer.predict(val_input_norm)
 # mse_norm = mean_squared_error(val_target_norm, predictions_norm)

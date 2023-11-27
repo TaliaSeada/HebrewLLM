@@ -41,9 +41,8 @@ def set_data(dataset_to_use):
     df_target_em = df_target["embeddings"]
 
     # Explode the vectors into separate rows
-    # TODO make each vector a row
-    # df_input_em = df_input_em.explode('0').reset_index(drop=True)
-    # df_target_em = df_target_em.explode('0').reset_index(drop=True)
+    df_input_em = df_input_em.apply(lambda x: pd.Series(x))
+    df_target_em = df_target_em.apply(lambda x: pd.Series(x))
 
     return df_target_em, df_input_em, max_length_statement, max_size_input, max_size_target
 
@@ -71,14 +70,13 @@ for dataset_to_use in list_of_datasets:
     # val_target_norm = transformer.normalize_data(val_target_reshaped)
 
     # Create the transformer model
-    model = transformer.transformer_model(statement_len, max_size_input, max_size_target)
+    model = transformer.transformer_model(max_size_input, max_size_target)
     # Compile the model
     custom_optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
     # Retrain the model with normalized data
     model.compile(optimizer=custom_optimizer, loss='mean_squared_error')
     # Train the model
-    model.fit(train_input, train_target, validation_data=(val_input, val_target), epochs=10, batch_size=64)
-    # model.fit(train_input_norm, train_target_norm, validation_data=(val_input_norm, val_target_norm), epochs=10, batch_size=64)
+    model.fit(train_input, train_target, validation_data=(val_input, val_target), epochs=11, batch_size=32)
 
     # Check performance
     predictions = model.predict(val_input)
