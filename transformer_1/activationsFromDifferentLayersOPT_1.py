@@ -15,7 +15,7 @@ dfs: Dict[int, pd.DataFrame] = {}
 
 for dataset_to_use in list_of_datasets:
     # Read the CSV file
-    file = "resources\\" + dataset_to_use + "_heb_true_false.csv"
+    file = "..\\resources\\" + dataset_to_use + "_heb_true_false.csv"
     df = pd.read_csv(file)
     df['embeddings'] = pd.Series(dtype='object')
     df['next_id'] = pd.Series(dtype=float)
@@ -40,4 +40,6 @@ for dataset_to_use in list_of_datasets:
             print("processing: " + str(i) + ", next_token:" + str(next_id))
 
     for layer in layers_to_use:
-        dfs[layer].to_csv("output\\" + "embeddings_" + dataset_to_use + model_to_use + "_" + str(abs(layer)) + "_heb_rmv_period.csv", index=False)
+        dfs[layer].to_csv("..\\output\\" + "embeddings_" + dataset_to_use + model_to_use + "_" + str(abs(layer)) + "_heb_rmv_period.csv", index=False)
+
+
