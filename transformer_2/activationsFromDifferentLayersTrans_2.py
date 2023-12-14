@@ -1,5 +1,7 @@
 import pandas as pd
 from typing import Dict
+
+import torch
 from transformers import AutoModelForSeq2SeqLM
 import os
 from transformers import AutoTokenizer, OPTForCausalLM
@@ -77,6 +79,25 @@ def translate_sen(prompt, layer):
 
     return translated_tokens, translated_sentence, embeddings
 
+
+def translate_sen_from_embeddings(embeddings):
+    model_name = "Helsinki-NLP/opus-mt-en-he"
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+    # Assuming the embeddings are in the shape (sequence_length, embedding_dim)
+    # Convert embeddings to a PyTorch tensor and create a dummy input token tensor for the model
+    embeddings_tensor = torch.tensor(embeddings)
+    input_ids = torch.zeros((1, embeddings_tensor.shape[0]), dtype=torch.long)
+
+    # Generate translations using the model
+    translated_tokens = model.generate(input_ids, attention_mask=None,
+                                       encoder_outputs=(None, None, embeddings_tensor.unsqueeze(0)))
+
+    # Decode the translated tokens into a sentence
+    translated_sentence = tokenizer.decode(translated_tokens[0], skip_special_tokens=True)
+
+    return translated_tokens, translated_sentence
 if __name__ == '__main__':
     layers_to_use = [1]
     list_of_datasets = ["cities"] # ["generated", "inventions", "elements", "animals", "facts", "companies"]

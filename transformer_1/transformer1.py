@@ -29,6 +29,8 @@ def transformer_model(input_embedding_size, target_embedding_size):
     model = tf.keras.Model(inputs=inputs, outputs=outputs, name="transformer_model")
     return model
 
+#TODO change the transformer to get also the sequence length
+
 # # Transformer Model definition (including sequence length)
 # def transformer_model(input_sequence_length, input_embedding_size, target_embedding_size):
 #     inputs = tf.keras.Input(shape=(input_sequence_length, input_embedding_size))

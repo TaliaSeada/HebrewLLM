@@ -44,6 +44,13 @@ def call_ai(prompt):
     return text
 
 
+def call_ai_embeddings(embeddings):
+    # make sentence out of the embeddings
+    sen = ""
+
+    return call_ai(sen)
+
+
 def translate_en2heb(text):
     # Split the text into sentences
     sentences = nltk.sent_tokenize(text)
@@ -64,15 +71,13 @@ def translate_heb2en(text):
     translated_tokens = model_heb2en.generate(tokenized_text, max_length=512)
     return tokenizer_heb2en.decode(translated_tokens[0], skip_special_tokens=True)
 
-
-for i in range(10):
-    sentence = input("משתמש/ת: ")
-    if sentence.lower() == "quit" or sentence.lower() == "exit" or sentence == "יציאה":
-        break
-    en_sent = translate_heb2en(sentence)
-    print(en_sent)
-    en_response = call_ai(en_sent)
-    print(en_response)
-    heb_out = translate_en2heb(en_response)
-    print("מענה:" + heb_out)
-
+# for i in range(10):
+#     sentence = input("משתמש/ת: ")
+#     if sentence.lower() == "quit" or sentence.lower() == "exit" or sentence == "יציאה":
+#         break
+#     en_sent = translate_heb2en(sentence)
+#     print(en_sent)
+#     en_response = call_ai(en_sent)
+#     print(en_response)
+#     heb_out = translate_en2heb(en_response)
+#     print("מענה:" + heb_out)
