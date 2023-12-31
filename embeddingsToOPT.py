@@ -1,40 +1,32 @@
-import numpy as np
-import pandas as pd
-import torch
-import hebrewLLM
-import torch
-from transformers import AutoTokenizer, OPTForCausalLM, AutoConfig
+from transformers import AutoTokenizer, OPTForCausalLM
+
+
+def your_input_modification(hidden_states):
+    return hidden_states
+
 
 # Load the tokenizer and model
 model_name = "facebook/opt-350m"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = OPTForCausalLM.from_pretrained(model_name)
 
+
+class CustomOPTLayer(model.base_model.decoder.layers[0].__class__):
+    def forward(self, hidden_states, attention_mask=None, layer_head_mask=None,
+                past_key_value=None, output_attentions=None, use_cache=None):
+        # Modify hidden_states before passing them to the original forward method
+        modified_hidden_states = your_input_modification(hidden_states)
+        return super().forward(modified_hidden_states, attention_mask, layer_head_mask,
+                               past_key_value, output_attentions, use_cache)
+
+
+model.base_model.decoder.layers[0] = CustomOPTLayer(model.base_model.decoder.config)
+
 # Encode the input text
 inputs = tokenizer("hello", return_tensors="pt")
-
 # Get model output including hidden states
-outputs = model(**inputs, output_hidden_states=True)
-
-# Extract embeddings from a specific layer (e.g., the second layer)
-embeddings = outputs.hidden_states[1]
-
-# The 'embeddings' variable now contains the embeddings from the specified layer of the OPT model
-print(embeddings)
-
-# output = model(inputs_embeds=embeddings)
-
-
-
-
-
-
-
-
-
-
-
-
+outputs = model(**inputs)
+print(outputs)
 
 # class CustomOPTForCausalLM(OPTForCausalLM):
 #     def __init__(self, config):
@@ -65,13 +57,6 @@ print(embeddings)
 # generated_ids = output.logits[:, -1, :].topk(k).indices
 # generated_text = tokenizer.decode(generated_ids.tolist()[0])
 # print("Generated text:", generated_text)
-
-
-
-
-
-
-
 
 
 # OPT
@@ -114,4 +99,3 @@ print(embeddings)
 #     print("Generated text:", generated_text)
 #
 #     print('\n<-------------------------------------------------------------------------------------->\n')
-
