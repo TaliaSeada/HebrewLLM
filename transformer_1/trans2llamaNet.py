@@ -6,7 +6,6 @@ import tensorflow as tf
 from transformer_1 import transformer1
 from sklearn.metrics import mean_squared_error
 
-
 def flatten_vector(row):
     return np.array(row[0])
 
@@ -15,12 +14,13 @@ def set_data(dataset_to_use):
     # TODO get the max size, add 0 if needed (both to the input data and the target data)
     # max_size_input = 512
     # max_size_target = 512
-    file = "C:\\Users\\talia\\PycharmProjects\\TranslatorGPT\\output\\" + "embeddings_" + dataset_to_use + "350m_1_heb_rmv_period.csv"
+    # file = "C:\\Users\\talia\\PycharmProjects\\TranslatorGPT\\output\\" + "embeddings_" + dataset_to_use + "350m_1_heb_rmv_period.csv"
+    file = "C:\\Users\\talia\\PycharmProjects\\TranslatorGPT\\output\\short_words_opt_1.csv"
     df_target_em = pd.read_csv(file)
     # Convert the string representation of embeddings to actual lists
     df_target_em['embeddings'] = df_target_em['embeddings'].apply(eval)
 
-    statement_column = 'statement'
+    statement_column = 'translation'
     # Find the longest sentence
     max_length_statement = max(df_target_em[statement_column].apply(len))
     # Pad the other sentences to the max length
@@ -30,7 +30,8 @@ def set_data(dataset_to_use):
     df_target_em['embeddings'] = df_target_em['embeddings'].apply(flatten_vector)
     max_size_input = max(df_target_em['embeddings'].apply(len))
 
-    file = "C:\\Users\\talia\\PycharmProjects\\TranslatorGPT\\output_trans\\" + "translate_" + dataset_to_use + "_1_heb_rmv_period.csv"
+    # file = "C:\\Users\\talia\\PycharmProjects\\TranslatorGPT\\output_trans\\" + "translate_" + dataset_to_use + "_1_heb_rmv_period.csv"
+    file = "C:\\Users\\talia\\PycharmProjects\\TranslatorGPT\\output_trans\\translate_short_words_1.csv"
     df_input = pd.read_csv(file)
     # Convert the string representation of embeddings to actual lists
     df_input['embeddings'] = df_input['embeddings'].apply(eval)
@@ -102,5 +103,5 @@ def reload(max_size_input, max_size_target):
     model.load_weights('C:\\Users\\talia\\PycharmProjects\\TranslatorGPT\\transformer_1\\transformer1_model_weights.h5')
     return model
 
-# if __name__ == '__main__':
-#     train_model1()
+if __name__ == '__main__':
+    train_model1()
