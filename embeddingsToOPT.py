@@ -1,11 +1,13 @@
 import torch
+from torch import nn
 from transformers import AutoTokenizer, OPTForCausalLM
 
 
 # TODO change this method - call the transformer
 def your_input_modification(hidden_states):
-    # modified_states = hidden_states
-    modified_states = hidden_states * 0
+    modified_states = hidden_states
+    # modified_states = hidden_states + 0.9999999999999
+    # modified_states = hidden_states * 0
     return modified_states
 
 
@@ -15,31 +17,42 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = OPTForCausalLM.from_pretrained(model_name)
 
 
-# second layer (?)
-class CustomOPTLayer(model.base_model.decoder.layers[3].__class__):
-    def forward(self, hidden_states, attention_mask=None, layer_head_mask=None,
-                past_key_value=None, output_attentions=None, use_cache=None):
-        # Modify hidden_states before passing them to the original forward method
-        modified_hidden_states = your_input_modification(hidden_states)
-        return super().forward(modified_hidden_states, attention_mask, layer_head_mask,
-                               past_key_value, output_attentions, use_cache)
-
 # # second layer (?)
-# class CustomOPTLayer2(model.base_model.decoder.layers[2].__class__):
+# class CustomOPTLayer(model.base_model.decoder.layers[1].__class__):
 #     def forward(self, hidden_states, attention_mask=None, layer_head_mask=None,
 #                 past_key_value=None, output_attentions=None, use_cache=None):
 #         # Modify hidden_states before passing them to the original forward method
 #         modified_hidden_states = your_input_modification(hidden_states)
 #         return super().forward(modified_hidden_states, attention_mask, layer_head_mask,
 #                                past_key_value, output_attentions, use_cache)
-
-# changes a specific layer
-model.base_model.decoder.layers[3] = CustomOPTLayer(model.base_model.decoder.config)
+#
 # # changes a specific layer
-# model.base_model.decoder.layers[2] = CustomOPTLayer2(model.base_model.decoder.config)
+# model.base_model.decoder.layers[1] = CustomOPTLayer(model.base_model.decoder.config)
+
+class CustomLayerWrapper(nn.Module):
+    def __init__(self, layer):
+        super().__init__()
+        self.layer = layer
+
+    def forward(self, hidden_states, attention_mask=None, layer_head_mask=None,
+                past_key_value=None, output_attentions=None, use_cache=None):
+        # Apply modifications to hidden_states here
+        modified_hidden_states = your_input_modification(hidden_states)
+
+        # Pass modified_hidden_states to the original layer
+        return self.layer(modified_hidden_states, attention_mask, layer_head_mask,
+                          past_key_value, output_attentions, use_cache)
+
+
+# Create an instance of the layer you want to modify
+custom_layer = model.base_model.decoder.layers[1]
+# Wrap the layer inside the custom wrapper
+wrapped_layer = CustomLayerWrapper(custom_layer)
+# Replace the layer with the wrapped layer
+model.base_model.decoder.layers[1] = wrapped_layer
 
 # Encode the input text
-inputs = tokenizer("The capital of London is", return_tensors="pt")
+inputs = tokenizer("Hello", return_tensors="pt")
 # Get model output including hidden states
 outputs = model(**inputs, output_hidden_states=True)
 
@@ -49,6 +62,12 @@ token_ids = outputs.logits.argmax(-1)
 generated_text = tokenizer.decode(token_ids[0], skip_special_tokens=True)
 # Print the generated text
 print("Generated Text: ", generated_text)
+
+# Generate text
+output = model.generate(**inputs, max_length=50, num_return_sequences=1)
+generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
+print("Generated Text: ", generated_text)
+
 
 # # OPT
 # words = ["לונדון היא עיר הבירה של", "חתול", "כלב", "אוטו", "ש", "היא"]
