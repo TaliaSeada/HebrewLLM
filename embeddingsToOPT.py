@@ -39,7 +39,6 @@ class CustomLayerWrapper(nn.Module):
 
 
 def OPT_activation_different_layer(hidden_states, nlayer):
-    hidden_states = hidden_states.view(1, 1, 1024) #reshape
     # Create an instance of the layer you want to modify
     custom_layer = model.base_model.decoder.layers[nlayer]
     # Wrap the layer inside the custom wrapper
@@ -48,8 +47,8 @@ def OPT_activation_different_layer(hidden_states, nlayer):
     model.base_model.decoder.layers[nlayer] = wrapped_layer
 
     # make dummy model
-    inputs = tokenizer("dummy", return_tensors="pt")
-    # inputs = tokenizer("It", return_tensors="pt")
+    # TODO depends on the input size
+    inputs = tokenizer("It", return_tensors="pt")
     outputs = model(**inputs, output_hidden_states=True)
 
     # hs = outputs.hidden_states[1]
