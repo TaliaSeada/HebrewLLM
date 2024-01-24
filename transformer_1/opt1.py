@@ -140,7 +140,7 @@ def main():
     hidden_state_transformer = load_hidden_state_transformer(model_save_path, input_size, output_size, num_layers,
                                                              num_heads, dim_feedforward, dropout, device)
     # Example Hebrew word
-    input_word = "כלב"  # Replace with your Hebrew word
+    input_word = "שלום"  # Replace with your Hebrew word
 
     # Using the function
     converted_hidden_states = infer_hidden_states(hidden_state_transformer, src_model, src_tokenizer, input_word,
@@ -148,9 +148,9 @@ def main():
     print(converted_hidden_states)
 
     # Continue with your OPT model or any other post-processing steps
-    layer = 1
+    layer = 0
     outputs, generated_text = embeddingsToOPT.OPT_activation_different_layer(converted_hidden_states, layer)
-    # print("Generated Text: ", generated_text)
+    print("Generated Text: ", generated_text)
 
 if __name__ == '__main__':
     main()

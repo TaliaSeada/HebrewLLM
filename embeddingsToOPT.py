@@ -3,16 +3,12 @@ from torch import nn
 from transformers import AutoTokenizer, OPTForCausalLM
 import numpy as np
 
-
-# TODO change this method - call the transformer
 def your_input_modification(hidden_states):
     # loaded_array = np.load('tensor_data.npy')
     # tensor_data = torch.tensor(loaded_array)
     # modified_states = tensor_data
 
     modified_states = hidden_states
-    # modified_states = hidden_states + 0.9999999999999
-    # modified_states = hidden_states * 0
     return modified_states
 
 
@@ -60,11 +56,7 @@ def OPT_activation_different_layer(hidden_states, nlayer):
     # Decode the token IDs using the tokenizer
     generated_text = tokenizer.decode(token_ids[0], skip_special_tokens=True)
     # Print the generated text
-    print("Generated Text: ", generated_text)
-
-    # Generate text
-    # output = model.generate(**inputs, max_length=50, num_return_sequences=1)
-    # generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
     # print("Generated Text: ", generated_text)
+
     return outputs, generated_text
 
