@@ -6,8 +6,8 @@ from torch.nn import TransformerEncoder, TransformerEncoderLayer
 
 # load data
 import embeddingsToOPT
-
-df = pd.read_csv("C:\\Users\\talia\\PycharmProjects\\TranslatorGPT\\output_trans\\translate_short_words_1.csv")
+# TODO train on the big data
+df = pd.read_csv("C:\\Users\\talia\\PycharmProjects\\TranslatorGPT\\resources\\dict.csv")
 
 # build models
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -126,15 +126,15 @@ def main():
     # Initialize the transformer model
     hidden_state_transformer = HiddenStateTransformer(input_size, output_size, num_layers, num_heads, dim_feedforward, dropout).to(device)
 
-    # # Initialize the loss function and optimizer
-    # criterion = nn.MSELoss()
-    # optimizer = torch.optim.Adam(hidden_state_transformer.parameters(), lr=0.001)  # You can tune the learning rate
-    # num_epochs = 10  # Set the number of epochs for training
-    # # Call the training function
-    # train_model(src_model, tgt_model, hidden_state_transformer, src_inputs, tgt_inputs, optimizer, criterion, num_epochs, device)
-    #
-    # # Saving the weights of the HiddenStateTransformer
-    # torch.save(hidden_state_transformer.state_dict(), model_save_path)
+    # Initialize the loss function and optimizer
+    criterion = nn.MSELoss()
+    optimizer = torch.optim.Adam(hidden_state_transformer.parameters(), lr=0.001)  # You can tune the learning rate
+    num_epochs = 10  # Set the number of epochs for training
+    # Call the training function
+    train_model(src_model, tgt_model, hidden_state_transformer, src_inputs, tgt_inputs, optimizer, criterion, num_epochs, device)
+
+    # Saving the weights of the HiddenStateTransformer
+    torch.save(hidden_state_transformer.state_dict(), model_save_path)
 
     # Loading the model
     hidden_state_transformer = load_hidden_state_transformer(model_save_path, input_size, output_size, num_layers,
