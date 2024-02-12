@@ -32,10 +32,11 @@ tokenizer = MarianTokenizer.from_pretrained(model_name)
 model = MarianMTModel.from_pretrained(model_name)
 
 def translator_activation_different_layer(hidden_states, nlayer=0):
-    original_layer = model.model.encoder.layers[nlayer]
+    original_layer = model.opt_model.encoder.layers[nlayer]
     wrapped_layer = CustomLayerWrapper(original_layer, hidden_states)
-    model.model.encoder.layers[nlayer] = wrapped_layer
+    model.opt_model.encoder.layers[nlayer] = wrapped_layer
 
+    # TODO depends on the input size
     inputs = tokenizer("It", return_tensors="pt")
     decoder_start_token_id = tokenizer.pad_token_id
     decoder_input_ids = torch.full((inputs.input_ids.size(0), 1), decoder_start_token_id, dtype=torch.long).to(inputs.input_ids.device)
@@ -50,7 +51,7 @@ def translator_activation_different_layer(hidden_states, nlayer=0):
     return outputs, generated_text
 
 if __name__ == '__main__':
-    inputs = tokenizer("Hello", return_tensors="pt")
+    inputs = tokenizer("Dad", return_tensors="pt")
     decoder_start_token_id = tokenizer.pad_token_id
     decoder_input_ids = torch.full((inputs.input_ids.size(0), 1), decoder_start_token_id, dtype=torch.long).to(
         inputs.input_ids.device)
