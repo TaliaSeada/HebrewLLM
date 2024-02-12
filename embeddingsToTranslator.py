@@ -32,9 +32,9 @@ tokenizer = MarianTokenizer.from_pretrained(model_name)
 model = MarianMTModel.from_pretrained(model_name)
 
 def translator_activation_different_layer(hidden_states, nlayer=0):
-    original_layer = model.opt_model.encoder.layers[nlayer]
+    original_layer = model.model.encoder.layers[nlayer]
     wrapped_layer = CustomLayerWrapper(original_layer, hidden_states)
-    model.opt_model.encoder.layers[nlayer] = wrapped_layer
+    model.model.encoder.layers[nlayer] = wrapped_layer
 
     # TODO depends on the input size
     inputs = tokenizer("It", return_tensors="pt")
