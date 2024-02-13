@@ -69,66 +69,74 @@ class HiddenStateTransformer(nn.Module):
         return self.network(x)
 
 # training
-def train_transformer(X_train, X_val, Y_train, Y_val, input_dim, output_dim, epochs=10, batch_size=32, learning_rate=1e-4):
+from torch.utils.data import DataLoader, Dataset
+from torch.nn.utils.rnn import pad_sequence
+# Custom Dataset to handle lists of tensors
+class TensorDataset(Dataset):
+    def __init__(self, X, y):
+        self.X = X
+        self.y = y
+
+    def __len__(self):
+        return len(self.X)
+
+    def __getitem__(self, idx):
+        return self.X[idx], self.y[idx]
+
+
+# Example of verifying and preparing tensors before padding
+def custom_collate_fn(batch):
+    X_batch, y_batch = zip(*batch)
+    X_padded = pad_sequence([x.squeeze(0) for x in X_batch], batch_first=True, padding_value=0)
+    y_padded = pad_sequence([y.squeeze(0) for y in y_batch], batch_first=True, padding_value=0)
+    return X_padded, y_padded
+
+torch.autograd.set_detect_anomaly(True)
+# Revised training function
+def train_transformer(X_train, X_val, Y_train, Y_val, input_dim, output_dim, epochs=100, batch_size=32, learning_rate=1e-4):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = HiddenStateTransformer(input_dim=input_dim, output_dim=output_dim).to(device)
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-    # Convert datasets to tensor and move to the correct device
-    X_train_tensor = torch.tensor(X_train, dtype=torch.float32).to(device)
-    Y_train_tensor = torch.tensor(Y_train, dtype=torch.float32).to(device)
-    X_val_tensor = torch.tensor(X_val, dtype=torch.float32).to(device)
-    Y_val_tensor = torch.tensor(Y_val, dtype=torch.float32).to(device)
+    # Create DataLoader instances for training and validation sets
+    train_loader = DataLoader(TensorDataset(X_train, Y_train), batch_size=batch_size, shuffle=True, collate_fn=custom_collate_fn)
+    val_loader = DataLoader(TensorDataset(X_val, Y_val), batch_size=batch_size, shuffle=False, collate_fn=custom_collate_fn)
 
     for epoch in range(epochs):
         model.train()
         total_loss = 0
-        for i in range(0, len(X_train), batch_size):
-            X_batch = X_train_tensor[i:i+batch_size]
-            Y_batch = Y_train_tensor[i:i+batch_size]
+        for X_batch, Y_batch in train_loader:
+            X_batch, Y_batch = X_batch.to(device), Y_batch.to(device)
 
-            optimizer.zero_grad()
+            optimizer.zero_grad()  # Ensure gradients are zeroed correctly here
             outputs = model(X_batch)
             loss = criterion(outputs, Y_batch)
-            loss.backward()
+            loss.backward(retain_graph=True)
             optimizer.step()
 
             total_loss += loss.item()
 
         # Validation phase
         model.eval()
+        val_loss = 0
         with torch.no_grad():
-            val_loss = 0
-            for i in range(0, len(X_val), batch_size):
-                X_batch = X_val_tensor[i:i+batch_size]
-                Y_batch = Y_val_tensor[i:i+batch_size]
+            for X_batch, Y_batch in val_loader:
+                X_batch, Y_batch = X_batch.to(device), Y_batch.to(device)
                 outputs = model(X_batch)
                 loss = criterion(outputs, Y_batch)
                 val_loss += loss.item()
 
-        print(f"Epoch {epoch+1}, Training Loss: {total_loss / (len(X_train) / batch_size)}, Validation Loss: {val_loss / (len(X_val) / batch_size)}")
+        print(f"Epoch {epoch+1}, Training Loss: {total_loss / len(train_loader)}, Validation Loss: {val_loss / len(val_loader)}")
 
     return model
 
-
+# Main execution
 if __name__ == '__main__':
-    # split
-    X_train, X_val, Y_train, Y_val = train_test_split(X, y, test_size=0.2)
-    X
-    input_dim = 512
+    # Split data
+    X_train, X_val, Y_train, Y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+    input_dim = 512  # Assuming this is the correct size based on your model architecture
     output_dim = 512
     train_transformer(X_train, X_val, Y_train, Y_val, input_dim, output_dim)
 
 
-
-"""
-we have:
- opt_hidden_state and translator_hidden_state
- * take only the "good" ones
- make test and train sets
- 
-we need:
- build a transformer
- build a training function
-"""
