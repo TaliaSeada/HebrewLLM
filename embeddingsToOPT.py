@@ -11,13 +11,6 @@ def your_input_modification(hidden_states):
     modified_states = hidden_states
     return modified_states
 
-
-# Load the tokenizer and model
-model_name = "facebook/opt-350m"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = OPTForCausalLM.from_pretrained(model_name)
-
-
 class CustomLayerWrapper(nn.Module):
     def __init__(self, layer, hidden_states):
         super().__init__()
@@ -35,6 +28,11 @@ class CustomLayerWrapper(nn.Module):
 
 
 def OPT_activation_different_layer(hidden_states, nlayer):
+    # Load the tokenizer and model
+    model_name = "facebook/opt-350m"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = OPTForCausalLM.from_pretrained(model_name)
+
     # Create an instance of the layer you want to modify
     custom_layer = model.base_model.decoder.layers[nlayer]
     # Wrap the layer inside the custom wrapper
@@ -57,6 +55,7 @@ def OPT_activation_different_layer(hidden_states, nlayer):
     generated_text = tokenizer.decode(token_ids[0], skip_special_tokens=True)
     # Print the generated text
     # print("Generated Text: ", generated_text)
+
 
     return outputs, generated_text
 

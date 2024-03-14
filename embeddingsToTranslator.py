@@ -25,13 +25,18 @@ class CustomLayerWrapper(nn.Module):
         return self.layer(modified_hidden_states, attention_mask, **kwargs)
 
 
-
 # Load the model and tokenizer
 model_name = "Helsinki-NLP/opus-mt-en-he"
 tokenizer = MarianTokenizer.from_pretrained(model_name)
 model = MarianMTModel.from_pretrained(model_name)
 
+
 def translator_activation_different_layer(hidden_states, nlayer=0):
+    # Load the model and tokenizer
+    model_name = "Helsinki-NLP/opus-mt-en-he"
+    tokenizer = MarianTokenizer.from_pretrained(model_name)
+    model = MarianMTModel.from_pretrained(model_name)
+
     original_layer = model.model.encoder.layers[nlayer]
     wrapped_layer = CustomLayerWrapper(original_layer, hidden_states)
     model.model.encoder.layers[nlayer] = wrapped_layer
@@ -41,7 +46,7 @@ def translator_activation_different_layer(hidden_states, nlayer=0):
     decoder_start_token_id = tokenizer.pad_token_id
     decoder_input_ids = torch.full((inputs.input_ids.size(0), 1), decoder_start_token_id, dtype=torch.long).to(inputs.input_ids.device)
 
-    # Custom model call (example)
+    # Custom model call
     outputs = model(input_ids=inputs.input_ids, decoder_input_ids=decoder_input_ids, output_hidden_states=True)
 
     generated_ids = model.generate(inputs.input_ids)
@@ -50,17 +55,17 @@ def translator_activation_different_layer(hidden_states, nlayer=0):
     # print("Generated Text: ", generated_text)
     return outputs, generated_text
 
-if __name__ == '__main__':
-    inputs = tokenizer("Dad", return_tensors="pt")
-    decoder_start_token_id = tokenizer.pad_token_id
-    decoder_input_ids = torch.full((inputs.input_ids.size(0), 1), decoder_start_token_id, dtype=torch.long).to(
-        inputs.input_ids.device)
-
-    outputs = model(input_ids=inputs.input_ids, decoder_input_ids=decoder_input_ids, output_hidden_states=True)
-
-    layer = 0
-    hs = outputs.encoder_hidden_states[layer]
-
-    output, generated_text = translator_activation_different_layer(hidden_states=hs, nlayer=layer)
-    print(generated_text)
+# if __name__ == '__main__':
+#     inputs = tokenizer("Dad", return_tensors="pt")
+#     decoder_start_token_id = tokenizer.pad_token_id
+#     decoder_input_ids = torch.full((inputs.input_ids.size(0), 1), decoder_start_token_id, dtype=torch.long).to(
+#         inputs.input_ids.device)
+#
+#     outputs = model(input_ids=inputs.input_ids, decoder_input_ids=decoder_input_ids, output_hidden_states=True)
+#
+#     layer = 0
+#     hs = outputs.encoder_hidden_states[layer]
+#
+#     output, generated_text = translator_activation_different_layer(hidden_states=hs, nlayer=layer)
+#     print(generated_text)
 
