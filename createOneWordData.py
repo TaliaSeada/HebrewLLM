@@ -32,13 +32,15 @@ translator_layer_en = 1
 if __name__ == '__main__':
     # Load data using the link above
     # TODO change to the link, TEMPORARY
-    data_path = 'C:\\Users\\talia\\PycharmProjects\\TranslatorGPT\\resources\\dict.csv'
+    data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\resources\\dict.csv'
     df = pd.read_csv(data_path)
+    df['translation'] = df['translation'].astype(str)
 
     # Prepare data
     data = []
     for i, row in df.iterrows():
         prompt = row['translation']
+
 
         # OPT last layer
         opt_inputs = opt_tokenizer(prompt, return_tensors="pt")
@@ -78,5 +80,3 @@ if __name__ == '__main__':
     df_final.to_csv(csv_filename, index=False)
 
     print("CSV file saved successfully as:", csv_filename)
-
-
