@@ -32,15 +32,19 @@ translator_layer_en = 1
 if __name__ == '__main__':
     # Load data using the link above
     # TODO change to the link, TEMPORARY
-    data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\resources\\dict.csv'
+    # data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\resources\\dict.csv'
+    # data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\resources\\valid_guesses.csv'
+    data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\resources\\words_pos.csv'
+
     df = pd.read_csv(data_path)
-    df['translation'] = df['translation'].astype(str)
+    df['word'] = df['word'].astype(str)
+    print(df)
 
     # Prepare data
     data = []
     for i, row in df.iterrows():
-        prompt = row['translation']
-
+        prompt = row['word']
+        # print(prompt)
 
         # OPT last layer
         opt_inputs = opt_tokenizer(prompt, return_tensors="pt")
@@ -55,7 +59,6 @@ if __name__ == '__main__':
         translator_outputs = translator_model_en(input_ids=translator_inputs.input_ids,
                                               decoder_input_ids=decoder_input_ids, output_hidden_states=True)
         translator_hidden_state = translator_outputs.encoder_hidden_states[translator_layer_en]
-
 
         # Filter out long words
         if opt_hidden_state.shape[1] != 2 or translator_hidden_state.shape[1] != 2:
@@ -76,7 +79,7 @@ if __name__ == '__main__':
     df_final = pd.DataFrame(data, columns=['English', 'Hebrew'])
 
     # Save DataFrame to CSV
-    csv_filename = 'translated_data.csv'
+    csv_filename = 'English_one_token.csv'
     df_final.to_csv(csv_filename, index=False)
 
     print("CSV file saved successfully as:", csv_filename)
