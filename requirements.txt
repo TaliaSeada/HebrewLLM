@@ -1,9 +1,11 @@
 keras==3.2.0
 nltk==3.8.1
 numpy==1.26.4
-openai==1.16.2
-pandas==2.2.1
-scikit_learn==1.4.2
+openai==1.24.0
+pandas==2.2.2
 tensorflow==2.16.1
+tensorflow_intel==2.16.1
 torch==2.2.2
 transformers==4.39.3
+scikit-learn~=1.4.2
+ollama~=0.1.9

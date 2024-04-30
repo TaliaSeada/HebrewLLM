@@ -121,7 +121,7 @@ def evaluate_model(model, test_loader, criterion):
 if __name__ == '__main__':
     # Load data
     # data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\resources\\dict.csv'
-    data_path= 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\English_Hebrew_one_token.csv'
+    data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\English_Hebrew_one_token.csv'
     # data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\English_one_token.csv'
     df = pd.read_csv(data_path)
     # df['translation'] = df['translation'].astype(str)
