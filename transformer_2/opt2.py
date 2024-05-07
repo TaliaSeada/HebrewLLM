@@ -5,15 +5,18 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, Dataset
 from torch.nn.utils.rnn import pad_sequence
-
+from torch.nn import TransformerEncoder, TransformerEncoderLayer
 from embeddingsToTranslator import translator_activation_different_layer
+import torch.nn.functional as F
+
+import math
 
 # opt
 model_to_use = "350m"
 opt_model = OPTForCausalLM.from_pretrained("facebook/opt-" + model_to_use)
 opt_tokenizer = AutoTokenizer.from_pretrained("facebook/opt-" + model_to_use)
 opt_layer = -1
-
+device = "cuda" if torch.cuda.is_available() else "cpu"
 # translator
 model_name = "Helsinki-NLP/opus-mt-en-he"
 translator_model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
@@ -22,24 +25,67 @@ translator_layer = 1
 
 
 # transformer
+# class HiddenStateTransformer(nn.Module):
+#     def __init__(self, input_dim, output_dim, hidden_dim=64, num_layers=10, dropout=0.3):
+#         super().__init__()
+#         self.input_dim = input_dim
+#         self.output_dim = output_dim
+#         self.num_layers = num_layers
+#
+#         layers = []
+#         for _ in range(num_layers):
+#             layers.append(nn.Linear(input_dim, hidden_dim))
+#             layers.append(nn.ReLU())
+#             layers.append(nn.Dropout(dropout))
+#             input_dim = hidden_dim
+#         layers.append(nn.Linear(hidden_dim, output_dim))
+#         self.network = nn.Sequential(*layers)
+#
+#     def forward(self, x):
+#         return self.network(x)
 class HiddenStateTransformer(nn.Module):
-    def __init__(self, input_dim, output_dim, hidden_dim=128, num_layers=2, dropout=0.1):
-        super().__init__()
-        self.input_dim = input_dim
-        self.output_dim = output_dim
-        self.num_layers = num_layers
+    def __init__(self, input_size, output_size, num_layers, num_heads, dim_feedforward, dropout=0.1):
+        super(HiddenStateTransformer, self).__init__()
+        self.input_size = input_size
+        self.output_size = output_size
 
-        layers = []
-        for _ in range(num_layers):
-            layers.append(nn.Linear(input_dim, hidden_dim))
-            layers.append(nn.ReLU())
-            layers.append(nn.Dropout(dropout))
-            input_dim = hidden_dim
-        layers.append(nn.Linear(hidden_dim, output_dim))
-        self.network = nn.Sequential(*layers)
+        # Transformer Encoder Layer
+        encoder_layers = TransformerEncoderLayer(d_model=input_size, nhead=num_heads,
+                                                 dim_feedforward=dim_feedforward, dropout=dropout, activation=F.relu)
+        encoder_layers.self_attn.batch_first = True
+        # encoder_layers.activation_relu_or_gelu=True
+        self.transformer_encoder = TransformerEncoder(encoder_layers, num_layers,
+                                                      enable_nested_tensor=1 - (num_heads % 2))
 
-    def forward(self, x):
-        return self.network(x)
+        # Linear layer to map to the target hidden size
+        self.fc = nn.Linear(input_size, 512)
+
+    def forward(self, src):
+        # src shape: (seq_length, batch_size, input_size)
+        encoded = self.transformer_encoder(src)
+        # encoded shape: (seq_length, batch_size, input_size)
+        # Apply ReLU activation function
+        # activated = F.relu(encoded)
+        output = self.fc(encoded)
+        # output shape: (seq_length, batch_size, output_size)
+        return output
+# class HiddenStateTransformer(nn.Module):
+#     def __init__(self, input_dim, output_dim, num_layers=1, hidden_dim=128, num_heads=8, dropout=0.1):
+#         super(HiddenStateTransformer, self).__init__()
+#
+#         self.embedding = nn.Linear(input_dim, hidden_dim)
+#         encoder_layer = nn.TransformerEncoderLayer(d_model=hidden_dim, nhead=num_heads)
+#         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+#         self.fc = nn.Linear(hidden_dim, output_dim)
+#
+#     def forward(self, x):
+#         x = self.embedding(x)
+#         x = x.permute(1, 0, 2)  # Transformer expects (seq_len, batch, features)
+#         x = self.transformer_encoder(x)
+#         x = x.permute(1, 0, 2)  # Back to (batch, seq_len, features)
+#         x = self.fc(x)  # Use only the last hidden state
+#         return x
+
 
 # Custom Dataset to handle pairs of tensors
 class TensorDataset(Dataset):
@@ -61,32 +107,36 @@ def custom_collate_fn(batch):
 
 
 # Training function with gradient accumulation
-def train_transformer(train_loader, val_loader, input_dim, output_dim, epochs=10, learning_rate=0.001, accumulate_gradients_every=1):
-    model = HiddenStateTransformer(input_dim=input_dim, output_dim=output_dim)
+def train_transformer(train_loader, val_loader, input_size, output_size, epochs=10, learning_rate=0.01, accumulate_gradients_every=1):
+    # model = HiddenStateTransformer(input_dim=input_dim, output_dim=output_dim)
+    model = HiddenStateTransformer(input_size, output_size, num_layers, num_heads, dim_feedforward,
+                                                      dropout) #.to(device)
     criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    # optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
     accumulate_steps = 0
     total_loss = 0
-
+    model = torch.load('model_entire_layer.pth')
     for epoch in range(epochs):
-        model.train()
+        model.train(True)
         for X_batch, Y_batch in train_loader:
             optimizer.zero_grad()
             outputs = model(X_batch)
             loss = criterion(outputs, Y_batch)
-            loss.backward(retain_graph=True)
-
+            loss.backward()
+            optimizer.step()
             total_loss += loss.item()
             accumulate_steps += 1
 
             # Perform optimization step after accumulating gradients for specified number of steps
-            if accumulate_steps % accumulate_gradients_every == 0:
-                optimizer.step()
-                optimizer.zero_grad()
+            if accumulate_steps == accumulate_gradients_every:
+                # optimizer.step()
                 print(f"Epoch {epoch + 1}, Batch Loss: {total_loss / accumulate_steps}")
-                total_loss = 0
                 accumulate_steps = 0
+                total_loss = 0
+                torch.save(model, 'model_entire_layer.pth')
+
 
         # Validation phase
         model.eval()
@@ -101,7 +151,7 @@ def train_transformer(train_loader, val_loader, input_dim, output_dim, epochs=10
 
     # Save the entire model
     # torch.save(model, 'model_entire_layer0.pth')
-    torch.save(model, 'model_entire_layer1.pth')
+    # torch.save(model, 'model_entire_layer1.pth')
     return model
 
 # Evaluation function
@@ -119,43 +169,57 @@ def evaluate_model(model, test_loader, criterion):
 
 
 if __name__ == '__main__':
+    num_layers = 2  # Example, you can tune this
+    num_heads = 1  # Example, you can tune this
+    dim_feedforward = 128  # Example, you can tune this
+    dropout = 0.1  # Example, you can tune this
     # Load data
     # data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\resources\\dict.csv'
-    data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\English_Hebrew_one_token.csv'
-    # data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\English_one_token.csv'
+    # data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\English_Hebrew_one_token.csv'
+    data_path = '/home/ubuntu/PycharmProjects/HebrewLLM/English_one_token.csv'
     df = pd.read_csv(data_path)
     # df['translation'] = df['translation'].astype(str)
     df['English'] = df['English'].astype(str)
 
     # Prepare data
-    data = []
-    for i, row in df.iterrows():
-        # prompt = row['translation']
-        prompt = row['English']
-
-        # OPT last layer
-        opt_inputs = opt_tokenizer(prompt, return_tensors="pt")
-        opt_outputs = opt_model(**opt_inputs, output_hidden_states=True)
-        opt_hidden_state = opt_outputs.hidden_states[opt_layer]
-
-        # Translator first layer
-        translator_inputs = translator_tokenizer(prompt, return_tensors="pt")
-        decoder_start_token_id = translator_tokenizer.pad_token_id
-        decoder_input_ids = torch.full((translator_inputs.input_ids.size(0), 1), decoder_start_token_id,
-                                       dtype=torch.long)
-        translator_outputs = translator_model(input_ids=translator_inputs.input_ids,
-                                              decoder_input_ids=decoder_input_ids, output_hidden_states=True)
-        translator_hidden_state = translator_outputs.encoder_hidden_states[translator_layer]
-
-        # # Filter out long words
-        # if opt_hidden_state.shape[1] != 2 or translator_hidden_state.shape[1] != 2:
-        #     continue
-
-        data.append((opt_hidden_state, translator_hidden_state))
-
-    # Split data into train, validation, and test sets
-    train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
-    train_data, val_data = train_test_split(train_data, test_size=0.2, random_state=42)
+    # data = []
+    # for i, row in df.iterrows():
+    #     if i>100:
+    #         break
+    #     # prompt = row['translation']
+    #     prompt = row['English']
+    #
+    #     # OPT last layer
+    #     opt_inputs = opt_tokenizer(prompt, return_tensors="pt")
+    #     opt_outputs = opt_model(**opt_inputs, output_hidden_states=True)
+    #     opt_hidden_state = opt_outputs.hidden_states[opt_layer]
+    #
+    #     # Translator first layer
+    #     translator_inputs = translator_tokenizer(prompt, return_tensors="pt")
+    #     decoder_start_token_id = translator_tokenizer.pad_token_id
+    #     decoder_input_ids = torch.full((translator_inputs.input_ids.size(0), 1), decoder_start_token_id,
+    #                                    dtype=torch.long)
+    #     translator_outputs = translator_model(input_ids=translator_inputs.input_ids,
+    #                                           decoder_input_ids=decoder_input_ids, output_hidden_states=True)
+    #     translator_hidden_state = translator_outputs.encoder_hidden_states[translator_layer]
+    #
+    #     # # Filter out long words
+    #     # if opt_hidden_state.shape[1] != 2 or translator_hidden_state.shape[1] != 2:
+    #     #     continue
+    #     a = [opt_hidden_state[0][1]]
+    #     data.append((a, translator_hidden_state))
+    #
+    #
+    #
+    # # Split data into train, validation, and test sets
+    # train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
+    # train_data, val_data = train_test_split(train_data, test_size=0.2, random_state=42)
+    #
+    # # Save data
+    # torch.save((train_data, val_data, test_data), 'data1.pt')
+    #
+    # Load data
+    train_data, val_data, test_data = torch.load('data.pt')
 
     # Create data loaders
     batch_size = 16  # Reduce batch size for memory optimization
@@ -166,14 +230,14 @@ if __name__ == '__main__':
                              collate_fn=custom_collate_fn)
 
     # Train the model
-    input_dim = opt_hidden_state.shape[-1]
-    output_dim = translator_hidden_state.shape[-1]
+    input_dim = 512 #opt_hidden_state.shape[-1]
+    output_dim = 512 #translator_hidden_state.shape[-1]
     hidden_dim = 128
     num_layers = 2
 
     # Train the model with gradient accumulation
-    model = train_transformer(train_loader, val_loader, input_dim, output_dim, epochs=10, learning_rate=0.001,
-                              accumulate_gradients_every=4)
+    model = train_transformer(train_loader, val_loader, input_dim, output_dim, epochs=0, learning_rate=0.001,
+                              accumulate_gradients_every=40)
 
     # Evaluate the model
     # model = torch.load('model_entire_layer1.pth')
@@ -182,7 +246,7 @@ if __name__ == '__main__':
     evaluate_model(model, test_loader, criterion)
 
     print("--------- CHECK ----------")
-    prompt = "Hello"
+    prompt = "Yes"
     opt_inputs = opt_tokenizer(prompt, return_tensors="pt")
     opt_outputs = opt_model(**opt_inputs, output_hidden_states=True)
     opt_hidden_state = opt_outputs.hidden_states[opt_layer]
