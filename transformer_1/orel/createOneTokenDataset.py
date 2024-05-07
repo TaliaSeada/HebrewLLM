@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from transformers import MarianTokenizer,MarianMTModel, AutoTokenizer, OPTForCausalLM
 import csv
-
+import time
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -14,10 +14,21 @@ def create_empty_csv(path: str, headers = ['statement', 'translation']):
 
 
 def write_data_to_csv(data, headers = ['statement', 'translation'], path = "resources/big_one_token_dataset.csv"):
-    with open(path, 'w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=headers)
-        for statement, translation in data.items():
-            writer.writerow({'statement': statement, 'translation': translation})
+    df_final = pd.DataFrame(list(data.items()), columns=['statement', 'translation'])
+
+    # Save DataFrame to CSV
+    df_final.to_csv(path, index=False)
+
+    print("CSV file saved successfully as:", path)
+
+
+def log_used_songs(fromSong: int, toSong:int, log_file_path = "resources/logs/used_songs_one_token.log"):
+    message = f"Song {fromSong} - {toSong} were used.\n"
+    
+    print(message)
+    
+    with open(log_file_path, 'a') as file:
+        file.write(message)  # Append the log entry to the file
 
 
 def create_one_token_words_data(fromSong: int, toSong:int, df: pd.DataFrame, hebrew_english_dict = {}):
@@ -30,6 +41,9 @@ def create_one_token_words_data(fromSong: int, toSong:int, df: pd.DataFrame, heb
     # OPT model
     OPT_model_name = "facebook/opt-350m"
     OPT_tokenizer = AutoTokenizer.from_pretrained(OPT_model_name)
+    
+    # Start the timer
+    start_time = time.time()
     
     for i in range(fromSong,toSong):
         # ============= Get text to translate ============= 
@@ -62,7 +76,14 @@ def create_one_token_words_data(fromSong: int, toSong:int, df: pd.DataFrame, heb
                     if opt_inputs.input_ids.size(1) == 2:
                         hebrew_english_dict[hebrew_word] = english_text
         if (i - fromSong)% 10 == 0:
-            print(f"{i - fromSong}/{toSong - fromSong} that is: {i/toSong - fromSong}% done.")
+            
+            # Current time
+            curr_time = time.time()
+            
+            print(f"{i - fromSong}/{toSong - fromSong} that is: {(i - fromSong)/(toSong - fromSong)*100}% done, running time = {curr_time - start_time} sec.")
+
+            if i > fromSong:
+                log_used_songs(fromSong= (i - 10), toSong= i)
             write_data_to_csv(hebrew_english_dict)
 
 
@@ -85,15 +106,6 @@ def create_dataset(fromSong: int, toSong:int, songsDataPath = 'resources/HeSongs
 
 
 
-
-
-# create_dataset(1470)
-a = {}
-a['b'] = 'c'
-a['d'] = 'e'
-
-# create_empty_csv("resources/big_one_token_dataset.csv")
-# append_data_to_csv("resources/big_one_token_dataset.csv",a)
-create_dataset(0,30)
-
-
+# # create_empty_csv("resources/big_one_token_dataset.csv")
+# # append_data_to_csv("resources/big_one_token_dataset.csv",a)
+# create_dataset(50,70)
