@@ -69,6 +69,8 @@ class HiddenStateTransformer(nn.Module):
         output = self.fc(encoded)
         # output shape: (seq_length, batch_size, output_size)
         return output
+
+
 # class HiddenStateTransformer(nn.Module):
 #     def __init__(self, input_dim, output_dim, num_layers=1, hidden_dim=128, num_heads=8, dropout=0.1):
 #         super(HiddenStateTransformer, self).__init__()
@@ -98,6 +100,7 @@ class TensorDataset(Dataset):
     def __getitem__(self, idx):
         return self.data[idx]
 
+
 # Custom collate function
 def custom_collate_fn(batch):
     X_batch, Y_batch = zip(*batch)
@@ -107,17 +110,17 @@ def custom_collate_fn(batch):
 
 
 # Training function with gradient accumulation
-def train_transformer(train_loader, val_loader, input_size, output_size, epochs=10, learning_rate=0.01, accumulate_gradients_every=1):
+def train_transformer(train_loader, val_loader, input_size, output_size, epochs=10, learning_rate=0.01,
+                      accumulate_gradients_every=1):
     # model = HiddenStateTransformer(input_dim=input_dim, output_dim=output_dim)
-    model = HiddenStateTransformer(input_size, output_size, num_layers, num_heads, dim_feedforward,
-                                                      dropout) #.to(device)
+    model = HiddenStateTransformer(input_size, output_size, num_layers, num_heads, dim_feedforward, dropout)
     criterion = nn.MSELoss()
     # optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
     accumulate_steps = 0
     total_loss = 0
-    model = torch.load('model_entire_layer.pth')
+    # model = torch.load('model_entire_layer.pth')
     for epoch in range(epochs):
         model.train(True)
         for X_batch, Y_batch in train_loader:
@@ -137,7 +140,6 @@ def train_transformer(train_loader, val_loader, input_size, output_size, epochs=
                 total_loss = 0
                 torch.save(model, 'model_entire_layer.pth')
 
-
         # Validation phase
         model.eval()
         with torch.no_grad():
@@ -153,6 +155,7 @@ def train_transformer(train_loader, val_loader, input_size, output_size, epochs=
     # torch.save(model, 'model_entire_layer0.pth')
     # torch.save(model, 'model_entire_layer1.pth')
     return model
+
 
 # Evaluation function
 def evaluate_model(model, test_loader, criterion):
@@ -176,7 +179,8 @@ if __name__ == '__main__':
     # Load data
     # data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\resources\\dict.csv'
     # data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\English_Hebrew_one_token.csv'
-    data_path = '/home/ubuntu/PycharmProjects/HebrewLLM/English_one_token.csv'
+    # data_path = '/home/ubuntu/PycharmProjects/HebrewLLM/English_one_token.csv'
+    data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\English_one_token.csv'
     df = pd.read_csv(data_path)
     # df['translation'] = df['translation'].astype(str)
     df['English'] = df['English'].astype(str)
@@ -184,8 +188,8 @@ if __name__ == '__main__':
     # Prepare data
     # data = []
     # for i, row in df.iterrows():
-    #     if i>100:
-    #         break
+    #     # if i > 500:
+    #     #     break
     #     # prompt = row['translation']
     #     prompt = row['English']
     #
@@ -206,10 +210,9 @@ if __name__ == '__main__':
     #     # # Filter out long words
     #     # if opt_hidden_state.shape[1] != 2 or translator_hidden_state.shape[1] != 2:
     #     #     continue
-    #     a = [opt_hidden_state[0][1]]
-    #     data.append((a, translator_hidden_state))
-    #
-    #
+    #     # a = [opt_hidden_state[0][1]]
+    #     # data.append((a, translator_hidden_state))
+    #     data.append((opt_hidden_state, translator_hidden_state))
     #
     # # Split data into train, validation, and test sets
     # train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
@@ -217,12 +220,12 @@ if __name__ == '__main__':
     #
     # # Save data
     # torch.save((train_data, val_data, test_data), 'data1.pt')
-    #
+
     # Load data
-    train_data, val_data, test_data = torch.load('data.pt')
+    train_data, val_data, test_data = torch.load('data1.pt')
 
     # Create data loaders
-    batch_size = 16  # Reduce batch size for memory optimization
+    batch_size = 64  # Reduce batch size for memory optimization
     train_loader = DataLoader(TensorDataset(train_data), batch_size=batch_size, shuffle=True,
                               collate_fn=custom_collate_fn)
     val_loader = DataLoader(TensorDataset(val_data), batch_size=batch_size, shuffle=False, collate_fn=custom_collate_fn)
@@ -230,23 +233,22 @@ if __name__ == '__main__':
                              collate_fn=custom_collate_fn)
 
     # Train the model
-    input_dim = 512 #opt_hidden_state.shape[-1]
-    output_dim = 512 #translator_hidden_state.shape[-1]
+    input_dim = 512  #opt_hidden_state.shape[-1]
+    output_dim = 512  #translator_hidden_state.shape[-1]
     hidden_dim = 128
-    num_layers = 2
 
     # Train the model with gradient accumulation
-    model = train_transformer(train_loader, val_loader, input_dim, output_dim, epochs=0, learning_rate=0.001,
-                              accumulate_gradients_every=40)
+    # model = train_transformer(train_loader, val_loader, input_dim, output_dim, epochs=10, learning_rate=0.0001,
+    #                           accumulate_gradients_every=10)
 
     # Evaluate the model
-    # model = torch.load('model_entire_layer1.pth')
+    model = torch.load('model_entire_layer.pth')
     model.eval()
-    criterion = nn.MSELoss()
-    evaluate_model(model, test_loader, criterion)
+    # criterion = nn.MSELoss()
+    # evaluate_model(model, test_loader, criterion)
 
     print("--------- CHECK ----------")
-    prompt = "Yes"
+    prompt = "add"
     opt_inputs = opt_tokenizer(prompt, return_tensors="pt")
     opt_outputs = opt_model(**opt_inputs, output_hidden_states=True)
     opt_hidden_state = opt_outputs.hidden_states[opt_layer]
@@ -255,6 +257,5 @@ if __name__ == '__main__':
 
     layer = 1
     outputs, generated_text = translator_activation_different_layer(hidden_states, layer)
-
-    print(generated_text)
-
+    print("Word: " + prompt)
+    print("Result: " + generated_text)

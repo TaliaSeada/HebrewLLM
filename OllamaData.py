@@ -101,10 +101,10 @@ if __name__ == '__main__':
 
     similarity_scores = []
     for index, row in df.iterrows():
-        if index == 1000:
+        print(index)
+        if index == 101:
             break
         user_input = row['Hebrew sentence']
-        print(index)
 
         # Translate user input from Hebrew to English
         en_sent = translate_heb2en(user_input)
@@ -117,8 +117,15 @@ if __name__ == '__main__':
         # OPT-350m
         prompt = en_sent.rstrip(". ")
         inputs = tokenizer(prompt, return_tensors="pt")
-        outputs = model.generate(inputs.input_ids, max_length=512, num_return_sequences=1, num_beams=5,
-                                 early_stopping=True)
+        outputs = model.generate(inputs.input_ids,
+                                 max_length=100,
+                                 num_return_sequences=3,
+                                 num_beams=5,
+                                 top_k=50,
+                                 early_stopping=True,
+                                 do_sample=True,  # Enable sampling
+                                 top_p=0.95,
+                                 temperature=0.9)
         en_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
         # Translate response from English to Hebrew
