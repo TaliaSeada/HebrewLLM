@@ -4,22 +4,30 @@ import torch
 from transformers import MarianTokenizer,MarianMTModel, AutoTokenizer, OPTForCausalLM
 import csv
 import time
+import os
+
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-def create_empty_csv(path: str, headers = ['statement', 'translation']):
-    with open(path, 'w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=headers)
-        writer.writeheader()
+# def create_empty_csv(path: str, headers = ['statement', 'translation']):
+#     with open(path, 'w', newline='') as file:
+#         writer = csv.DictWriter(file, fieldnames=headers)
+#         writer.writeheader()
 
 
 def write_data_to_csv(data, headers = ['statement', 'translation'], path = "resources/big_one_token_dataset.csv"):
-    df_final = pd.DataFrame(list(data.items()), columns=['statement', 'translation'])
+    df_final = pd.DataFrame(list(data.items()), columns=headers)
+    
+    # Check if the file already exists to determine if we need to write the header
+    if os.path.exists(path):
+        header = False  # Don't write header
+    else:
+        header = True  # Write header
 
-    # Save DataFrame to CSV
-    df_final.to_csv(path, index=False)
-
-    print("CSV file saved successfully as:", path)
+    # Append DataFrame to CSV, without writing the index
+    df_final.to_csv(path, mode='a', index=False, header=header)
+    
+    print(f"Saved new data successfully to: {path}")
 
 
 def log_used_songs(fromSong: int, toSong:int, log_file_path = "resources/logs/used_songs_one_token.log"):
@@ -46,6 +54,9 @@ def create_one_token_words_data(fromSong: int, toSong:int, df: pd.DataFrame, heb
     start_time = time.time()
     
     for i in range(fromSong,toSong):
+        
+        new_words = {}
+        
         # ============= Get text to translate ============= 
         # Extract the 'songs' column as a list
         songs_list = df['songs'].iloc[i].strip('][').split(', ')
@@ -75,6 +86,8 @@ def create_one_token_words_data(fromSong: int, toSong:int, df: pd.DataFrame, heb
                     
                     if opt_inputs.input_ids.size(1) == 2:
                         hebrew_english_dict[hebrew_word] = english_text
+                        new_words[hebrew_word] = english_text
+
         if (i - fromSong)% 10 == 0:
             
             # Current time
@@ -84,7 +97,12 @@ def create_one_token_words_data(fromSong: int, toSong:int, df: pd.DataFrame, heb
 
             if i > fromSong:
                 log_used_songs(fromSong= (i - 10), toSong= i)
-            write_data_to_csv(hebrew_english_dict)
+
+            # Append the new words to csv
+            write_data_to_csv(new_words)
+            
+            # Clear the dict, cause we dont want dups
+            new_words.clear()
 
 
 def create_dataset(fromSong: int, toSong:int, songsDataPath = 'resources/HeSongsWords.csv', existing_dataset_path = "resources/big_one_token_dataset.csv"):
@@ -106,6 +124,6 @@ def create_dataset(fromSong: int, toSong:int, songsDataPath = 'resources/HeSongs
 
 
 
-# # create_empty_csv("resources/big_one_token_dataset.csv")
+# # create_empty_csv("resources/try.csv")
 # # append_data_to_csv("resources/big_one_token_dataset.csv",a)
-# create_dataset(50,70)
+create_dataset(40,70)
