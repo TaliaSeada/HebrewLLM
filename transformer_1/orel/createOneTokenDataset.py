@@ -102,7 +102,8 @@ def create_one_token_words_data(fromSong: int, toSong:int, df: pd.DataFrame, heb
                     
                     # Append words
                     hebrew_english_dict[hebrew_word] = (english_text, translator_last_hidden_state,opt_first_hidden_state)
-                    print(f"h = {hebrew_word}, E = {english_text}, trns = {translator_last_hidden_state.size(1)}, opt = {opt_first_hidden_state.size(1)}")
+                    
+                    # print(f"h = {hebrew_word}, E = {english_text}, trns = {translator_last_hidden_state.size(1)}, opt = {opt_first_hidden_state.size(1)}")
                     
         # Every 10 songs append new data to esisting
         if (i - fromSong)% SAVE_EVERY == 0:
@@ -145,7 +146,7 @@ def create_dataset(fromSong: int, toSong:int, songsDataPath = 'resources/HeSongs
 
 # # create_empty_csv("resources/try.csv")
 # # append_data_to_csv("resources/big_one_token_dataset.csv",a)
-# create_dataset(2,21)
+create_dataset(46,57)
 
 
 # # Initial data
@@ -162,6 +163,6 @@ def create_dataset(fromSong: int, toSong:int, songsDataPath = 'resources/HeSongs
 
 # # # Load and check contents
 # loaded_data = torch.load('resources/big_one_token_dataset.pt')
-# print(loaded_data.keys())  # Should show both 'tensor1' and 'tensor2'
+# print(len(loaded_data.keys()))  # Should show both 'tensor1' and 'tensor2'
 # for key, (en, hs1, hs2) in loaded_data.items():
 #     print(key, en, hs1, hs2)
