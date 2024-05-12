@@ -10,7 +10,7 @@ import h5py
 MIN_SONG_NUMBER = 0
 MAX_SONG_NUMBER = 1470
 DISIRED_TOKEN_NUMBER = 2
-SAVE_EVERY = 2
+SAVE_EVERY = 4
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -20,7 +20,7 @@ def append_to_pt_file(new_data: dict, i: int, file_path: str = "resources/big_on
 
     # Save updated data back to the file
     torch.save(new_data, file_path)
-    
+
     # Log the saving
     log_used_songs(fromSong= (i - SAVE_EVERY), toSong= i)
     print(f"Saved new data successfully.")
@@ -146,7 +146,7 @@ def create_dataset(fromSong: int, toSong:int, songsDataPath = 'resources/HeSongs
 
 # # create_empty_csv("resources/try.csv")
 # # append_data_to_csv("resources/big_one_token_dataset.csv",a)
-create_dataset(46,57)
+# create_dataset(100,201)
 
 
 # # Initial data
@@ -162,7 +162,8 @@ create_dataset(46,57)
 # append_to_pt_file('resources/data.pt', data2)
 
 # # # Load and check contents
-# loaded_data = torch.load('resources/big_one_token_dataset.pt')
-# print(len(loaded_data.keys()))  # Should show both 'tensor1' and 'tensor2'
-# for key, (en, hs1, hs2) in loaded_data.items():
-#     print(key, en, hs1, hs2)
+loaded_data = torch.load('resources/big_one_token_dataset.pt')
+print(len(loaded_data.keys()))  # Should show both 'tensor1' and 'tensor2'
+for key, (en, hs1, hs2) in loaded_data.items():
+    # print(key, en, hs1, hs2)
+    print(key, en, hs1.shape, hs2.shape)
