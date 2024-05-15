@@ -10,7 +10,7 @@ from torch.nn.utils.rnn import pad_sequence
 
 
 MAX_TANSOR_LENGTH = 1024
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 TEST_SIZE = 0.10
 VALIDATION_SIZE = 0.15
 EPOCHS = 2
@@ -173,27 +173,44 @@ def create_data_loaders(dataset_path: str, batch_size=BATCH_SIZE) -> tuple:
     return train_loader, val_loader, test_loader
 
 
-# def train_model(model, criterion, optimizer, dataset_path: str, epochs: int = EPOCHS) -> tuple:
+def train_model(model, criterion, optimizer, dataset_path: str, epochs=EPOCHS) -> tuple:
     
-#     train_loader, val_loader, test_loader = create_data_loaders(dataset_path)
+    # Adjust DataLoader batch size
+    train_loader, val_loader, test_loader = create_data_loaders(dataset_path)
     
-#     for epoch in range(epochs):
-#         model.train()  # Set model to training mode
-#         for data, targets in train_loader:
-#             optimizer.zero_grad()
-#             predicted_embeddings = model(data)
-#             loss = criterion(predicted_embeddings, targets)
-#             loss.backward()
-#             optimizer.step()
-        
-#         # model.eval()  # Set model to evaluation mode
-#         # with torch.no_grad():
-#         #     validation_loss = sum(criterion(model(data), targets) for data, targets in val_loader) / len(val_loader)
+    print("Data Loaders created!")
+    
+    # Train the model
+    for epoch in range(epochs):
+        model.train()  # Set the model to training mode
+        train_loss = 0
+        for data, labels, data_masks, labels_masks in train_loader:
 
-#         # print(f"Epoch {epoch+1}, Loss: {loss.item()}, Validation Loss: {validation_loss}")
-#         print(f"Epoch {epoch+1}, Loss: {loss.item()}")
+            optimizer.zero_grad()  # Zero out any gradients from previous steps
+            # output = model(data[:,:2,:], src_key_padding_mask=data_masks[:,:2])  # Ensure masks are used
+            output = model(data, src_key_padding_mask=data_masks)  # Ensure masks are used
+            loss = criterion(output, labels)  # Calculate loss
+            loss.backward(retain_graph=True)  # Backpropagate the error
+            optimizer.step()  # Update model parameters
+            train_loss += loss.item()
+        train_loss /= len(train_loader)  # Average the loss over the batch
+
+        # Validation phase
+        model.eval()  # Set the model to evaluation mode
+        validation_loss = 0
+        for data, labels, data_masks, labels_masks in val_loader:
+            # print("Data shape:", data.shape)  # Should be [batch_size, seq_length, feature_size]
+            # print("Lables shape:", labels.shape)
+            # print("Data masks shape:", data_masks.shape)  # Should match data's seq_length
+            with torch.no_grad():  # No gradient calculation
+                # output = model(data[:,:2,:], src_key_padding_mask=data_masks[:,:2])  # Use masks during validation as well
+                output = model(data, src_key_padding_mask=data_masks)  # Use masks during validation as well
+                validation_loss += criterion(output, labels).item()  # Accumulate validation loss
+        validation_loss /= len(val_loader)
+        
+        print(f"Epoch {epoch+1}, Validation Loss: {validation_loss:.4f}")
     
-#     return model, test_loader
+    return model, test_loader
 
 
 def test_model(model, test_loader, criterion):
@@ -273,17 +290,8 @@ def find_best_hypers(trial, dataset_path: str):
     return validation_loss
 
 
-study = optuna.create_study(direction='minimize')
-study.optimize(lambda trial: find_best_hypers(trial, "resources/big_general_dataset.pt"), n_trials=100)
+# study = optuna.create_study(direction='minimize')
+# study.optimize(lambda trial: find_best_hypers(trial, "resources/big_general_dataset.pt"), n_trials=100)
 
-# Print best hyperparameters
-print(study.best_params)
-
-
-# model = HiddenStateTransformer()
-
-# criterion = nn.MSELoss()
-# optimizer = optim.Adam(model.parameters(), lr=0.001)
-
-# model, test_loader = train_model(model, criterion, optimizer,"resources/big_one_token_dataset.pt")
-# test_model(model, test_loader, criterion)
+# # Print best hyperparameters
+# print(study.best_params)
