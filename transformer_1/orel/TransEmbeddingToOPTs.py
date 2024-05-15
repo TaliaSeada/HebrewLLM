@@ -13,7 +13,7 @@ MAX_TANSOR_LENGTH = 1024
 BATCH_SIZE = 32
 TEST_SIZE = 0.10
 VALIDATION_SIZE = 0.15
-EPOCHS = 2
+EPOCHS = 10
 DROPOUT = 0.1
 
 
@@ -179,11 +179,12 @@ def find_best_hypers(trial, dataset_path: str):
     batch_size = trial.suggest_categorical('batch_size', [16, 32, 64, 128])
     num_layers = trial.suggest_int('num_layers', 1, 8)
     num_heads = trial.suggest_categorical('num_heads', divisors)
-    dim_feedforward = trial.suggest_int('dim_feedforward', 16, 256)
+    dim_feedforward = trial.suggest_categorical('dim_feedforward', [16, 32, 64, 128, 256])
+    dropout = trial.suggest_categorical('dropout', [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4])
 
-    
+
     # Create the model, criterion, and optimizer
-    model = HiddenStateTransformer(num_layers=num_layers, num_heads=num_heads, dim_feedforward=dim_feedforward)
+    model = HiddenStateTransformer(num_layers=num_layers, num_heads=num_heads, dim_feedforward=dim_feedforward, dropout=dropout)
     optimizer = optim.Adam(model.parameters(), lr=lr)
     criterion = nn.MSELoss()
 
@@ -209,7 +210,7 @@ def find_best_hypers(trial, dataset_path: str):
             optimizer.step()  # Update model parameters
             train_loss += loss.item()
         train_loss /= len(train_loader)  # Average the loss over the batch
-        
+
         # Validation phase
         model.eval()  # Set the model to evaluation mode
         validation_loss = 0
@@ -251,3 +252,4 @@ print(study.best_params)
 
 # model, test_loader = train_model(model, criterion, optimizer,"resources/big_one_token_dataset.pt")
 # test_model(model, test_loader, criterion)
+
