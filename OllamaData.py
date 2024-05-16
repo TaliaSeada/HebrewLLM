@@ -28,7 +28,7 @@ from nltk.metrics import jaccard_distance
 
 
 def translate_heb2en(text):
-    tokenized_text = tokenizer_heb2en.encode(text, return_tensors='pt').to(device)
+    tokenized_text = tokenizer_heb2en.encode(text, return_tensors='pt')
     translated_tokens = model_heb2en.generate(tokenized_text, max_length=512)
     return tokenizer_heb2en.decode(translated_tokens[0], skip_special_tokens=True)
 
@@ -39,7 +39,7 @@ def translate_en2heb(text):
 
     translated_sentences = []
     for sentence in sentences:
-        tokenized_sentence = tokenizer_en2heb.encode(sentence, return_tensors='pt').to(device)
+        tokenized_sentence = tokenizer_en2heb.encode(sentence, return_tensors='pt')
 
         # Split the input into smaller chunks if it exceeds max_length
         max_length = 512
@@ -86,12 +86,12 @@ if __name__ == '__main__':
     # Set translators
     model_name_en2heb = "Helsinki-NLP/opus-mt-en-he"
     model_name_heb2en = "Helsinki-NLP/opus-mt-tc-big-he-en"
-    device = "cpu"
+
     tokenizer_en2heb = AutoTokenizer.from_pretrained(model_name_en2heb)
-    model_en2heb = AutoModelForSeq2SeqLM.from_pretrained(model_name_en2heb).to(device)
+    model_en2heb = AutoModelForSeq2SeqLM.from_pretrained(model_name_en2heb)
 
     tokenizer_heb2en = AutoTokenizer.from_pretrained(model_name_heb2en)
-    model_heb2en = AutoModelForSeq2SeqLM.from_pretrained(model_name_heb2en).to(device)
+    model_heb2en = AutoModelForSeq2SeqLM.from_pretrained(model_name_heb2en)
 
     # set LLM
     # ollama.pull("phi3")
@@ -143,9 +143,6 @@ if __name__ == '__main__':
         print(user_input)
         print("Real word:", real_word)
         print("Generated sentence:", heb_out)
-        # print("Cosine Similarity:", cosine_sim)
-        # print("Edit Distance:", edit_dist)
-        # print("Jaccard Similarity:", jaccard_sim)
         print("=" * 50)
 
     # Calculate average similarity score

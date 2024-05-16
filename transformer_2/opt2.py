@@ -8,7 +8,7 @@ from torch.nn.utils.rnn import pad_sequence
 from torch.nn import TransformerEncoder, TransformerEncoderLayer
 from embeddingsToTranslator import translator_activation_different_layer
 import torch.nn.functional as F
-
+import optuna
 import math
 
 # opt
@@ -110,51 +110,107 @@ def custom_collate_fn(batch):
 
 
 # Training function with gradient accumulation
-def train_transformer(train_loader, val_loader, input_size, output_size, epochs=10, learning_rate=0.01,
-                      accumulate_gradients_every=1):
-    # model = HiddenStateTransformer(input_dim=input_dim, output_dim=output_dim)
-    model = HiddenStateTransformer(input_size, output_size, num_layers, num_heads, dim_feedforward, dropout)
-    criterion = nn.MSELoss()
-    # optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+# def train_transformer(train_loader, val_loader, input_size, output_size, epochs=10, learning_rate=0.01,
+#                       accumulate_gradients_every=1):
+#     # model = HiddenStateTransformer(input_dim=input_dim, output_dim=output_dim)
+#     model = HiddenStateTransformer(input_size, output_size, num_layers, num_heads, dim_feedforward, dropout)
+#     criterion = nn.MSELoss()
+#     # optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+#     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+#
+#     accumulate_steps = 0
+#     total_loss = 0
+#     # model = torch.load('model_entire_layer.pth')
+#     for epoch in range(epochs):
+#         model.train(True)
+#         for X_batch, Y_batch in train_loader:
+#             optimizer.zero_grad()
+#             outputs = model(X_batch)
+#             loss = criterion(outputs, Y_batch)
+#             loss.backward()
+#             optimizer.step()
+#             total_loss += loss.item()
+#             accumulate_steps += 1
+#
+#             # Perform optimization step after accumulating gradients for specified number of steps
+#             if accumulate_steps == accumulate_gradients_every:
+#                 # optimizer.step()
+#                 print(f"Epoch {epoch + 1}, Batch Loss: {total_loss / accumulate_steps}")
+#                 accumulate_steps = 0
+#                 total_loss = 0
+#                 torch.save(model, 'model_entire_layer.pth')
+#
+#         # Validation phase
+#         model.eval()
+#         with torch.no_grad():
+#             val_loss = 0
+#             for X_batch, Y_batch in val_loader:
+#                 outputs = model(X_batch)
+#                 loss = criterion(outputs, Y_batch)
+#                 val_loss += loss.item()
+#
+#             print(f"Epoch {epoch + 1}, Validation Loss: {val_loss / len(val_loader)}")
+#
+#     # Save the entire model
+#     # torch.save(model, 'model_entire_layer0.pth')
+#     # torch.save(model, 'model_entire_layer1.pth')
+#     return model
 
-    accumulate_steps = 0
-    total_loss = 0
-    # model = torch.load('model_entire_layer.pth')
+
+# Training function
+def train_transformer(train_loader, val_loader, input_size, output_size, num_layers, num_heads, dim_feedforward,
+                      dropout, epochs=10, learning_rate=0.01, accumulate_gradients_every=1):
+    model = HiddenStateTransformer(input_size, output_size, num_layers, num_heads, dim_feedforward, dropout).to(device)
+    criterion = nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+
     for epoch in range(epochs):
-        model.train(True)
+        model.train()
         for X_batch, Y_batch in train_loader:
+            X_batch, Y_batch = X_batch.to(device), Y_batch.to(device)
             optimizer.zero_grad()
             outputs = model(X_batch)
             loss = criterion(outputs, Y_batch)
             loss.backward()
             optimizer.step()
-            total_loss += loss.item()
-            accumulate_steps += 1
 
-            # Perform optimization step after accumulating gradients for specified number of steps
-            if accumulate_steps == accumulate_gradients_every:
-                # optimizer.step()
-                print(f"Epoch {epoch + 1}, Batch Loss: {total_loss / accumulate_steps}")
-                accumulate_steps = 0
-                total_loss = 0
-                torch.save(model, 'model_entire_layer.pth')
-
-        # Validation phase
         model.eval()
+        val_loss = 0
         with torch.no_grad():
-            val_loss = 0
             for X_batch, Y_batch in val_loader:
+                X_batch, Y_batch = X_batch.to(device), Y_batch.to(device)
                 outputs = model(X_batch)
                 loss = criterion(outputs, Y_batch)
                 val_loss += loss.item()
+        val_loss /= len(val_loader)
+        print(f"Epoch {epoch + 1}, Validation Loss: {val_loss}")
 
-            print(f"Epoch {epoch + 1}, Validation Loss: {val_loss / len(val_loader)}")
+    return model, val_loss
 
-    # Save the entire model
-    # torch.save(model, 'model_entire_layer0.pth')
-    # torch.save(model, 'model_entire_layer1.pth')
-    return model
+
+def find_divisors(n):
+    divisors = []
+    for i in range(1, n + 1):
+        if n % i == 0:
+            divisors.append(i)
+    return divisors
+
+
+# Objective function for Optuna
+def objective(trial):
+    num_layers = trial.suggest_int('num_layers', 1, 4)
+    dim_feedforward = trial.suggest_int('dim_feedforward', 64, 256)
+    dropout = trial.suggest_float('dropout', 0.1, 0.5)
+    learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-3)
+
+    # Ensure num_heads is a divisor of input_dim
+    divisors = find_divisors(input_dim)
+    num_heads = trial.suggest_categorical('num_heads', divisors)
+
+    model, val_loss = train_transformer(train_loader, val_loader, input_dim, output_dim, num_layers, num_heads,
+                                        dim_feedforward, dropout, epochs=10, learning_rate=learning_rate)
+
+    return val_loss
 
 
 # Evaluation function
@@ -237,18 +293,31 @@ if __name__ == '__main__':
     output_dim = 512  #translator_hidden_state.shape[-1]
     hidden_dim = 128
 
-    # Train the model with gradient accumulation
-    # model = train_transformer(train_loader, val_loader, input_dim, output_dim, epochs=10, learning_rate=0.0001,
+    # # Train the model with gradient accumulation
+    # model = train_transformer(train_loader, val_loader, input_dim, output_dim, epochs=15, learning_rate=0.00001,
     #                           accumulate_gradients_every=10)
 
+    # Optimize hyperparameters with Optuna
+    study = optuna.create_study(direction='minimize')
+    study.optimize(objective, n_trials=100)
+
+    print("Best hyperparameters:", study.best_params)
+
+    # Train the model with the best hyperparameters
+    best_params = study.best_params
+    model, _ = train_transformer(train_loader, val_loader, input_dim, output_dim, best_params['num_layers'],
+                                 best_params['num_heads'], best_params['dim_feedforward'], best_params['dropout'],
+                                 epochs=15, learning_rate=best_params['learning_rate'])
+    torch.save(model, 'best_model.pth')
+
     # Evaluate the model
-    model = torch.load('model_entire_layer.pth')
+    model = torch.load('best_model.pth')
     model.eval()
     # criterion = nn.MSELoss()
     # evaluate_model(model, test_loader, criterion)
 
     print("--------- CHECK ----------")
-    prompt = "add"
+    prompt = "cold"
     opt_inputs = opt_tokenizer(prompt, return_tensors="pt")
     opt_outputs = opt_model(**opt_inputs, output_hidden_states=True)
     opt_hidden_state = opt_outputs.hidden_states[opt_layer]

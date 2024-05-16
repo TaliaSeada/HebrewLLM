@@ -11,3 +11,4 @@ scikit-learn~=1.4.2
 ollama~=0.1.9
 sentencepiece
 sacremoses
+optuna~=3.6.1

@@ -28,16 +28,6 @@ if __name__ == '__main__':
     # Read data
     df = pd.read_csv('wikipedia_data.csv')
 
-    # Set translators
-    model_name_en2heb = "Helsinki-NLP/opus-mt-en-he"
-    model_name_heb2en = "Helsinki-NLP/opus-mt-tc-big-he-en"
-    device = "cpu"
-    tokenizer_en2heb = AutoTokenizer.from_pretrained(model_name_en2heb)
-    model_en2heb = AutoModelForSeq2SeqLM.from_pretrained(model_name_en2heb).to(device)
-
-    tokenizer_heb2en = AutoTokenizer.from_pretrained(model_name_heb2en)
-    model_heb2en = AutoModelForSeq2SeqLM.from_pretrained(model_name_heb2en).to(device)
-
     # set LLM
     # ollama.pull("phi3")
     model_to_use = "350m"
