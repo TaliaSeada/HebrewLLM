@@ -56,6 +56,8 @@ def generate_test_inputs(curr_song):
     # Translation to english
     english_text = translator_tokenizer.decode(generated_ids[0], skip_special_tokens=True)
     
+    print(english_text)
+    
     # OPT
     opt_inputs = OPT_tokenizer(english_text, return_tensors="pt", add_special_tokens=True)
             
@@ -117,15 +119,16 @@ def test(my_model, h_text):
         # Tokenize text to exactly 1024 tokens
         # inputs = OPT_tokenizer("it my", return_tensors="pt",max_length=1024, padding=True)
         
-        # inputs = OPT_tokenizer("it " * 1022, return_tensors="pt")
+        inputs = OPT_tokenizer("eat " * 1022, return_tensors="pt")
         
-        inputs = OPT_tokenizer("it", return_tensors="pt")
-
+        print(inputs)
+        print(inputs["input_ids"].shape)
         # Create a custom attention mask
         # Example: Say you want all tokens to be attended to
         # attention_mask = torch.ones_like(hidden_states[0])
         
-        attention_mask = torch.ones((1, 1024), dtype=torch.long)
+        # attention_mask = torch.ones((1, 1024), dtype=torch.long)
+        attention_mask = torch.ones(inputs['input_ids'].shape, dtype=torch.long)
         
         print(f"attention_mask.shape = {attention_mask.shape}")
 
@@ -134,6 +137,7 @@ def test(my_model, h_text):
 
         # Update the inputs dictionary with the new attention mask
         inputs['attention_mask'] = attention_mask
+        
         
         
         print(inputs["attention_mask"].shape)
@@ -155,7 +159,8 @@ def test(my_model, h_text):
 
 # ge.test_model(model, test_loader, criterion)
 
-h_text = "ןגל אב אבא"
+# h_text = "ןגל אב אבא"
+h_text = "אבא בא לגן"
 
 # print(tras_last_hs.shape, opt_first_hs.shape)
 
