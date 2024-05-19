@@ -13,7 +13,7 @@ MAX_TANSOR_LENGTH = 10
 BATCH_SIZE = 64
 TEST_SIZE = 0.10
 VALIDATION_SIZE = 0.15
-EPOCHS = 2
+EPOCHS = 5
 DROPOUT = 0.1
 
 
@@ -62,7 +62,7 @@ class HiddenStateTransformer(nn.Module):
     
 #     return padded_tensor
 
-def pad_and_mask(batch):
+def pad_and_mask(batch, max_tansor_length: int = MAX_TANSOR_LENGTH):
     data = [item[0].squeeze(0) for item in batch]
     labels = [item[1].squeeze(0) for item in batch]
     
@@ -79,8 +79,8 @@ def pad_and_mask(batch):
     # TODO - pad like so for each size of input data & lables
     
     #  Calculate how many zero vectors are needed to padd to MAX_TANSOR_LENGTH
-    data_padding_num = MAX_TANSOR_LENGTH - data_padded.shape[1]
-    lables_padding_num = MAX_TANSOR_LENGTH - labels_padded.shape[1]
+    data_padding_num = max_tansor_length - data_padded.shape[1]
+    lables_padding_num = max_tansor_length - labels_padded.shape[1]
 
     # Check if we need to add any vectors
     if data_padding_num > 0:
@@ -116,8 +116,8 @@ def pad_and_mask(batch):
     return data_padded, labels_padded, data_masks, labels_masks
 
 
-def pad(data):
-    data_padding_num = MAX_TANSOR_LENGTH - data.shape[1]
+def pad(data, max_tansor_length: int = MAX_TANSOR_LENGTH):
+    data_padding_num = max_tansor_length - data.shape[1]
 
     # Check if we need to add any vectors
     if data_padding_num > 0:
@@ -217,13 +217,12 @@ def test_model(model, test_loader, criterion):
 
 
 def find_best_hypers(trial, dataset_path: str):
-    divisors = [i for i in range(1, MAX_TANSOR_LENGTH) if MAX_TANSOR_LENGTH % i == 0]
 
     # Define the hyperparameters to tune
     lr = trial.suggest_float('lr', 1e-6, 1e-1, log=True)
     batch_size = trial.suggest_categorical('batch_size', [16, 32, 64, 128])
     num_layers = trial.suggest_int('num_layers', 1, 8)
-    num_heads = trial.suggest_categorical('num_heads', divisors)
+    num_heads = trial.suggest_categorical('num_heads', [1, 2])
     dim_feedforward = trial.suggest_categorical('dim_feedforward', [16, 32, 64, 128, 256])
     dropout = trial.suggest_categorical('dropout', [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4])
 

@@ -56,10 +56,11 @@ def generate_test_inputs(curr_song):
     # Translation to english
     english_text = translator_tokenizer.decode(generated_ids[0], skip_special_tokens=True)
     
-    print(english_text)
+    print(english_text[:-1])
+    english_text = english_text[:-1]
     
     # OPT
-    opt_inputs = OPT_tokenizer(english_text, return_tensors="pt", add_special_tokens=True)
+    opt_inputs = OPT_tokenizer(english_text, return_tensors="pt")
             
                 
     # Append hidden states
@@ -70,25 +71,47 @@ def generate_test_inputs(curr_song):
 
     # opt_outputs = opt_model(input_ids=opt_inputs.input_ids, decoder_input_ids=decoder_input_ids, output_hidden_states=True)
     opt_outputs = opt_model(input_ids=opt_inputs.input_ids, output_hidden_states=True)
+    
+    
+    # ============================= direct opt output ======================
+    # Access the generated token IDs
+    token_ids = opt_outputs.logits.argmax(-1)
+    # Decode the token IDs using the tokenizer
+    
+    print(token_ids[0])
+    generated_text = OPT_tokenizer.decode(token_ids[0][2], skip_special_tokens=True)
+    # Print the generated text
+    print("First Generated Text: ", generated_text)    
+    
+    # ============================== end of opt output ======================
+    
+    
+    
 
     # Extract the last hidden state from translator
     translator_last_hidden_state = translator_outputs.decoder_hidden_states[-1]
-    
+
     # Extract the first hidden state from OPT
     opt_first_hidden_state = opt_outputs.hidden_states[1]
     
-    return ge.pad(translator_last_hidden_state), ge.pad(opt_first_hidden_state)
+    print(translator_last_hidden_state.shape, opt_first_hidden_state.shape)
+    data = [(ge.pad(translator_last_hidden_state),ge.pad(opt_first_hidden_state))]
+    data_padded, labels_padded, data_masks, labels_masks = ge.pad_and_mask(data,10)
+    
+    print(data_padded.shape, labels_padded.shape)
+    # data_padded, labels_padded, data_masks, labels_masks = ge.pad_and_mask(opt_first_hidden_state,10)
+    return data_padded, labels_padded
 
 
 
-def create_model(num_layers=2, num_heads=1, dim_feedforward=32, dropout=0.2, lr=0.0010074747982683552):
+def create_model(num_layers=2, num_heads=1, dim_feedforward=32, dropout=0.2, lr=0.0010074747982683552, dataset_path: str = "", epochs = 10):
     
     # Create the model, criterion, and optimizer
     model = ge.HiddenStateTransformer(num_layers=num_layers, num_heads=num_heads, dim_feedforward=dim_feedforward, dropout=dropout)
     optimizer = optim.Adam(model.parameters(), lr=lr)
     criterion = nn.MSELoss()
 
-    model, test_loader = ge.train_model(model,criterion,optimizer,"resources/big_general_dataset.pt",10)
+    model, test_loader = ge.train_model(model,criterion,optimizer,dataset_path,epochs)
 
     joblib.dump(model, 'transformer_1/orel/general_model.pkl')
     joblib.dump(test_loader, 'transformer_1/orel/general_model_test_loader.joblib')
@@ -98,45 +121,55 @@ def create_model(num_layers=2, num_heads=1, dim_feedforward=32, dropout=0.2, lr=
 
 def test(my_model, h_text):
     tras_last_hs_padded, opt_first_hs_padded = generate_test_inputs(h_text)
-    model.eval()
+    my_model.eval()
     with torch.no_grad():
         hidden_states = my_model(tras_last_hs_padded)
+        
+        criterion = nn.MSELoss()
+        validation_loss = criterion(hidden_states, opt_first_hs_padded).item()  # Accumulate validation loss
+        
+        
+        print(f"Validation Loss: {validation_loss:.4f}")
+        
         print(hidden_states, hidden_states.shape)
 
         # Create an instance of the layer you want to modify
         custom_layer = opt_model.base_model.decoder.layers[1]
         # Wrap the layer inside the custom wrapper
+        
+        # wrapped_layer = CustomLayerWrapper(custom_layer, hidden_states)
         wrapped_layer = CustomLayerWrapper(custom_layer, hidden_states)
+        
         # Replace the layer with the wrapped layer
         opt_model.base_model.decoder.layers[1] = wrapped_layer
 
 
         # TODO - make this work
-        
+
         
         # make dummy model
 
         # Tokenize text to exactly 1024 tokens
         # inputs = OPT_tokenizer("it my", return_tensors="pt",max_length=1024, padding=True)
         
-        inputs = OPT_tokenizer("eat " * 1022, return_tensors="pt")
+        inputs = OPT_tokenizer(" " * 9, return_tensors="pt")
         
         print(inputs)
         print(inputs["input_ids"].shape)
-        # Create a custom attention mask
-        # Example: Say you want all tokens to be attended to
-        # attention_mask = torch.ones_like(hidden_states[0])
+        # # Create a custom attention mask
+        # # Example: Say you want all tokens to be attended to
+        # # attention_mask = torch.ones_like(hidden_states[0])
         
-        # attention_mask = torch.ones((1, 1024), dtype=torch.long)
-        attention_mask = torch.ones(inputs['input_ids'].shape, dtype=torch.long)
+        # # attention_mask = torch.ones((1, 1024), dtype=torch.long)
+        # attention_mask = torch.ones(inputs['input_ids'].shape, dtype=torch.long)
         
-        print(f"attention_mask.shape = {attention_mask.shape}")
+        # print(f"attention_mask.shape = {attention_mask.shape}")
 
-        # Modify the mask if needed, for example, ignore the last 10 tokens
-        # attention_mask[0, -10:] = 0  # Uncomment and adjust indices as needed
+        # # Modify the mask if needed, for example, ignore the last 10 tokens
+        # # attention_mask[0, -10:] = 0  # Uncomment and adjust indices as needed
 
-        # Update the inputs dictionary with the new attention mask
-        inputs['attention_mask'] = attention_mask
+        # # Update the inputs dictionary with the new attention mask
+        # inputs['attention_mask'] = attention_mask
         
         
         
@@ -153,6 +186,8 @@ def test(my_model, h_text):
         # Access the generated token IDs
         token_ids = outputs.logits.argmax(-1)
         # Decode the token IDs using the tokenizer
+        
+        print(token_ids[0])
         generated_text = OPT_tokenizer.decode(token_ids[0], skip_special_tokens=True)
         # Print the generated text
         print("Generated Text: ", generated_text)
@@ -160,7 +195,7 @@ def test(my_model, h_text):
 # ge.test_model(model, test_loader, criterion)
 
 # h_text = "ןגל אב אבא"
-h_text = "אבא בא לגן"
+h_text = "אני"
 
 # print(tras_last_hs.shape, opt_first_hs.shape)
 
@@ -169,3 +204,32 @@ model: ge.HiddenStateTransformer = joblib.load('transformer_1/orel/general_model
 test(model, h_text)
 
 
+# create_model(1, 1, 128, 0.15, 0.013256841285324495, "resources/up_to_ten_tokens_dataset.pt", 20)
+
+# model: ge.HiddenStateTransformer = joblib.load('transformer_1/orel/general_model.pkl')
+
+
+
+
+
+# # TODO - FIX -Opt gives the next word[i] basee on token[i]  
+
+
+# # OPT
+# opt_inputs = OPT_tokenizer(h_text, return_tensors="pt")
+
+
+# # opt_outputs = opt_model(input_ids=opt_inputs.input_ids, decoder_input_ids=decoder_input_ids, output_hidden_states=True)
+# opt_outputs = opt_model(**opt_inputs, output_hidden_states=True)
+
+
+# # ============================= direct opt output ======================
+# # Access the generated token IDs
+# token_ids = opt_outputs.logits.argmax(-1)
+# # Decode the token IDs using the tokenizer
+# print(token_ids[0])
+# generated_text = OPT_tokenizer.decode(token_ids[0], skip_special_tokens=True)
+# # Print the generated text
+# print("Last Generated Text: ", generated_text)
+
+# # ============================== end of opt output ======================

@@ -1,690 +1,511 @@
-PS C:\Users\orelz\OneDrive\שולחן העבודה\work\Ariel\HebrewLLM> python -u "c:\Users\orelz\OneDrives.py"
-[I 2024-05-15 11:02:07,386] A new study created in memory with name: no-name-7485b243-5a74-4754-
+[I 2024-05-19 09:42:52,955] A new study created in memory with name: no-name-5042048d-e39c-410e-b2ae-1493fc007aa9
 Data Loaders created!
-Epoch 1, Validation Loss: 0.7314
-Epoch 2, Validation Loss: 0.5928
-Epoch 3, Validation Loss: 0.5281
-Epoch 4, Validation Loss: 0.4997
-Epoch 5, Validation Loss: 0.4880
-Epoch 6, Validation Loss: 0.4836
-Epoch 7, Validation Loss: 0.4820
-Epoch 8, Validation Loss: 0.4814
-Epoch 9, Validation Loss: 0.4811
-Epoch 10, Validation Loss: 0.4809
-[I 2024-05-15 11:04:35,905] Trial 0 finished with value: 0.48094442486763 and parameters: {'lr':
-2, 'dim_feedforward': 64, 'dropout': 0.3}. Best is trial 0 with value: 0.48094442486763.
+Epoch 1, Validation Loss: 0.3369
+Epoch 2, Validation Loss: 0.3324
+Epoch 3, Validation Loss: 0.3319
+Epoch 4, Validation Loss: 0.3319
+Epoch 5, Validation Loss: 0.3319
+[I 2024-05-19 09:52:31,509] Trial 0 finished with value: 0.3318549767136574 and parameters: {'lr': 0.059398116791071494, 'batch_size': 64, 'num_layers': 4, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.4}. Best is trial 0 with value: 0.3318549767136574.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.4935
-Epoch 2, Validation Loss: 0.4902
-Epoch 3, Validation Loss: 0.4853
-Epoch 4, Validation Loss: 0.4851
-Epoch 5, Validation Loss: 0.4846
-Epoch 6, Validation Loss: 0.4786
-Epoch 7, Validation Loss: 0.2809
-Epoch 8, Validation Loss: 0.4929
-Epoch 9, Validation Loss: 0.4883
-Epoch 10, Validation Loss: 0.4850
-[I 2024-05-15 11:07:28,875] Trial 1 finished with value: 0.4849919080734253 and parameters: {'lr 4, 'dim_feedforward': 128, 'dropout': 0.35}. Best is trial 0 with value: 0.48094442486763.
-C:\Users\orelz\AppData\Roaming\Python\Python312\site-packages\torch\nn\modules\transformer.py:28
+Epoch 1, Validation Loss: 0.3312
+Epoch 2, Validation Loss: 0.3314
+Epoch 3, Validation Loss: 0.3315
+Epoch 4, Validation Loss: 0.3313
+Epoch 5, Validation Loss: 0.3313
+[I 2024-05-19 10:09:01,799] Trial 1 finished with value: 0.33128985948860645 and parameters: {'lr': 0.01923519242049138, 'batch_size': 16, 'num_layers': 7, 'num_heads': 2, 'dim_feedforward': 16, 'dropout': 0.3}. Best is trial 1 with value: 0.33128985948860645.
+C:\Users\orelz\AppData\Roaming\Python\Python312\site-packages\torch\nn\modules\transformer.py:286: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.self_attn.num_heads is odd
   warnings.warn(f"enable_nested_tensor is True, but self.use_nested_tensor is False because {why_not_sparsity_fast_path}")
 Data Loaders created!
-Epoch 1, Validation Loss: 0.4968
-Epoch 2, Validation Loss: 0.4883
-Epoch 3, Validation Loss: 0.4826
-Epoch 4, Validation Loss: 0.4757
-Epoch 5, Validation Loss: 0.4448
-Epoch 6, Validation Loss: 0.3565
-Epoch 7, Validation Loss: 0.2970
-Epoch 8, Validation Loss: 0.2753
-Epoch 9, Validation Loss: 0.2607
-Epoch 10, Validation Loss: 0.2560
-[I 2024-05-15 11:10:11,953] Trial 2 finished with value: 0.2560380697250366 and parameters: {'lr': 0.00012924994728536247, 'batch_size': 128, 'num_layers': 6, 'num_headsropout': 0.1}. Best is trial 2 with value: 0.2560380697250366.
+Epoch 1, Validation Loss: 0.8267
+Epoch 2, Validation Loss: 0.7072
+Epoch 3, Validation Loss: 0.6169
+Epoch 4, Validation Loss: 0.5479
+Epoch 5, Validation Loss: 0.4933
+[I 2024-05-19 10:18:37,114] Trial 2 finished with value: 0.49327173829078674 and parameters: {'lr': 0.003392303911335658, 'batch_size': 128, 'num_layers': 3, 'num_heads': 1, 'dim_feedforward': 64, 'dropout': 0.4}. Best is trial 1 with value: 0.33128985948860645.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.9957
-Epoch 2, Validation Loss: 0.9732
-Epoch 3, Validation Loss: 0.9518
-Epoch 4, Validation Loss: 0.9309
-Epoch 5, Validation Loss: 0.9104
-Epoch 6, Validation Loss: 0.8900
-Epoch 7, Validation Loss: 0.8697
-Epoch 8, Validation Loss: 0.8495
-Epoch 9, Validation Loss: 0.8296
-Epoch 10, Validation Loss: 0.8099
-[I 2024-05-15 11:12:57,578] Trial 3 finished with value: 0.8098894953727722 and parameters: {'lr': 1.7211605895111475e-06, 'batch_size': 128, 'num_layers': 4, 'num_headsopout': 0.1}. Best is trial 2 with value: 0.2560380697250366.
+Epoch 1, Validation Loss: 0.3813
+Epoch 2, Validation Loss: 0.3321
+Epoch 3, Validation Loss: 0.3324
+Epoch 4, Validation Loss: 0.3321
+Epoch 5, Validation Loss: 0.3316
+[I 2024-05-19 10:30:39,104] Trial 3 finished with value: 0.33161094784736633 and parameters: {'lr': 0.0037960487317198425, 'batch_size': 16, 'num_layers': 3, 'num_heads': 2, 'dim_feedforward': 128, 'dropout': 0.2}. Best is trial 1 with value: 0.33128985948860645.
 Data Loaders created!
-Epoch 1, Validation Loss: 620.7217
-Epoch 2, Validation Loss: 107.0389
-Epoch 3, Validation Loss: 46.8294
-Epoch 4, Validation Loss: 76.7882
-Epoch 5, Validation Loss: 9.5389
-Epoch 6, Validation Loss: 3.7174
-Epoch 7, Validation Loss: 10.4083
-Epoch 8, Validation Loss: 19.9683
-Epoch 9, Validation Loss: 19.5401
-Epoch 10, Validation Loss: 16.1575
-[I 2024-05-15 11:14:47,625] Trial 4 finished with value: 16.157499313354492 and parameters: {'lr': 0.08824818159646462, 'batch_size': 128, 'num_layers': 4, 'num_heads': ut': 0.25}. Best is trial 2 with value: 0.2560380697250366.
+Epoch 1, Validation Loss: 0.3335
+Epoch 2, Validation Loss: 0.3318
+Epoch 3, Validation Loss: 0.3272
+Epoch 4, Validation Loss: 0.2832
+Epoch 5, Validation Loss: 0.3010
+[I 2024-05-19 10:39:34,512] Trial 4 finished with value: 0.30096298828721046 and parameters: {'lr': 0.08352968898237399, 'batch_size': 32, 'num_layers': 1, 'num_heads': 1, 'dim_feedforward': 128, 'dropout': 0.3}. Best is trial 4 with value: 0.30096298828721046.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.5422
-Epoch 2, Validation Loss: 0.4690
-Epoch 3, Validation Loss: 0.4451
-Epoch 4, Validation Loss: 0.3946
-Epoch 5, Validation Loss: 0.3280
-Epoch 6, Validation Loss: 0.2852
-Epoch 7, Validation Loss: 0.2620
-Epoch 8, Validation Loss: 0.2443
-Epoch 9, Validation Loss: 0.2276
-Epoch 10, Validation Loss: 0.2145
-[I 2024-05-15 11:16:24,477] Trial 5 finished with value: 0.21451809257268906 and parameters: {'lr': 5.109317931290928e-05, 'batch_size': 64, 'num_layers': 2, 'num_heads'pout': 0.1}. Best is trial 5 with value: 0.21451809257268906.
+Epoch 1, Validation Loss: 0.3250
+Epoch 2, Validation Loss: 0.2280
+Epoch 3, Validation Loss: 0.2048
+Epoch 4, Validation Loss: 0.2095
+Epoch 5, Validation Loss: 0.2163
+[I 2024-05-19 10:51:51,594] Trial 5 finished with value: 0.21631281543523073 and parameters: {'lr': 0.0034833523942181337, 'batch_size': 16, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 16, 'dropout': 0.3}. Best is trial 5 with value: 0.21631281543523073.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.6280
-Epoch 2, Validation Loss: 0.6025
+Epoch 1, Validation Loss: 0.9719
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 11:16:47,446] Trial 6 pruned.
+[I 2024-05-19 10:54:05,297] Trial 6 pruned.    
 Data Loaders created!
-Epoch 1, Validation Loss: 0.4794
-Epoch 2, Validation Loss: 0.2812
-Epoch 3, Validation Loss: 0.1898
-Epoch 4, Validation Loss: 0.1844
-Epoch 5, Validation Loss: 0.1844
-Epoch 6, Validation Loss: 0.1839
-Epoch 7, Validation Loss: 0.1833
-Epoch 8, Validation Loss: 0.1826
-Epoch 9, Validation Loss: 0.1818
-Epoch 10, Validation Loss: 0.1789
-[I 2024-05-15 11:22:14,943] Trial 7 finished with value: 0.1789388582110405 and parameters: {'lr': 6.38697718816506e-05, 'batch_size': 16, 'num_layers': 7, 'num_heads': 
-2, 'dim_feedforward': 16, 'dropout': 0.15}. Best is trial 7 with value: 0.1789388582110405.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.6026
+Epoch 1, Validation Loss: 0.8521
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 11:22:38,472] Trial 8 pruned.
+[I 2024-05-19 10:57:59,066] Trial 7 pruned.    
 Data Loaders created!
-Epoch 1, Validation Loss: 0.8747
+Epoch 1, Validation Loss: 0.7448
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 11:23:11,212] Trial 9 pruned.
+[I 2024-05-19 11:00:59,553] Trial 8 pruned.    
 Data Loaders created!
-Epoch 1, Validation Loss: 0.5934
+Epoch 1, Validation Loss: 0.9067
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 11:23:42,885] Trial 10 pruned.
+[I 2024-05-19 11:04:53,755] Trial 9 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.5850
+Epoch 1, Validation Loss: 0.7462
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 11:23:51,241] Trial 11 pruned.
+[I 2024-05-19 11:07:01,059] Trial 10 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.4395
-Epoch 2, Validation Loss: 0.3000
-Epoch 3, Validation Loss: 0.2503
-Epoch 4, Validation Loss: 0.2198
-Epoch 5, Validation Loss: 0.2050
-Epoch 6, Validation Loss: 0.1974
-Epoch 7, Validation Loss: 0.1932
-Epoch 8, Validation Loss: 0.1905
-Epoch 9, Validation Loss: 0.1885
-Epoch 10, Validation Loss: 0.1873
-[I 2024-05-15 11:26:08,548] Trial 12 finished with value: 0.18729512207210064 and parameters: {'lr': 3.069211344264485e-05, 'batch_size': 16, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 256, 'dropout': 0.15}. Best is trial 7 with value: 0.1789388582110405.
+Epoch 1, Validation Loss: 0.3222
+Epoch 2, Validation Loss: 0.3306
+Epoch 3, Validation Loss: 0.2600
+Epoch 4, Validation Loss: 0.2520
+Epoch 5, Validation Loss: 0.2514
+[I 2024-05-19 11:19:03,589] Trial 11 finished with value: 0.25138770788908005 and parameters: {'lr': 0.0918097696816673, 'batch_size': 32, 'num_layers': 1, 'num_heads': 1, 'dim_feedforward': 128, 'dropout': 0.15}. Best is trial 5 with value: 0.21631281543523073.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.6175
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 11:26:22,805] Trial 13 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2679
-Epoch 2, Validation Loss: 0.1930
-Epoch 3, Validation Loss: 0.1889
-Epoch 4, Validation Loss: 0.1878
-Epoch 5, Validation Loss: 0.2142
-Epoch 6, Validation Loss: 0.2022
-Epoch 7, Validation Loss: 0.4824
-Epoch 8, Validation Loss: 0.4042
-Epoch 9, Validation Loss: 0.4833
-Epoch 10, Validation Loss: 0.4837
-[I 2024-05-15 11:31:31,809] Trial 14 finished with value: 0.4837210588157177 and parameters: {'lr': 0.0003785338594235951, 'batch_size': 16, 'num_layers': 5, 'num_heads': 2, 'dim_feedforward': 256, 'dropout': 0.15}. Best is trial 7 with value: 0.1789388582110405.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.4943
-Epoch 2, Validation Loss: 0.4927
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 11:32:33,362] Trial 15 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.5278
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 11:32:45,560] Trial 16 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.6718
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 11:33:21,888] Trial 17 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.5181
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 11:33:58,838] Trial 18 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2891
-Epoch 2, Validation Loss: 0.2010
-Epoch 3, Validation Loss: 0.1949
-Epoch 4, Validation Loss: 0.1901
-Epoch 5, Validation Loss: 0.1868
-Epoch 6, Validation Loss: 0.1832
-Epoch 7, Validation Loss: 0.1773
-Epoch 8, Validation Loss: 0.1757
-Epoch 9, Validation Loss: 0.1665
-Epoch 10, Validation Loss: 0.1688
-[I 2024-05-15 11:37:07,947] Trial 19 finished with value: 0.1688101477921009 and parameters: {'lr': 0.0001553387131620525, 'batch_size': 16, 'num_layers': 3, 'num_heads': 2, 'dim_feedforward': 16, 'dropout': 0.4}. Best is trial 19 with value: 0.1688101477921009.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.4679
-Epoch 2, Validation Loss: 0.2778
-Epoch 3, Validation Loss: 0.1946
-Epoch 4, Validation Loss: 0.1913
-Epoch 5, Validation Loss: 0.1927
-Epoch 6, Validation Loss: 0.1923
-Epoch 7, Validation Loss: 0.1941
-Epoch 8, Validation Loss: 0.1908
-Epoch 9, Validation Loss: 0.1858
-Epoch 10, Validation Loss: 0.1881
-[I 2024-05-15 11:39:31,041] Trial 20 finished with value: 0.18814484030008316 and parameters: {'lr': 0.00014102901038698775, 'batch_size': 32, 'num_layers': 3, 'num_heads': 3, 'num_heads': 2, 'dim_feedforward': 16, 'dropout': 0.4}. Best is trial 19 with value: 0.1688101477921009.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2397
-Epoch 2, Validation Loss: 0.2101
-Epoch 3, Validation Loss: 0.1966
-Epoch 4, Validation Loss: 0.1923
-Epoch 5, Validation Loss: 0.1814
-Epoch 6, Validation Loss: 0.1754
-Epoch 7, Validation Loss: 0.1723
-Epoch 8, Validation Loss: 0.1680
-Epoch 9, Validation Loss: 0.1641
-Epoch 10, Validation Loss: 0.1622
-[I 2024-05-15 11:42:40,855] Trial 21 finished with value: 0.16215666010975838 and parameters: {'lr': 0.0002095900225473238, 'batch_size': 16, 'num_layers': 2, 'num_heads': 2, 'dim_feedforward': 16, 'dropout': 0.4}. Best is trial 21 with value: 0.16215666010975838.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2674
-Epoch 2, Validation Loss: 0.2023
-Epoch 3, Validation Loss: 0.1891
-Epoch 4, Validation Loss: 0.1858
-Epoch 5, Validation Loss: 0.1854
-Epoch 6, Validation Loss: 0.1808
-Epoch 7, Validation Loss: 0.1757
-Epoch 8, Validation Loss: 0.1690
-Epoch 9, Validation Loss: 0.1682
-Epoch 10, Validation Loss: 0.1660
-[I 2024-05-15 11:45:54,215] Trial 22 finished with value: 0.16601318679749966 and parameters: {'lr': 0.0002024769955479724, 'batch_size': 16, 'num_layers': 3, 'num_heads': 2, 'dim_feedforward': 16, 'dropout': 0.4}. Best is trial 21 with value: 0.16215666010975838.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2719
-Epoch 2, Validation Loss: 0.2018
-Epoch 3, Validation Loss: 0.1933
-Epoch 4, Validation Loss: 0.1970
-Epoch 5, Validation Loss: 0.1780
-Epoch 6, Validation Loss: 0.1752
-Epoch 7, Validation Loss: 0.1685
-Epoch 8, Validation Loss: 0.1651
-Epoch 9, Validation Loss: 0.1636
-Epoch 10, Validation Loss: 0.1570
-[I 2024-05-15 11:49:08,343] Trial 23 finished with value: 0.15699254907667637 and parameters: {'lr': 0.00022685325888306286, 'batch_size': 16, 'num_layers': 3, 'num_heads': 2, 'dim_feedforward': 16, 'dropout': 0.4}. Best is trial 23 with value: 0.15699254907667637.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2804
-Epoch 2, Validation Loss: 0.2602
-Epoch 3, Validation Loss: 0.2744
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 11:50:04,131] Trial 24 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2169
-Epoch 2, Validation Loss: 0.2003
-Epoch 3, Validation Loss: 0.1947
-Epoch 4, Validation Loss: 0.1911
-Epoch 5, Validation Loss: 0.1851
-Epoch 6, Validation Loss: 0.1877
-Epoch 7, Validation Loss: 0.1875
-Epoch 8, Validation Loss: 0.2006
-Epoch 9, Validation Loss: 0.2373
-Epoch 10, Validation Loss: 0.1949
-[I 2024-05-15 11:53:22,802] Trial 25 finished with value: 0.19485699012875557 and parameters: {'lr': 0.0003476535087368019, 'batch_size': 16, 'num_layers': 3, 'num_heads': 4, 'dim_feedforward': 16, 'dropout': 0.4}. Best is trial 23 with value: 0.15699254907667637.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.6852
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 11:53:40,596] Trial 26 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.5603
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 11:54:07,830] Trial 27 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.3336
-Epoch 2, Validation Loss: 0.2308
-Epoch 3, Validation Loss: 0.1898
-Epoch 4, Validation Loss: 0.1865
-Epoch 5, Validation Loss: 0.1832
-Epoch 6, Validation Loss: 0.1809
-Epoch 7, Validation Loss: 0.1769
-Epoch 8, Validation Loss: 0.1734
-Epoch 9, Validation Loss: 0.1700
-Epoch 10, Validation Loss: 0.1664
-[I 2024-05-15 11:56:06,824] Trial 28 finished with value: 0.16638829186558723 and parameters: {'lr': 0.00016359554692625965, 'batch_size': 32, 'num_layers': 2, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.2}. Best is trial 23 with value: 0.15699254907667637.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.4874
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 11:56:22,113] Trial 29 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.6230
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 11:56:40,385] Trial 30 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2799
-Epoch 2, Validation Loss: 0.1983
-Epoch 3, Validation Loss: 0.1893
-Epoch 4, Validation Loss: 0.1828
-Epoch 5, Validation Loss: 0.1790
-Epoch 6, Validation Loss: 0.1738
-Epoch 7, Validation Loss: 0.1684
-Epoch 8, Validation Loss: 0.1633
-Epoch 9, Validation Loss: 0.1588
-Epoch 10, Validation Loss: 0.1552
-[I 2024-05-15 11:58:59,753] Trial 31 finished with value: 0.15522336214780807 and parameters: {'lr': 0.0002514210391209172, 'batch_size': 32, 'num_layers': 2, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.2}. Best is trial 31 with value: 0.15522336214780807.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2321
-Epoch 2, Validation Loss: 0.1927
-Epoch 3, Validation Loss: 0.1819
-Epoch 4, Validation Loss: 0.1707
-Epoch 5, Validation Loss: 0.1692
-Epoch 6, Validation Loss: 0.1593
-Epoch 7, Validation Loss: 0.1533
-Epoch 8, Validation Loss: 0.1525
-Epoch 9, Validation Loss: 0.1607
-Epoch 10, Validation Loss: 0.1780
-[I 2024-05-15 12:01:41,065] Trial 32 finished with value: 0.17796079441905022 and parameters: {'lr': 0.0008455091077717475, 'batch_size': 32, 'num_layers': 2, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.2}. Best is trial 31 with value: 0.15522336214780807.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2672
-Epoch 2, Validation Loss: 0.1935
-Epoch 3, Validation Loss: 0.1912
-Epoch 4, Validation Loss: 0.1821
-Epoch 5, Validation Loss: 0.1789
-Epoch 6, Validation Loss: 0.1747
-Epoch 7, Validation Loss: 0.1704
-Epoch 8, Validation Loss: 0.1642
-Epoch 9, Validation Loss: 0.1604
-Epoch 10, Validation Loss: 0.1568
-[I 2024-05-15 12:04:12,156] Trial 33 finished with value: 0.15676115825772285 and parameters: {'lr': 0.0003449104302390327, 'batch_size': 32, 'num_layers': 3, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.2}. Best is trial 31 with value: 0.15522336214780807.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2221
-Epoch 2, Validation Loss: 0.1882
-Epoch 3, Validation Loss: 0.1843
-Epoch 4, Validation Loss: 0.1790
-Epoch 5, Validation Loss: 0.1696
-Epoch 6, Validation Loss: 0.1630
-Epoch 7, Validation Loss: 0.1575
-Epoch 8, Validation Loss: 0.1557
-Epoch 9, Validation Loss: 0.1504
-Epoch 10, Validation Loss: 0.1469
-[I 2024-05-15 12:06:16,965] Trial 34 finished with value: 0.14687680080533028 and parameters: {'lr': 0.0003970392298038268, 'batch_size': 32, 'num_layers': 2, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.2}. Best is trial 34 with value: 0.14687680080533028.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2780
-Epoch 2, Validation Loss: 0.2668
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:06:50,833] Trial 35 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.5231
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:07:05,076] Trial 36 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.4122
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:07:14,715] Trial 37 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.3435
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:07:32,058] Trial 38 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.6256
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:07:42,770] Trial 39 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.5526
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:07:57,757] Trial 40 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2959
-Epoch 2, Validation Loss: 0.1943
-Epoch 3, Validation Loss: 0.1919
-Epoch 4, Validation Loss: 0.1866
-Epoch 5, Validation Loss: 0.1829
-Epoch 6, Validation Loss: 0.1769
-Epoch 7, Validation Loss: 0.1702
-Epoch 8, Validation Loss: 0.1661
-Epoch 9, Validation Loss: 0.1618
-Epoch 10, Validation Loss: 0.1574
-[I 2024-05-15 12:09:51,307] Trial 41 finished with value: 0.15743059292435646 and parameters: {'lr': 0.0002980307819623046, 'batch_size': 32, 'num_layers': 2, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.25}. Best is trial 34 with value: 0.14687680080533028.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.4674
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:10:04,509] Trial 42 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2951
-Epoch 2, Validation Loss: 0.2803
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:10:34,859] Trial 43 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2295
-Epoch 2, Validation Loss: 0.1998
-Epoch 3, Validation Loss: 0.1875
-Epoch 4, Validation Loss: 0.1794
-Epoch 5, Validation Loss: 0.1722
-Epoch 6, Validation Loss: 0.1650
-Epoch 7, Validation Loss: 0.1609
-Epoch 8, Validation Loss: 0.1555
-Epoch 9, Validation Loss: 0.1523
-Epoch 10, Validation Loss: 0.1486
-[I 2024-05-15 12:12:09,799] Trial 44 finished with value: 0.14856095612049103 and parameters: {'lr': 0.000463025800495846, 'batch_size': 32, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.2}. Best is trial 34 with value: 0.14687680080533028.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.4180
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:12:17,242] Trial 45 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2315
-Epoch 2, Validation Loss: 0.1968
-Epoch 3, Validation Loss: 0.1862
-Epoch 4, Validation Loss: 0.1794
-Epoch 5, Validation Loss: 0.1707
-Epoch 6, Validation Loss: 0.1634
-Epoch 7, Validation Loss: 0.1601
-Epoch 8, Validation Loss: 0.1540
-Epoch 9, Validation Loss: 0.1507
-Epoch 10, Validation Loss: 0.1465
-[I 2024-05-15 12:13:38,032] Trial 46 finished with value: 0.14652901142835617 and parameters: {'lr': 0.0010074747982683552, 'batch_size': 64, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.2}. Best is trial 46 with value: 0.14652901142835617.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2552
-Epoch 2, Validation Loss: 0.2018
-Epoch 3, Validation Loss: 0.1841
-Epoch 4, Validation Loss: 0.1754
-Epoch 5, Validation Loss: 0.1687
-Epoch 6, Validation Loss: 0.1626
-Epoch 7, Validation Loss: 0.1575
-Epoch 8, Validation Loss: 0.1525
-Epoch 9, Validation Loss: 0.1486
-Epoch 10, Validation Loss: 0.1489
-[I 2024-05-15 12:15:07,581] Trial 47 finished with value: 0.14886220544576645 and parameters: {'lr': 0.0011870418186789198, 'batch_size': 64, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.2}. Best is trial 46 with value: 0.14652901142835617.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.7477
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:15:21,595] Trial 48 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2250
-Epoch 2, Validation Loss: 0.1904
-Epoch 3, Validation Loss: 0.1849
-Epoch 4, Validation Loss: 0.1790
-Epoch 5, Validation Loss: 0.1726
-Epoch 6, Validation Loss: 0.1643
-Epoch 7, Validation Loss: 0.1572
-Epoch 8, Validation Loss: 0.1537
-Epoch 9, Validation Loss: 0.1520
-Epoch 10, Validation Loss: 0.1469
-[I 2024-05-15 12:17:07,728] Trial 49 finished with value: 0.1469472274184227 and parameters: {'lr': 0.0011892639495471617, 'batch_size': 64, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.1}. Best is trial 46 with value: 0.14652901142835617.
-Data Loaders created!
-Epoch 1, Validation Loss: 15.8927
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:17:21,613] Trial 50 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2375
-Epoch 2, Validation Loss: 0.1986
-Epoch 3, Validation Loss: 0.1860
-Epoch 4, Validation Loss: 0.1788
-Epoch 5, Validation Loss: 0.1745
-Epoch 6, Validation Loss: 0.1683
-Epoch 7, Validation Loss: 0.1624
-Epoch 8, Validation Loss: 0.1577
-Epoch 9, Validation Loss: 0.1530
-Epoch 10, Validation Loss: 0.1510
-[I 2024-05-15 12:19:51,238] Trial 51 finished with value: 0.15096990764141083 and parameters: {'lr': 0.001182852402218334, 'batch_size': 64, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.1}. Best is trial 46 with value: 0.14652901142835617.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2673
-Epoch 2, Validation Loss: 0.2030
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:20:19,411] Trial 52 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2972
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:20:31,739] Trial 53 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.8947
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:20:41,132] Trial 54 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.5693
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:20:50,560] Trial 55 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2729
-Epoch 2, Validation Loss: 0.1935
-Epoch 3, Validation Loss: 0.1836
-Epoch 4, Validation Loss: 0.1791
-Epoch 5, Validation Loss: 0.1706
-Epoch 6, Validation Loss: 0.1639
-Epoch 7, Validation Loss: 0.1578
-Epoch 8, Validation Loss: 0.1559
-Epoch 9, Validation Loss: 0.1508
-Epoch 10, Validation Loss: 0.1485
-[I 2024-05-15 12:22:11,090] Trial 56 finished with value: 0.14854605495929718 and parameters: {'lr': 0.0011265820303790895, 'batch_size': 64, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.1}. Best is trial 46 with value: 0.14652901142835617.
-Data Loaders created!
-Epoch 1, Validation Loss: 1.0181
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:22:19,899] Trial 57 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2674
-Epoch 2, Validation Loss: 0.2231
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:22:35,573] Trial 58 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.4651
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:22:44,789] Trial 59 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2846
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:22:54,657] Trial 60 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.3785
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:23:07,127] Trial 61 pruned.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2382
-Epoch 2, Validation Loss: 0.1917
-Epoch 3, Validation Loss: 0.1838
-Epoch 4, Validation Loss: 0.1774
+Epoch 1, Validation Loss: 0.2871
+Epoch 2, Validation Loss: 0.2004
+Epoch 3, Validation Loss: 0.1745
+Epoch 4, Validation Loss: 0.1711
 Epoch 5, Validation Loss: 0.1714
-Epoch 6, Validation Loss: 0.1649
-Epoch 7, Validation Loss: 0.1599
-Epoch 8, Validation Loss: 0.1534
-Epoch 9, Validation Loss: 0.1510
-Epoch 10, Validation Loss: 0.1471
-[I 2024-05-15 12:24:29,348] Trial 62 finished with value: 0.14706255495548248 and parameters: {'lr': 0.0011097410585206992, 'batch_size': 64, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.1}. Best is trial 46 with value: 0.14652901142835617.
+[I 2024-05-19 11:28:38,754] Trial 12 finished with value: 0.17140754498541355 and parameters: {'lr': 0.007716097470443623, 'batch_size': 32, 'num_layers': 1, 'num_heads': 1, 'dim_feedforward': 128, 'dropout': 0.15}. Best is trial 12 with value: 0.17140754498541355.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.2366
-Epoch 2, Validation Loss: 0.1956
-Epoch 3, Validation Loss: 0.1828
-Epoch 4, Validation Loss: 0.1792
-Epoch 5, Validation Loss: 0.1728
-Epoch 6, Validation Loss: 0.1653
-Epoch 7, Validation Loss: 0.1599
-Epoch 8, Validation Loss: 0.1564
-Epoch 9, Validation Loss: 0.1519
-Epoch 10, Validation Loss: 0.1481
-[I 2024-05-15 12:25:57,146] Trial 63 finished with value: 0.148113451898098 and parameters: {'lr': 0.0007507175906479952, 'batch_size': 64, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.1}. Best is trial 46 with value: 0.14652901142835617.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.2671
-Epoch 2, Validation Loss: 0.1962
-Epoch 3, Validation Loss: 0.1914
+Epoch 1, Validation Loss: 0.4315
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:26:25,237] Trial 64 pruned.
+[I 2024-05-19 11:30:49,434] Trial 13 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.2597
-Epoch 2, Validation Loss: 0.2050
+Epoch 1, Validation Loss: 0.5567
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:26:41,711] Trial 65 pruned.
+[I 2024-05-19 11:33:05,396] Trial 14 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.2327
-Epoch 2, Validation Loss: 0.2002
-Epoch 3, Validation Loss: 0.1883
-Epoch 4, Validation Loss: 0.1911
+Epoch 1, Validation Loss: 0.3327
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:27:20,567] Trial 66 pruned.
+[I 2024-05-19 11:35:06,604] Trial 15 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.4620
+Epoch 1, Validation Loss: 1.3753
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:27:28,768] Trial 67 pruned.
+[I 2024-05-19 11:37:06,613] Trial 16 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.5977
+Epoch 1, Validation Loss: 0.6287
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:27:39,136] Trial 68 pruned.
+[I 2024-05-19 11:39:03,853] Trial 17 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.4969
+Epoch 1, Validation Loss: 0.8686
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:27:55,117] Trial 69 pruned.
+[I 2024-05-19 11:40:59,137] Trial 18 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.4872
+Epoch 1, Validation Loss: 0.3314
+Epoch 2, Validation Loss: 0.3311
+Epoch 3, Validation Loss: 0.3315
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:28:03,580] Trial 70 pruned.
+[I 2024-05-19 11:48:23,703] Trial 19 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.2405
-Epoch 2, Validation Loss: 0.2018
+Epoch 1, Validation Loss: 0.7104
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:28:20,345] Trial 71 pruned.
+[I 2024-05-19 11:50:29,086] Trial 20 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.2863
+Epoch 1, Validation Loss: 0.2637
+Epoch 2, Validation Loss: 0.2528
+Epoch 3, Validation Loss: 0.2508
+Epoch 4, Validation Loss: 0.2490
+Epoch 5, Validation Loss: 0.2459
+[I 2024-05-19 12:00:20,471] Trial 21 finished with value: 0.24594959057867527 and parameters: {'lr': 0.040027197848962914, 'batch_size': 32, 'num_layers': 1, 'num_heads': 1, 'dim_feedforward': 128, 'dropout': 0.15}. Best is trial 12 with value: 0.17140754498541355.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2775
+Epoch 2, Validation Loss: 0.2963
+Epoch 3, Validation Loss: 0.2694
+Epoch 4, Validation Loss: 0.2834
+Epoch 5, Validation Loss: 0.2467
+[I 2024-05-19 12:09:23,798] Trial 22 finished with value: 0.2466521468013525 and parameters: {'lr': 0.023033740172196386, 'batch_size': 32, 'num_layers': 1, 'num_heads': 1, 'dim_feedforward': 128, 'dropout': 0.15}. Best is trial 12 with value: 0.17140754498541355.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.4451
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:28:29,266] Trial 72 pruned.
+[I 2024-05-19 12:11:31,580] Trial 23 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.2428
-Epoch 2, Validation Loss: 0.1950
-Epoch 3, Validation Loss: 0.1862
-Epoch 4, Validation Loss: 0.1765
-Epoch 5, Validation Loss: 0.1676
-Epoch 6, Validation Loss: 0.1628
-Epoch 7, Validation Loss: 0.1551
-Epoch 8, Validation Loss: 0.1535
-Epoch 9, Validation Loss: 0.1490
-Epoch 10, Validation Loss: 0.1470
-[I 2024-05-15 12:30:07,449] Trial 73 finished with value: 0.14695334434509277 and parameters: {'lr': 0.0013542314281694097, 'batch_size': 64, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.2}. Best is trial 46 with value: 0.14652901142835617.
+Epoch 1, Validation Loss: 0.2766
+Epoch 2, Validation Loss: 0.2594
+Epoch 3, Validation Loss: 0.2528
+Epoch 4, Validation Loss: 0.2489
+Epoch 5, Validation Loss: 0.2292
+[I 2024-05-19 12:20:55,705] Trial 24 finished with value: 0.2291739583015442 and parameters: {'lr': 0.030749933437667503, 'batch_size': 32, 'num_layers': 1, 'num_heads': 1, 'dim_feedforward': 128, 'dropout': 0.15}. Best is trial 12 with value: 0.17140754498541355.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.2660
-Epoch 2, Validation Loss: 0.1988
-Epoch 3, Validation Loss: 0.1868
-Epoch 4, Validation Loss: 0.1835
-Epoch 5, Validation Loss: 0.1796
-Epoch 6, Validation Loss: 0.1789
+Epoch 1, Validation Loss: 0.5197
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:31:11,471] Trial 74 pruned.
+[I 2024-05-19 12:23:13,742] Trial 25 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.4397
+Epoch 1, Validation Loss: 0.6869
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:31:19,918] Trial 75 pruned.
+[I 2024-05-19 12:24:48,965] Trial 26 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.6550
+Epoch 1, Validation Loss: 0.7532
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:31:28,599] Trial 76 pruned.
+[I 2024-05-19 12:26:53,583] Trial 27 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.5840
+Epoch 1, Validation Loss: 0.3702
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:31:41,861] Trial 77 pruned.
+[I 2024-05-19 12:29:05,781] Trial 28 pruned.   
 Data Loaders created!
-Epoch 1, Validation Loss: 0.3668
+Epoch 1, Validation Loss: 0.3415
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:31:50,610] Trial 78 pruned.
+[I 2024-05-19 12:31:11,984] Trial 29 pruned.   
 Data Loaders created!
-Epoch 1, Validation Loss: 0.7271
+Epoch 1, Validation Loss: 0.3313
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:32:02,774] Trial 79 pruned.
+[I 2024-05-19 12:33:39,334] Trial 30 pruned.   
 Data Loaders created!
-Epoch 1, Validation Loss: 0.7008
+Epoch 1, Validation Loss: 0.3320
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:32:13,163] Trial 80 pruned.
+[I 2024-05-19 12:35:35,085] Trial 31 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.2402
-Epoch 2, Validation Loss: 0.2045
+Epoch 1, Validation Loss: 0.2678
+Epoch 2, Validation Loss: 0.2599
+Epoch 3, Validation Loss: 0.2557
+Epoch 4, Validation Loss: 0.2528
+Epoch 5, Validation Loss: 0.2524
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:32:31,695] Trial 81 pruned.
+[I 2024-05-19 12:47:16,141] Trial 32 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.2188
-Epoch 2, Validation Loss: 0.2003
-Epoch 3, Validation Loss: 0.1917
+Epoch 1, Validation Loss: 0.1883
+Epoch 2, Validation Loss: 0.1223
+Epoch 3, Validation Loss: 0.1105
+Epoch 4, Validation Loss: 0.1095
+Epoch 5, Validation Loss: 0.1237
+[I 2024-05-19 12:59:19,652] Trial 33 finished with value: 0.12374380510300398 and parameters: {'lr': 0.013256841285324495, 'batch_size': 32, 'num_layers': 1, 'num_heads': 1, 'dim_feedforward': 128, 'dropout': 0.15}. Best is trial 33 with value: 0.12374380510300398.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.3365
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:32:57,913] Trial 82 pruned.
+[I 2024-05-19 13:01:32,407] Trial 34 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.2493
-Epoch 2, Validation Loss: 0.2021
+Epoch 1, Validation Loss: 0.5814
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:33:14,205] Trial 83 pruned.
+[I 2024-05-19 13:05:54,127] Trial 35 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.2648
-Epoch 2, Validation Loss: 0.2103
+Epoch 1, Validation Loss: 0.7822
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:33:30,449] Trial 84 pruned.
+[I 2024-05-19 13:07:38,432] Trial 36 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.2132
-Epoch 2, Validation Loss: 0.1914
-Epoch 3, Validation Loss: 0.1857
-Epoch 4, Validation Loss: 0.1834
-Epoch 5, Validation Loss: 0.1740
-Epoch 6, Validation Loss: 0.1705
-Epoch 7, Validation Loss: 0.1634
-Epoch 8, Validation Loss: 0.1590
-Epoch 9, Validation Loss: 0.1547
-Epoch 10, Validation Loss: 0.1511
-[I 2024-05-15 12:35:27,879] Trial 85 finished with value: 0.15109776332974434 and parameters: {'lr': 0.00040686929343230723, 'batch_size': 32, 'num_layers': 2, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.2}. Best is trial 46 with value: 0.14652901142835617.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.6123
+Epoch 1, Validation Loss: 0.6546
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:35:38,413] Trial 86 pruned.
+[I 2024-05-19 13:10:50,747] Trial 37 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.3518
+Epoch 1, Validation Loss: 0.3330
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:35:47,963] Trial 87 pruned.
+[I 2024-05-19 13:13:17,057] Trial 38 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.5166
+Epoch 1, Validation Loss: 0.2836
+Epoch 2, Validation Loss: 0.2111
+Epoch 3, Validation Loss: 0.2039
+Epoch 4, Validation Loss: 0.2151
+Epoch 5, Validation Loss: 0.1995
+[I 2024-05-19 13:24:44,914] Trial 39 finished with value: 0.1995273968204856 and parameters: {'lr': 0.00360352184255398, 'batch_size': 16, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.15}. Best is trial 33 with value: 0.12374380510300398.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.7338
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:35:57,588] Trial 88 pruned.
+[I 2024-05-19 13:27:50,971] Trial 40 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.3763
+Epoch 1, Validation Loss: 0.2515
+Epoch 2, Validation Loss: 0.2166
+Epoch 3, Validation Loss: 0.2030
+Epoch 4, Validation Loss: 0.1789
+Epoch 5, Validation Loss: 0.1768
+[I 2024-05-19 13:38:21,537] Trial 41 finished with value: 0.17679026164114475 and parameters: {'lr': 0.004138746605058311, 'batch_size': 16, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.15}. Best is trial 33 with value: 0.12374380510300398.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2640
+Epoch 2, Validation Loss: 0.2110
+Epoch 3, Validation Loss: 0.2035
+Epoch 4, Validation Loss: 0.1984
+Epoch 5, Validation Loss: 0.1953
+[I 2024-05-19 13:48:51,327] Trial 42 finished with value: 0.19534999877214432 and parameters: {'lr': 0.003510866391458512, 'batch_size': 16, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.15}. Best is trial 33 with value: 0.12374380510300398.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2408
+Epoch 2, Validation Loss: 0.1858
+Epoch 3, Validation Loss: 0.1772
+Epoch 4, Validation Loss: 0.1814
+Epoch 5, Validation Loss: 0.1788
+[I 2024-05-19 13:59:23,370] Trial 43 finished with value: 0.17881452292203903 and parameters: {'lr': 0.0035205787892697705, 'batch_size': 16, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.15}. Best is trial 33 with value: 0.12374380510300398.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.4328
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:36:05,348] Trial 89 pruned.
+[I 2024-05-19 14:01:28,513] Trial 44 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.2435
-Epoch 2, Validation Loss: 0.2360
+Epoch 1, Validation Loss: 0.3533
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:36:21,321] Trial 90 pruned.
+[I 2024-05-19 14:03:47,530] Trial 45 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.2307
-Epoch 2, Validation Loss: 0.1919
-Epoch 3, Validation Loss: 0.1833
-Epoch 4, Validation Loss: 0.1785
-Epoch 5, Validation Loss: 0.1733
-Epoch 6, Validation Loss: 0.1704
-Epoch 7, Validation Loss: 0.1605
-Epoch 8, Validation Loss: 0.1540
-Epoch 9, Validation Loss: 0.1505
-Epoch 10, Validation Loss: 0.1476
-[I 2024-05-15 12:37:39,076] Trial 91 finished with value: 0.1475614681839943 and parameters: {'lr': 0.0011382807951121952, 'batch_size': 64, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.1}. Best is trial 46 with value: 0.14652901142835617.
-Data Loaders created!
-Epoch 1, Validation Loss: 0.3230
+Epoch 1, Validation Loss: 0.4462
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:37:48,198] Trial 92 pruned.
+[I 2024-05-19 14:06:19,201] Trial 46 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.2533
-Epoch 2, Validation Loss: 0.2087
+Epoch 1, Validation Loss: 0.8412
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:38:06,173] Trial 93 pruned.
+[I 2024-05-19 14:09:01,190] Trial 47 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.3666
+Epoch 1, Validation Loss: 0.6925
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:38:16,649] Trial 94 pruned.
+[I 2024-05-19 14:11:13,410] Trial 48 pruned.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.4888
+Epoch 1, Validation Loss: 0.5724
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:38:42,874] Trial 95 pruned.
+[I 2024-05-19 14:13:17,305] Trial 49 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.7333
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 14:15:05,578] Trial 50 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2700
+Epoch 2, Validation Loss: 0.2294
+Epoch 3, Validation Loss: 0.2481
+Epoch 4, Validation Loss: 0.2449
+Epoch 5, Validation Loss: 0.2433
+[I 2024-05-19 14:26:19,385] Trial 51 finished with value: 0.2433208441361785 and parameters: {'lr': 0.0042118266805915155, 'batch_size': 16, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.15}. Best is trial 33 with value: 0.12374380510300398.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.5098
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 14:28:24,798] Trial 52 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2726
+Epoch 2, Validation Loss: 0.2500
+Epoch 3, Validation Loss: 0.2497
+Epoch 4, Validation Loss: 0.2499
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 14:37:06,864] Trial 53 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.3667
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 14:39:13,983] Trial 54 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.4956
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 14:40:58,717] Trial 55 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2642
+Epoch 2, Validation Loss: 0.2049
+Epoch 3, Validation Loss: 0.2012
+Epoch 4, Validation Loss: 0.1989
+Epoch 5, Validation Loss: 0.1972
+[I 2024-05-19 14:51:31,689] Trial 56 finished with value: 0.19721690379083157 and parameters: {'lr': 0.0036111794394128975, 'batch_size': 16, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.1}. Best is trial 33 with value: 0.12374380510300398.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.3313
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 14:53:47,030] Trial 57 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2361
+Epoch 2, Validation Loss: 0.1969
+Epoch 3, Validation Loss: 0.1944
+Epoch 4, Validation Loss: 0.1930
+Epoch 5, Validation Loss: 0.1948
+[I 2024-05-19 15:06:49,382] Trial 58 finished with value: 0.19479614030569792 and parameters: {'lr': 0.01223645583220073, 'batch_size': 16, 'num_layers': 1, 'nm_layers': 1, 'num_heads': 2, 'dim_feedforward': 256, 'dropout': 0.1}. Best is trial 33 with value: 0.12374380510300398.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2080
+Epoch 2, Validation Loss: 0.1808
+Epoch 3, Validation Loss: 0.1724
+Epoch 4, Validation Loss: 0.1702
+Epoch 5, Validation Loss: 0.1892
+[I 2024-05-19 15:18:30,581] Trial 59 finished with value: 0.18923364114016294 and parameters: {'lr': 0.014908294918947051, 'batch_size': 16, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 256, 'dropout': 0.1}. Best is trial 33 with value: 0.12374380510300398.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.4790
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 15:21:11,291] Trial 60 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2222
+Epoch 2, Validation Loss: 0.2192
+Epoch 3, Validation Loss: 0.1877
+Epoch 4, Validation Loss: 0.1872
+Epoch 5, Validation Loss: 0.2014
+[I 2024-05-19 15:36:44,977] Trial 61 finished with value: 0.2013631472364068 and parameters: {'lr': 0.011500406376956424, 'batch_size': 16, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 256, 'dropout': 0.1}. Best is trial 33 with value: 0.12374380510300398.
 Data Loaders created!
 Epoch 1, Validation Loss: 0.2454
-Epoch 2, Validation Loss: 0.2030
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:39:01,024] Trial 96 pruned.
-Epoch 1, Validation Loss: 0.6220
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:39:18,730] Trial 97 pruned.
+Epoch 2, Validation Loss: 0.2124
+Epoch 3, Validation Loss: 0.2038
+Epoch 4, Validation Loss: 0.1845
+Epoch 5, Validation Loss: 0.1709
+[I 2024-05-19 16:01:39,653] Trial 62 finished with value: 0.17087594605982304 and parameters: {'lr': 0.006618728432754259, 'batch_size': 16, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 256, 'dropout': 0.1}. Best is trial 33 with value: 0.12374380510300398.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.9617
-/n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:39:28,814] Trial 98 pruned.
+Epoch 1, Validation Loss: 0.2037
+Epoch 2, Validation Loss: 0.1875
+Epoch 3, Validation Loss: 0.1763
+Epoch 4, Validation Loss: 0.1591
+Epoch 5, Validation Loss: 0.1761
+[I 2024-05-19 16:26:02,726] Trial 63 finished with value: 0.1761239990592003 and parameters: {'lr': 0.007454767432622232, 'batch_size': 16, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 256, 'dropout': 0.1}. Best is trial 33 with value: 0.12374380510300398.
 Data Loaders created!
-Epoch 1, Validation Loss: 0.8691
+Epoch 1, Validation Loss: 0.2562
+Epoch 2, Validation Loss: 0.2145
+Epoch 3, Validation Loss: 0.2261
 /n/n==========its because of me!!==========/n/n
-[I 2024-05-15 12:39:39,126] Trial 99 pruned.
-{'lr': 0.0010074747982683552, 'batch_size': 64, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.2}
+[I 2024-05-19 16:37:51,101] Trial 64 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.3418
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 16:41:08,831] Trial 65 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 1.3153
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 16:43:21,876] Trial 66 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.3313
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 16:45:46,333] Trial 67 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2750
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 16:47:39,430] Trial 68 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.3338
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 16:50:24,304] Trial 69 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.3408
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 16:52:26,368] Trial 70 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2380
+Epoch 2, Validation Loss: 0.2097
+Epoch 3, Validation Loss: 0.2042
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 16:59:47,313] Trial 71 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2319
+Epoch 2, Validation Loss: 0.2502
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 17:04:20,544] Trial 72 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2094
+Epoch 2, Validation Loss: 0.1963
+Epoch 3, Validation Loss: 0.1997
+Epoch 4, Validation Loss: 0.1908
+Epoch 5, Validation Loss: 0.2308
+[I 2024-05-19 17:15:56,477] Trial 73 finished with value: 0.23082622047513723 and parameters: {'lr': 0.005296275510911432, 'batch_size': 16, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 256, 'dropout': 0.1}. Best is trial 33 with value: 0.12374380510300398.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2522
+Epoch 2, Validation Loss: 0.2330
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 17:20:33,609] Trial 74 pruned.   
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2365
+Epoch 2, Validation Loss: 0.2106
+Epoch 3, Validation Loss: 0.2331
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 17:27:22,551] Trial 75 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.3318
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 17:29:50,539] Trial 76 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.6008
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 17:31:47,925] Trial 77 pruned.   
+Data Loaders created!
+Epoch 1, Validation Loss: 0.3492
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 17:33:35,939] Trial 78 pruned.   
+Data Loaders created!
+Epoch 1, Validation Loss: 0.6193
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 17:35:26,107] Trial 79 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2182
+Epoch 2, Validation Loss: 0.2044
+Epoch 3, Validation Loss: 0.2267
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 17:42:29,875] Trial 80 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2970
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 17:44:42,983] Trial 81 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.4893
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 17:46:57,908] Trial 82 pruned. 
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2502
+Epoch 2, Validation Loss: 0.2055
+Epoch 3, Validation Loss: 0.1946
+Epoch 4, Validation Loss: 0.1806
+Epoch 5, Validation Loss: 0.1985
+[I 2024-05-19 17:58:12,150] Trial 83 finished with value: 0.19852023478597403 and parameters: {'lr': 0.004283704937589438, 'batch_size': 16, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 128, 'dropout': 0.15}. Best is trial 33 with value: 0.12374380510300398.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2502
+Epoch 2, Validation Loss: 0.2215
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 18:02:44,437] Trial 84 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.4368
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 18:04:55,235] Trial 85 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2555
+Epoch 2, Validation Loss: 0.2570
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 18:09:54,381] Trial 86 pruned.   
+Data Loaders created!
+Epoch 1, Validation Loss: 0.3799
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 18:12:13,330] Trial 87 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.4863
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 18:14:32,967] Trial 88 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.5547
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 18:16:46,706] Trial 89 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.3327
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 18:20:13,785] Trial 90 pruned.   
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2594
+Epoch 2, Validation Loss: 0.2381
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 18:24:42,286] Trial 91 pruned.   
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2886
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 18:27:08,971] Trial 92 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2565
+Epoch 2, Validation Loss: 0.2110
+Epoch 3, Validation Loss: 0.1900
+Epoch 4, Validation Loss: 0.1850
+Epoch 5, Validation Loss: 0.1809
+[I 2024-05-19 18:38:23,778] Trial 93 finished with value: 0.18093166127800941 and parameters: {'lr': 0.006598998317178377, 'batch_size': 16, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.1}. Best is trial 33 with value: 0.12374380510300398.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2179
+Epoch 2, Validation Loss: 0.1976
+Epoch 3, Validation Loss: 0.1963
+Epoch 4, Validation Loss: 0.1927
+Epoch 5, Validation Loss: 0.1918
+[I 2024-05-19 18:49:35,804] Trial 94 finished with value: 0.19181573018431664 and parameters: {'lr': 0.006269714407665733, 'batch_size': 16, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 32, 'dropout': 0.1}. Best is trial 33 with value: 0.12374380510300398.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2589
+Epoch 2, Validation Loss: 0.2506
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 18:54:13,433] Trial 95 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.2514
+Epoch 2, Validation Loss: 0.1996
+Epoch 3, Validation Loss: 0.1939
+Epoch 4, Validation Loss: 0.1908
+Epoch 5, Validation Loss: 0.2064
+[I 2024-05-19 19:05:25,029] Trial 96 finished with value: 0.20635402109473944 and parameters: {'lr': 0.013795256005161903, 'batch_size': 16, 'num_layers': 1, 'num_heads': 2, 'dim_feedforward': 16, 'dropout': 0.1}. Best is trial 33 with value: 0.12374380510300398.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.3326
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 19:07:35,912] Trial 97 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.6905
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 19:10:01,212] Trial 98 pruned.
+Data Loaders created!
+Epoch 1, Validation Loss: 0.3540
+/n/n==========its because of me!!==========/n/n
+[I 2024-05-19 19:11:46,203] Trial 99 pruned. 
+{'lr': 0.013256841285324495, 'batch_size': 32, 'num_layers': 1, 'num_heads': 1, 'dim_feedforward': 128, 'dropout': 0.15}

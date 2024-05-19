@@ -7,4 +7,3 @@ study.optimize(lambda trial: ge.find_best_hypers(trial, "resources/up_to_ten_tok
 
 # Print best hyperparameters
 print(study.best_params)
-
