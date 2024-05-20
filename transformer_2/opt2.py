@@ -109,6 +109,11 @@ def custom_collate_fn(batch):
     return X_padded, Y_padded
 
 
+# Label smoothing function
+def add_noise_to_targets(targets, noise_factor=0.1):
+    noise = torch.randn_like(targets) * noise_factor
+    return targets + noise
+
 # Training function with gradient accumulation
 # def train_transformer(train_loader, val_loader, input_size, output_size, epochs=10, learning_rate=0.01,
 #                       accumulate_gradients_every=1):
@@ -158,19 +163,25 @@ def custom_collate_fn(batch):
 
 
 # Training function
+# Modified training function with label smoothing
 def train_transformer(train_loader, val_loader, input_size, output_size, num_layers, num_heads, dim_feedforward,
-                      dropout, epochs=10, learning_rate=0.01, accumulate_gradients_every=1):
-    model = HiddenStateTransformer(input_size, output_size, num_layers, num_heads, dim_feedforward, dropout).to(device)
+                      dropout, epochs=10, learning_rate=0.01, noise_factor=0.1, accumulate_gradients_every=1):
+    model = HiddenStateTransformer(input_size, output_size, num_layers, num_heads, dim_feedforward, dropout)
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    model.to(device)
 
     for epoch in range(epochs):
         model.train()
         for X_batch, Y_batch in train_loader:
             X_batch, Y_batch = X_batch.to(device), Y_batch.to(device)
+
+            # Apply label smoothing by adding noise to the targets
+            Y_batch_smoothed = add_noise_to_targets(Y_batch, noise_factor)
+
             optimizer.zero_grad()
             outputs = model(X_batch)
-            loss = criterion(outputs, Y_batch)
+            loss = criterion(outputs, Y_batch_smoothed)
             loss.backward()
             optimizer.step()
 
@@ -199,16 +210,17 @@ def find_divisors(n):
 # Objective function for Optuna
 def objective(trial):
     num_layers = trial.suggest_int('num_layers', 1, 4)
-    dim_feedforward = trial.suggest_int('dim_feedforward', 64, 256)
+    # dim_model = trial.suggest_int('dim_model', 512, 1024)
+    dim_feedforward = trial.suggest_int('dim_feedforward', 64, 4096)
     dropout = trial.suggest_float('dropout', 0.1, 0.5)
-    learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-3)
+    learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2)
 
     # Ensure num_heads is a divisor of input_dim
     divisors = find_divisors(input_dim)
     num_heads = trial.suggest_categorical('num_heads', divisors)
 
     model, val_loss = train_transformer(train_loader, val_loader, input_dim, output_dim, num_layers, num_heads,
-                                        dim_feedforward, dropout, epochs=10, learning_rate=learning_rate)
+                                        dim_feedforward, dropout, epochs=20, learning_rate=learning_rate)
 
     return val_loss
 
@@ -281,7 +293,7 @@ if __name__ == '__main__':
     train_data, val_data, test_data = torch.load('data1.pt')
 
     # Create data loaders
-    batch_size = 64  # Reduce batch size for memory optimization
+    batch_size = 64
     train_loader = DataLoader(TensorDataset(train_data), batch_size=batch_size, shuffle=True,
                               collate_fn=custom_collate_fn)
     val_loader = DataLoader(TensorDataset(val_data), batch_size=batch_size, shuffle=False, collate_fn=custom_collate_fn)
@@ -295,20 +307,20 @@ if __name__ == '__main__':
 
     # # Train the model with gradient accumulation
     # model = train_transformer(train_loader, val_loader, input_dim, output_dim, epochs=15, learning_rate=0.00001,
-    #                           accumulate_gradients_every=10)
+    #                           accumulate_gradients_every=15)
 
     # Optimize hyperparameters with Optuna
-    study = optuna.create_study(direction='minimize')
-    study.optimize(objective, n_trials=100)
-
-    print("Best hyperparameters:", study.best_params)
-
-    # Train the model with the best hyperparameters
-    best_params = study.best_params
-    model, _ = train_transformer(train_loader, val_loader, input_dim, output_dim, best_params['num_layers'],
-                                 best_params['num_heads'], best_params['dim_feedforward'], best_params['dropout'],
-                                 epochs=15, learning_rate=best_params['learning_rate'])
-    torch.save(model, 'best_model.pth')
+    # study = optuna.create_study(direction='minimize')
+    # study.optimize(objective, n_trials=50)
+    #
+    # print("Best hyperparameters:", study.best_params)
+    #
+    # # Train the model with the best hyperparameters
+    # best_params = study.best_params
+    # model, _ = train_transformer(train_loader, val_loader, input_dim, output_dim, best_params['num_layers'],
+    #                              best_params['num_heads'], best_params['dim_feedforward'], best_params['dropout'],
+    #                              epochs=20, learning_rate=best_params['learning_rate'])
+    # torch.save(model, 'best_model.pth')
 
     # Evaluate the model
     model = torch.load('best_model.pth')
@@ -317,7 +329,7 @@ if __name__ == '__main__':
     # evaluate_model(model, test_loader, criterion)
 
     print("--------- CHECK ----------")
-    prompt = "cold"
+    prompt = "can"
     opt_inputs = opt_tokenizer(prompt, return_tensors="pt")
     opt_outputs = opt_model(**opt_inputs, output_hidden_states=True)
     opt_hidden_state = opt_outputs.hidden_states[opt_layer]
