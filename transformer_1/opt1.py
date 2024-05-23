@@ -11,7 +11,11 @@ from embeddingsToOPT import CustomLayerWrapper
 # activateTrans1(0,0)
 
 
+<<<<<<< Updated upstream
 file = "translated_data.csv"
+=======
+file = "C:\\Users\\user\\Documents\\TranslatorGPT\\HebrewLLM\\resources\\He_En_oneTokenData.csv"
+>>>>>>> Stashed changes
 df = pd.read_csv(file)
 df = df.dropna()
 # build models
@@ -299,103 +303,6 @@ def main():
     new_predicted_tgt_hidden_states = predicted_tgt_hidden_states.view(dataSize, 1, -1)
     loss = criterion(new_predicted_tgt_hidden_states, new_tgt_hidden_states)
     print("Loss on test data is: ", loss.item())
-
-    file0 = open("indices.txt", 'a', encoding='UTF8')
-    file1 = open("tgt_Probs.txt", 'a', encoding='UTF8')
-    file2 = open("predicted_Probs.txt", 'a', encoding='UTF8')
-    file3 = open("tgt_Wrds.txt", 'a', encoding='UTF8')
-    file4 = open("predicted_Wrds.txt", 'a', encoding='UTF8')
-    file5 = open("loss.txt", 'a', encoding='UTF8')
-    for i in range(int(0.2 * lll)):
-        # Word by word
-        input_word = df['statement'].tolist()[lll - 1 - i]  # Replace with your Hebrew word
-        print(input_word)
-        # Using the function
-        converted_hidden_states = infer_hidden_states(hidden_state_transformer, src_model, src_tokenizer, input_word,
-                                                      device)
-        if converted_hidden_states.shape != converted_hidden_states0.shape:
-            continue
-        # file0.write(str(i) + '\n')
-        new_converted_hidden_states = tgt_hidden_state0
-        new_converted_hidden_states[0, 1, :] = converted_hidden_states.view(1, -1).unsqueeze(1)
-        ch = new_converted_hidden_states.softmax(-1)
-        # for j in range(10):
-        #     file2.write(str(ch.topk(10).values[0,1,j]) + '\t')
-        # file2.write('\n')
-
-        # Continue with your OPT model or any other post-processing steps
-        layer = 0
-        outputs, generated_text = embeddingsToOPT.OPT_activation_different_layer(new_converted_hidden_states, layer, 1)
-        print(generated_text)
-        # file4.write(str(generated_text) + '\n')
-
-        tgt_input = tgt_inputs0['input_ids'][lll - 1 - i].unsqueeze(0).to(device)
-        with torch.no_grad():
-            tgt_output = tgt_model(input_ids=tgt_input, output_hidden_states=True)
-            tgt_hidden_state = tgt_output.hidden_states[1]  # First layer's hidden states
-        outputs, generated_text = embeddingsToOPT.OPT_activation_different_layer(tgt_hidden_state, layer, 1)
-        print(generated_text)
-        # file3.write(str(generated_text) + '\n')
-        # print("By hs: ", generated_text)
-        # abc = tgt_hidden_state.softmax(-1)
-        # for j in range(10):
-        #     file1.write(str(abc.topk(10).values[0,1,j]) + '\t')
-        # file1.write('\n')
-        # loss = criterion(converted_hidden_states.view(1, -1).unsqueeze(1)[0,0,:], tgt_hidden_state[0,1,:])
-        loss = criterion(new_converted_hidden_states, tgt_hidden_state)
-        print(loss)
-        # file5.write(str(loss) + '\n')
-
-        input_word = df['statement'].tolist()[i]  # Replace with your Hebrew word
-        print(input_word)
-        # Using the function
-        converted_hidden_states = infer_hidden_states(hidden_state_transformer, src_model, src_tokenizer, input_word,
-                                                      device)
-        if converted_hidden_states.shape != converted_hidden_states0.shape:
-            continue
-        # file0.write(str(i) + '\n')
-        new_converted_hidden_states = tgt_hidden_state0
-        new_converted_hidden_states[0, 1, :] = converted_hidden_states.view(1, -1).unsqueeze(1)
-        ch = new_converted_hidden_states.softmax(-1)
-        # for j in range(10):
-        #     file2.write(str(ch.topk(10).values[0,1,j]) + '\t')
-        # file2.write('\n')
-
-        # Continue with your OPT model or any other post-processing steps
-        layer = 0
-        outputs, generated_text = embeddingsToOPT.OPT_activation_different_layer(new_converted_hidden_states, layer, 1)
-        print(generated_text)
-        # file4.write(str(generated_text) + '\n')
-
-        tgt_input = tgt_inputs0['input_ids'][i].unsqueeze(0).to(device)
-        with torch.no_grad():
-            tgt_output = tgt_model(input_ids=tgt_input, output_hidden_states=True)
-            tgt_hidden_state = tgt_output.hidden_states[1]  # First layer's hidden states
-        outputs, generated_text = embeddingsToOPT.OPT_activation_different_layer(tgt_hidden_state, layer, 1)
-        print(generated_text)
-        # file3.write(str(generated_text) + '\n')
-        # print("By hs: ", generated_text)
-        # abc = tgt_hidden_state.softmax(-1)
-        # for j in range(10):
-        #     file1.write(str(abc.topk(10).values[0,1,j]) + '\t')
-        # file1.write('\n')
-        # loss = criterion(converted_hidden_states.view(1, -1).unsqueeze(1)[0,0,:], tgt_hidden_state[0,1,:])
-        loss = criterion(new_converted_hidden_states, tgt_hidden_state)
-        print(loss)
-        # file5.write(str(loss) + '\n')
-
-    # input_word = "שלום"  # Replace with your Hebrew word
-
-    # Using the function
-    # converted_hidden_states = infer_hidden_states(hidden_state_transformer, src_model, src_tokenizer, input_word,
-    #                                               device)
-    # print(converted_hidden_states)
-
-    # # Continue with your OPT model or any other post-processing steps
-    # layer = 0
-    # outputs, generated_text = embeddingsToOPT.OPT_activation_different_layer(converted_hidden_states, layer)
-    # print("Generated Text: ", generated_text)
-
 
 if __name__ == '__main__':
     main()
