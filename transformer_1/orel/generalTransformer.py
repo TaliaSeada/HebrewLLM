@@ -200,7 +200,7 @@ h_text = "אני"
 # print(tras_last_hs.shape, opt_first_hs.shape)
 
 
-model: ge.HiddenStateTransformer = joblib.load('transformer_1/orel/general_model.pkl')
+model: ge.HiddenStateTransformer = joblib.load('transformer_1/orel/model_10Tokens_1/general_model.pkl')
 test(model, h_text)
 
 

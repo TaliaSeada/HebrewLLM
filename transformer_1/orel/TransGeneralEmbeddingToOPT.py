@@ -9,7 +9,7 @@ import optuna
 from torch.nn.utils.rnn import pad_sequence
 
 
-MAX_TANSOR_LENGTH = 10
+MAX_TANSOR_LENGTH = 15
 BATCH_SIZE = 64
 TEST_SIZE = 0.10
 VALIDATION_SIZE = 0.15
@@ -44,23 +44,6 @@ class HiddenStateTransformer(nn.Module):
         # output shape: (batch_size, seq_length, output_size)
         return output
 
-
-
-# def pad_tensor_to_length(tensor, target_length: int = MAX_TANSOR_LENGTH):
-#     # Get the current length of the tensor
-#     current_length = tensor.size(0)
-    
-#     # Calculate how much padding is needed
-#     if current_length < target_length:
-#         # Pad the tensor if it is shorter than the target length
-#         padding_size = target_length - current_length
-#         padding = torch.zeros((padding_size,) + tensor.size()[1:])
-#         padded_tensor = torch.cat([tensor, padding], dim=0)
-#     else:
-#         # Truncate the tensor if it is longer than the target length
-#         padded_tensor = tensor[:target_length]
-    
-#     return padded_tensor
 
 def pad_and_mask(batch, max_tansor_length: int = MAX_TANSOR_LENGTH):
     data = [item[0].squeeze(0) for item in batch]
@@ -97,17 +80,6 @@ def pad_and_mask(batch, max_tansor_length: int = MAX_TANSOR_LENGTH):
         # Concatenate the original tensor with the zero vectors along dimension 1
         labels_padded = torch.cat([labels_padded, zero_vector_labels], dim=1)        
         
-    
-    # print(labels_padded)
-    
-    # print(data_padded.shape)
-    # print(labels_padded.shape)
-    
-    # # If needed, manually truncate to `max_length` (handling very rare cases)
-    # if data_padded.size(1) > max_length:
-    #     data_padded = data_padded[:, :max_length]
-    # if labels_padded.size(1) > max_length:
-    #     labels_padded = labels_padded[:, :max_length]
     
     # Create masks for data and labels
     data_masks = (data_padded != 0).any(dim=-1).float()
@@ -221,7 +193,7 @@ def find_best_hypers(trial, dataset_path: str):
     # Define the hyperparameters to tune
     lr = trial.suggest_float('lr', 1e-6, 1e-1, log=True)
     batch_size = trial.suggest_categorical('batch_size', [16, 32, 64, 128])
-    num_layers = trial.suggest_int('num_layers', 1, 8)
+    num_layers = trial.suggest_categorical('num_heads', [1, 2])
     num_heads = trial.suggest_categorical('num_heads', [1, 2])
     dim_feedforward = trial.suggest_categorical('dim_feedforward', [16, 32, 64, 128, 256])
     dropout = trial.suggest_categorical('dropout', [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4])
@@ -278,10 +250,3 @@ def find_best_hypers(trial, dataset_path: str):
         # print("/n/n==========its not because of me!!==========/n/n", flush=True)
 
     return validation_loss
-
-
-# study = optuna.create_study(direction='minimize')
-# study.optimize(lambda trial: find_best_hypers(trial, "resources/up_to_ten_tokens_dataset.pt"), n_trials=100)
-
-# # Print best hyperparameters
-# print(study.best_params)

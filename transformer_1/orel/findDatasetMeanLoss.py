@@ -27,4 +27,5 @@ def findMean(datasetPath: str, criterion):
 
 
 criterion = nn.MSELoss()
-findMean("resources/up_to_ten_tokens_dataset.pt", criterion)
+# findMean("resources/datasets/up_to_ten_tokens_dataset.pt", criterion)
+findMean("resources/datasets/up_to_ten_tokens_dataset_wiki_5.pt", criterion)
