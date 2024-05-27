@@ -104,17 +104,17 @@ def generate_test_inputs(curr_song):
 
 
 
-def create_model(num_layers=2, num_heads=1, dim_feedforward=32, dropout=0.2, lr=0.0010074747982683552, dataset_path: str = "", epochs = 10):
+def create_model(model_path: str, testLoader_path: str, num_layers=2, num_heads=1, dim_feedforward=32, dropout=0.2, lr=0.0010074747982683552, dataset_path: str = "", epochs = 10, batch_size = 16):
     
     # Create the model, criterion, and optimizer
     model = ge.HiddenStateTransformer(num_layers=num_layers, num_heads=num_heads, dim_feedforward=dim_feedforward, dropout=dropout)
     optimizer = optim.Adam(model.parameters(), lr=lr)
     criterion = nn.MSELoss()
 
-    model, test_loader = ge.train_model(model,criterion,optimizer,dataset_path,epochs)
+    model, test_loader = ge.train_model(model,criterion,optimizer,dataset_path,epochs,batch_size)
 
-    joblib.dump(model, 'transformer_1/orel/general_model.pkl')
-    joblib.dump(test_loader, 'transformer_1/orel/general_model_test_loader.joblib')
+    joblib.dump(model, model_path)
+    joblib.dump(test_loader, testLoader_path)
     
     return model, test_loader
 
@@ -192,6 +192,13 @@ def test(my_model, h_text):
         # Print the generated text
         print("Generated Text: ", generated_text)
 
+
+
+model_path = 'transformer_1/orel/models/model_15_tokens_wiki.pkl'
+loader_path = 'model_15_tokens_wiki_testLoader.joblib'
+
+create_model(model_path, loader_path,1,1,256,0.3,0.0018111868093391942,'resources/datasets/up_to_ten_tokens_dataset_wiki_5.pt',20,16)
+
 # ge.test_model(model, test_loader, criterion)
 
 # h_text = "ןגל אב אבא"
@@ -200,8 +207,8 @@ h_text = "אני"
 # print(tras_last_hs.shape, opt_first_hs.shape)
 
 
-model: ge.HiddenStateTransformer = joblib.load('transformer_1/orel/model_10Tokens_1/general_model.pkl')
-test(model, h_text)
+# model: ge.HiddenStateTransformer = joblib.load('transformer_1/orel/model_10Tokens_1/general_model.pkl')
+# test(model, h_text)
 
 
 # create_model(1, 1, 128, 0.15, 0.013256841285324495, "resources/up_to_ten_tokens_dataset.pt", 20)

@@ -48,7 +48,7 @@ class HiddenStateTransformer(nn.Module):
 def pad_and_mask(batch, max_tansor_length: int = MAX_TANSOR_LENGTH):
     data = [item[0].squeeze(0) for item in batch]
     labels = [item[1].squeeze(0) for item in batch]
-    
+
     # Calculate max length for padding
     max_length = max(max(seq.size(0) for seq in data), max(seq.size(0) for seq in labels))
     # print(max_length)
@@ -100,6 +100,7 @@ def pad(data, max_tansor_length: int = MAX_TANSOR_LENGTH):
         data = torch.cat([data, zero_vector_data], dim=1)
     return data
 
+
 def create_data_loaders(dataset_path: str, batch_size=BATCH_SIZE) -> tuple:
         
     # Load dataset
@@ -138,10 +139,10 @@ def create_data_loaders(dataset_path: str, batch_size=BATCH_SIZE) -> tuple:
     return train_loader, val_loader, test_loader
 
 
-def train_model(model, criterion, optimizer, dataset_path: str, epochs=EPOCHS) -> tuple:
+def train_model(model, criterion, optimizer, dataset_path: str, epochs=EPOCHS, batch_size = BATCH_SIZE) -> tuple:
     
     # Adjust DataLoader batch size
-    train_loader, val_loader, test_loader = create_data_loaders(dataset_path)
+    train_loader, val_loader, test_loader = create_data_loaders(dataset_path, batch_size)
     
     print("Data Loaders created!")
     
@@ -193,7 +194,7 @@ def find_best_hypers(trial, dataset_path: str):
     # Define the hyperparameters to tune
     lr = trial.suggest_float('lr', 1e-6, 1e-1, log=True)
     batch_size = trial.suggest_categorical('batch_size', [16, 32, 64, 128])
-    num_layers = trial.suggest_categorical('num_heads', [1, 2])
+    num_layers = trial.suggest_categorical('num_layers', [1, 2])
     num_heads = trial.suggest_categorical('num_heads', [1, 2])
     dim_feedforward = trial.suggest_categorical('dim_feedforward', [16, 32, 64, 128, 256])
     dropout = trial.suggest_categorical('dropout', [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4])
