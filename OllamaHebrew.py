@@ -16,7 +16,7 @@ if __name__ == '__main__':
     cnt = 0
     for index, row in df.iterrows():
         print(index)
-        if index == 3000:
+        if index == 1000:
             break
         user_input = row['Hebrew sentence']
 
@@ -48,4 +48,4 @@ if __name__ == '__main__':
         print("Counter: ", cnt)
         print("=" * 50)
 
-    print("Success of ", (cnt / 3000) * 100, "%")
+    print("Success of ", (cnt / 1000) * 100, "%")
