@@ -4,18 +4,14 @@ from transformers import AutoModelForSeq2SeqLM, AutoModel, AutoTokenizer, OPTFor
 import torch.nn as nn
 from torch.nn import TransformerEncoder, TransformerEncoderLayer
 import torch.nn.functional as F
-import embeddingsToOPT
-from embeddingsToOPT import CustomLayerWrapper
+# import embeddingsToOPT
+# from embeddingsToOPT import CustomLayerWrapper
 
 # load data
 # activateTrans1(0,0)
 
 
-<<<<<<< Updated upstream
-file = "translated_data.csv"
-=======
-file = "C:\\Users\\user\\Documents\\TranslatorGPT\\HebrewLLM\\resources\\He_En_oneTokenData.csv"
->>>>>>> Stashed changes
+file = "C:\\Users\\relwe\\OneDrive\\Documents\\GitHub\\HebrewLLM\\resources\\He_En_oneTokenData.csv"
 df = pd.read_csv(file)
 df = df.dropna()
 # build models
@@ -137,8 +133,8 @@ def train_model(src_model, tgt_model, hidden_state_transformer, optimizer, crite
     # torch.save(src_hidden_states, 'srcHSNew.pth')
     # torch.save(new_tgt_hidden_states,'tgtHSNew.pth')
 
-    src_hidden_states = torch.load('srcHSNew.pth')
-    new_tgt_hidden_states = torch.load('tgtHSNew.pth')
+    src_hidden_states = torch.load('C:\\Users\\relwe\\OneDrive\\Documents\\GitHub\\HebrewLLM\\transformer_1\\srcHSNew.pth')
+    new_tgt_hidden_states = torch.load('C:\\Users\\relwe\\OneDrive\\Documents\\GitHub\\HebrewLLM\\transformer_1\\tgtHSNew.pth')
     mean_values = torch.mean(new_tgt_hidden_states, dim=0)
 
     # Expand the mean values back to the original shape
@@ -273,8 +269,8 @@ def main():
         tgt_hidden_state0 = tgt_output.hidden_states[1]  # First layer's hidden states
 
     dataSize = int(0.8 * src_inputs0['input_ids'].shape[0])
-    src_hidden_states = torch.load('srcHSNew.pth')
-    new_tgt_hidden_states = torch.load('tgtHSNew.pth')
+    src_hidden_states = torch.load('C:\\Users\\relwe\\OneDrive\\Documents\\GitHub\\HebrewLLM\\transformer_1\\srcHSNew.pth')
+    new_tgt_hidden_states = torch.load('C:\\Users\\relwe\\OneDrive\\Documents\\GitHub\\HebrewLLM\\transformer_1\\tgtHSNew.pth')
     predicted_tgt_hidden_states = hidden_state_transformer(src_hidden_states)
     new_predicted_tgt_hidden_states = predicted_tgt_hidden_states.view(dataSize, 1, -1)
     loss = criterion(new_predicted_tgt_hidden_states, new_tgt_hidden_states)
@@ -297,8 +293,8 @@ def main():
     #         tgt_output = tgt_model(input_ids=tgt_input, output_hidden_states=True)
     #         tgt_hidden_states[i] = tgt_output.hidden_states[1][0,:,:]  # First layer's hidden states
     # new_tgt_hidden_states = tgt_hidden_states[:, 1, :].unsqueeze(1).to(device)
-    src_hidden_states = torch.load('srcHSNew_test.pth')
-    new_tgt_hidden_states = torch.load('tgtHSNew_test.pth')
+    src_hidden_states = torch.load('C:\\Users\\relwe\\OneDrive\\Documents\\GitHub\\HebrewLLM\\transformer_1\\srcHSNew_test.pth')
+    new_tgt_hidden_states = torch.load('C:\\Users\\relwe\\OneDrive\\Documents\\GitHub\\HebrewLLM\\transformer_1\\tgtHSNew_test.pth')
     predicted_tgt_hidden_states = hidden_state_transformer(src_hidden_states)
     new_predicted_tgt_hidden_states = predicted_tgt_hidden_states.view(dataSize, 1, -1)
     loss = criterion(new_predicted_tgt_hidden_states, new_tgt_hidden_states)

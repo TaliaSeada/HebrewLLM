@@ -18,7 +18,7 @@ from embeddingsToOPT import CustomLayerWrapper
 # print(generator("I want to eat the"))
 
 
-file = "C:\\Users\\user\\Documents\\TranslatorGPT\\HebrewLLM\\English_one_word_atmost4Tokens.csv"
+file = "C:\\Users\\relwe\\OneDrive\\Documents\\GitHub\\HebrewLLM\\English_one_word_atmost4Tokens.csv"
 df = pd.read_csv(file)
 df = df.dropna()
 # build models
@@ -213,7 +213,7 @@ def main():
     #                                                          num_heads, dim_feedforward, dropout, device)
     # Call the training function
     # Load the data
-    data = torch.load('C:\\Users\\user\\Documents\\TranslatorGPT\\HebrewLLM\\resources\\trsltr_llm_10Tokens_Data.pth')
+    data = torch.load('C:\\Users\\relwe\\OneDrive\\Documents\\GitHub\\HebrewLLM\\resources\\trsltr_llm_10Tokens_Data.pth')
     train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
     # Create data loaders
     batch_size = 64  # Reduce batch size for memory optimization
