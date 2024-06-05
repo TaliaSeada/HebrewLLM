@@ -93,12 +93,12 @@ def hebrew_to_input(h_text, hebrew_translator_tokenizer,hebrew_translator_model)
     # Encode the source text
     generated_ids = hebrew_translator_model.generate(inputs.input_ids)
     
-    print(f"Hebrew input ids = {len(generated_ids[0])}")
+    # print(f"Hebrew input ids = {len(generated_ids[0])}")
 
     clean_token_num = len(generated_ids[0]) -2
     
-    for t in generated_ids:
-        print(f"translated token {t} = {hebrew_translator_tokenizer.convert_ids_to_tokens(t)}")
+    # for t in generated_ids:
+    #     print(f"translated token {t} = {hebrew_translator_tokenizer.convert_ids_to_tokens(t)}")
 
     # Append hidden states
     translator_outputs = hebrew_translator_model(input_ids=inputs.input_ids, decoder_input_ids=generated_ids, output_hidden_states=True)
