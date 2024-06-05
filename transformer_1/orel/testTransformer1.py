@@ -63,6 +63,9 @@ def get_next_word(text, t1, He_En_tokenizer, He_En_translator_model, llm, En_He_
         token_ids = outputs.logits.argmax(-1)
         # Decode the token IDs using the tokenizer
         translated_sentence = llm_tokenizer.decode(token_ids[0], skip_special_tokens=True)
+        
+
+        print(f"LLM output: {translated_sentence}")
         # ================ LLM ===============
 
         
@@ -78,6 +81,10 @@ def get_next_word(text, t1, He_En_tokenizer, He_En_translator_model, llm, En_He_
         
         print(f"Output ids = {outputs2[0]}")
         translated_to_hebrew = En_He_tokenizer.decode(outputs2[0], skip_special_tokens=True)
+        
+        for t in outputs2:
+            print(f"translated token {t} = {En_He_tokenizer.convert_ids_to_tokens(t)}")
+
         
         print(f"Final output sentence = {translated_to_hebrew}")
         
@@ -96,7 +103,7 @@ def test_transformer(dataset_path, t1, He_En_tokenizer, He_En_translator_model, 
     df = df.dropna()
     
     for index, row in df.iterrows():
-        if index > 1: break
+        if index > 0: break
     
         he_sentence = row[0]
         target_word = row[1]
@@ -137,12 +144,21 @@ En_He_translator_model: MarianMTModel = MarianMTModel.from_pretrained(En_He_mode
 dataset_path = 'wikipedia_data.csv'
 dataset_path = 'C:\\Users\\orelz\\OneDrive\\\שולחן העבודה\\work\\Ariel\\HebrewLLM\\wikipedia_data.csv'
 
-test_transformer(dataset_path=dataset_path,
+# test_transformer(dataset_path=dataset_path,
+#                 t1=t1,
+#                 He_En_tokenizer=He_En_tokenizer,
+#                 He_En_translator_model=He_En_translator_model,
+#                 llm=llm,
+#                 En_He_tokenizer=En_He_tokenizer,
+#                 En_He_translator_model=En_He_translator_model)
+
+
+text = "אתה הולך"
+
+get_next_word(text=text,
                 t1=t1,
                 He_En_tokenizer=He_En_tokenizer,
                 He_En_translator_model=He_En_translator_model,
                 llm=llm,
                 En_He_tokenizer=En_He_tokenizer,
                 En_He_translator_model=En_He_translator_model)
-
-
