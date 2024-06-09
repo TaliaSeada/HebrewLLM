@@ -48,6 +48,21 @@ class CustomLayerWrapper(nn.Module):
                           past_key_value, output_attentions, use_cache)
 
 
+class CustomLayerWrapper2(nn.Module):
+    def __init__(self, layer, hidden_states):
+        super().__init__()
+        self.layer = layer
+        self.hs = hidden_states  # transformer's result
+
+    def forward(self, hidden_states, attention_mask=None, **kwargs):
+        # Modify hidden_states before passing them to the layer
+        modified_hidden_states = your_input_modification(self.hs)
+
+        # Ensure that attention_mask and any other necessary arguments are forwarded
+        return self.layer(modified_hidden_states, attention_mask, **kwargs)
+
+    
+    
 def generate_test_inputs(curr_song):
     # Translator
     inputs = translator_tokenizer(curr_song, return_tensors="pt")
@@ -192,7 +207,7 @@ loader_path = f'transformer_1/orel/pretrainedModels/loaders/15Tokens/'
 
 # create_model(model_path, loader_path,num,1,4,256,0.25,0.002676001187706025,'resources/datasets/dataset_wiki_up_to_15_tokens.pt',10,32)
 
-create_model(model_path, loader_path,num,1,8,256,0.15,0.004827586123698931,'resources/datasets/dataset_wiki_up_to_15_tokens.pt',15,32)
+# create_model(model_path, loader_path,num,1,8,256,0.15,0.004827586123698931,'resources/datasets/dataset_wiki_up_to_15_tokens.pt',15,32)
 
 # ge.test_model(model, test_loader, criterion)
 
@@ -239,3 +254,9 @@ create_model(model_path, loader_path,num,1,8,256,0.15,0.004827586123698931,'reso
 # print("Last Generated Text: ", generated_text)
 
 # # ============================== end of opt output ======================
+
+
+
+num = 20
+model_path = f'transformer_1/orel/pretrainedModels/models/15Tokens/model_wiki_{num}.pkl'
+loader_path = f'transformer_1/orel/pretrainedModels/loaders/15Tokens/'

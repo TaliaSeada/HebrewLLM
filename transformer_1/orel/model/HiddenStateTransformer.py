@@ -31,7 +31,34 @@ class HiddenStateTransformer(AbstractHiddenStateTransformer):
         encoded = self.transformer_encoder(src, src_key_padding_mask=src_key_padding_mask)
         return encoded
 
+class HiddenStateTransformer2(nn.Module):
+    def __init__(self, input_size, output_size, num_layers, num_heads, dim_feedforward, dropout=0.1):
+        super(HiddenStateTransformer2, self).__init__()
+        self.input_size = input_size
+        self.output_size = output_size
+
+        # Transformer Encoder Layer
+        encoder_layers = nn.TransformerEncoderLayer(d_model=input_size, nhead=num_heads,
+                                                 dim_feedforward=dim_feedforward, dropout=dropout, activation=F.relu)
+        encoder_layers.self_attn.batch_first = True
+        # encoder_layers.activation_relu_or_gelu=True
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layers, num_layers,
+                                                      enable_nested_tensor=1 - (num_heads % 2))
+
+        # Linear layer to map to the target hidden size
+        self.fc = nn.Linear(input_size, 512)
+
+    def forward(self, src):
+        # src shape: (seq_length, batch_size, input_size)
+        encoded = self.transformer_encoder(src)
+        # encoded shape: (seq_length, batch_size, input_size)
+        # Apply ReLU activation function
+        # activated = F.relu(encoded)
+        output = self.fc(encoded)
+        # output shape: (seq_length, batch_size, output_size)
+        return output
     
+
 def train_model(model, criterion, optimizer, dataset_path: str, epochs=EPOCHS, batch_size = BATCH_SIZE) -> tuple:
         # Adjust DataLoader batch size
     train_loader, val_loader, test_loader = create_data_loaders(dataset_path, batch_size)

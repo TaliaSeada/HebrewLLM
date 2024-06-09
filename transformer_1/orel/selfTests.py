@@ -16,56 +16,11 @@ model_en_he = MarianMTModel.from_pretrained(model_name_en_he)
 sentence_he = "שלום"
 sentence_en = "Hello"
 
-# # Tokenize the Hebrew sentence for translation to English
-# tokens_he = tokenizer(sentence_he, return_tensors="pt", padding=True, truncation=True)
-# # Tokenize the English sentence for translation to Hebrew
-# tokens_en = tokenizer2(sentence_en, return_tensors="pt", padding=True, truncation=True)
-
-# # Print the tokenized inputs
-# print("Tokens (Hebrew sentence):", tokens_he.input_ids)
-# print("Tokens (English sentence):", tokens_en.input_ids)
-
-# # Perform translation
-# translated_he_en = model_he_en.generate(**tokens_he)
-# translated_en_he = model_en_he.generate(**tokens_en)
-
-
-
-# # Decode the translations
-# translation_he_en = tokenizer.decode(translated_he_en[0], skip_special_tokens=True)
-# translation_en_he = tokenizer2.decode(translated_en_he[0], skip_special_tokens=True)
-
-# print("Translation (Hebrew to English):", translation_he_en)
-# print("Translation (English to Hebrew):", translation_en_he)
-
-# ============================================================
-# from generalTransformer import CustomLayerWrapper
-# from combinedTransformersModel import hebrew_to_input
-# import joblib
-
-# # LLM model
-# llm_model_name = "facebook/opt-350m"
-# llm_tokenizer = AutoTokenizer.from_pretrained(llm_model_name)
-# llm = OPTForCausalLM.from_pretrained(llm_model_name)
-
-
-# inputs = tokenizer2("I want an ice cream" * 14, return_tensors="pt")
-
-# outputs = model_en_he(**inputs, output_hidden_states=True)
-
-# ============================================================
-
 
 import torch
-# from transformers import MarianTokenizer, MarianMTModel
-
-# # Initialize the model and tokenizer for English to Hebrew translation
-# model_name_en_he = "Helsinki-NLP/opus-mt-en-he"
-# tokenizer_en_he = MarianTokenizer.from_pretrained(model_name_en_he)
-# model_en_he = MarianMTModel.from_pretrained(model_name_en_he).to('cuda' if torch.cuda.is_available() else 'cpu')
 
 # English sentence
-input_sentence = "at home"
+input_sentence = "at home today"
 
 print("================= English to Hebrew =================")
 # ================= English to Hebrew =================
@@ -76,8 +31,8 @@ input_tokens = tokenizer2(input_sentence, return_tensors="pt").to('cuda' if torc
 
 print(f"tokens for english = {input_tokens.input_ids}")
 ids = input_tokens
-ids.input_ids[0, 0] = 277
-ids.input_ids[0, 1] = 277
+# ids.input_ids[0, 0] = 277
+# ids.input_ids[0, 1] = 277
 # ids.input_ids[0, 2] = 0
 # ids.input_ids[0, 3] = 0
 
@@ -85,11 +40,15 @@ ids.input_ids[0, 1] = 277
 for t in input_tokens.input_ids:
     print(f"token {t} = {tokenizer2.convert_ids_to_tokens(t)}")
 
+
 # Generate translation in Hebrew
 with torch.no_grad():
     tensor = torch.tensor([227, 366, 0])
     translated_tokens = model_en_he.generate(**ids)
     print(f"Translation to hebrew tokens = {translated_tokens[0]}")
+    
+print(f"Without first token = {translated_tokens[0][1:]}")
+    
 translated_sentence = tokenizer2.decode(translated_tokens[0], skip_special_tokens=True)
 
 for t in translated_tokens:
@@ -98,16 +57,31 @@ for t in translated_tokens:
 print("Translated Sentence:", translated_sentence)
 
 
-print(tokenizer2.convert_tokens_to_ids("home"))
-print(tokenizer2.convert_tokens_to_ids("הביתה"))
-print(tokenizer2.convert_tokens_to_ids("הולך"))
-print(tokenizer2.convert_ids_to_tokens(277))
-print(tokenizer2.convert_ids_to_tokens(13085))
-print(tokenizer2.convert_ids_to_tokens(34751))
-print(tokenizer2.convert_ids_to_tokens(1))
-print(tokenizer2.convert_ids_to_tokens(29275))
+# print(tokenizer2.convert_tokens_to_ids("home"))
+# print(tokenizer2.convert_tokens_to_ids("הביתה"))
+# print(tokenizer2.convert_tokens_to_ids("הולך"))
+# print(tokenizer2.convert_ids_to_tokens(277))
+# print(tokenizer2.convert_ids_to_tokens(13085))
+# print(tokenizer2.convert_ids_to_tokens(34751))
+# print(tokenizer2.convert_ids_to_tokens(1))
+# print(tokenizer2.convert_ids_to_tokens(29275))
 
 
+# print(tokenizer2.current_encoder)
+print(tokenizer2.convert_tokens_to_ids("there wiil be"))
+
+
+# Set the tokenizer as the target tokenizer for decoding
+with tokenizer2.as_target_tokenizer():
+    ts = tokenizer2.encode("ולכשתבין את דברי", skip_special_tokens=True)
+
+# print(f"Translated text: {translated_text}")
+
+print(f"translated tokens {ts} = {[tokenizer2.convert_ids_to_tokens(t) for t in ts]}")
+
+
+
+# print(tokenizer2.add)
 # # ================= English to Hebrew =================
 
 
