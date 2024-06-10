@@ -123,7 +123,7 @@ def generate_test_inputs(curr_song):
 
 
 
-def create_model(model_path: str, loader_path: str, model_num, num_layers=2, num_heads=1, dim_feedforward=32, dropout=0.2, lr=0.0010074747982683552, dataset_path: str = "", epochs = 10, batch_size = 16):
+def create_model(criterion, model_path: str, loader_path: str, model_num, num_layers=2, num_heads=1, dim_feedforward=32, dropout=0.2, lr=0.0010074747982683552, dataset_path: str = "", epochs = 10, batch_size = 16):
     
     print(f"model_path = {model_path}, num_layers = {num_layers}, num_heads = {num_heads}, dim_feedforward = {dim_feedforward}, dropout = {dropout}, lr = {lr}, batch_size = {batch_size}")
     # Create the model, criterion, and optimizer
