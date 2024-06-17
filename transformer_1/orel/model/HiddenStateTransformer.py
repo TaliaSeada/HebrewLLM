@@ -31,6 +31,7 @@ class HiddenStateTransformer(AbstractHiddenStateTransformer):
         encoded = self.transformer_encoder(src, src_key_padding_mask=src_key_padding_mask)
         return encoded
 
+
 class HiddenStateTransformer2(nn.Module):
     def __init__(self, input_size, output_size, num_layers, num_heads, dim_feedforward, dropout=0.1):
         super(HiddenStateTransformer2, self).__init__()

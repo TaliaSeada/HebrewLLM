@@ -1,6 +1,7 @@
 import optuna
 import torch
 from model.HiddenStateTransformer import HiddenStateTransformer
+from model.config import EPOCHS
 
 def find_best_hypers(model, criterion, optimizer, trial, dataset_path: str):
     from data.dataManipulation import create_data_loaders

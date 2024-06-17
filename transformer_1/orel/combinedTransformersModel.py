@@ -19,28 +19,33 @@ def generate_with_logits(model, tokenizer, ids, attention_mask):
     # Prepare decoder_input_ids, starting with the <pad> token
     
     # print(f"ids = {ids}")
-    print(f"translated tokens  = {tokenizer.convert_ids_to_tokens(ids)}")
+    # print(f"translated tokens  = {tokenizer.convert_ids_to_tokens(ids)}")
     
     # print(f"inputs.input_ids.size(0) = {inputs.input_ids.size(0)}")
     decoder_input_ids = torch.full(
-        (ids.size(0), 15), tokenizer.pad_token_id, dtype=torch.long, device=ids.device
+        (ids.input_ids.size(0), 15), tokenizer.pad_token_id, dtype=torch.long
     )
     # print(f"decoder_input_ids = {decoder_input_ids},\nShape = {decoder_input_ids.shape}")
     
+    # out2 = model.generate(**ids)[0]
+    # print(out2)
+    
     # Forward pass to get the logits
     outputs = model(
-        input_ids=ids, 
+        input_ids=ids.input_ids,
         attention_mask=attention_mask, 
         decoder_input_ids=decoder_input_ids,
         output_hidden_states=True
     )
     logits = outputs.logits
+    
     logits = logits.requires_grad_()
     
     # Apply softmax to get probabilities
     probabilities = F.log_softmax(logits, dim=-1)
     
     return logits, probabilities
+
 
 class CombinedModel(nn.Module):
     def __init__(self, transformer1, transformer2, llm):
@@ -53,7 +58,7 @@ class CombinedModel(nn.Module):
         for param in self.llm.parameters():
             param.requires_grad = False
     
-    def forward(self, text, tokenizer1, translator1, llm_tokenizer, tokenizer2, translator2):
+    def forward(self, text, tokenizer1, translator1, llm_tokenizer, tokenizer2, translator2: MarianMTModel):
         
         with torch.no_grad():
             # Get the final embedding of translator1 for the text input (language1)  
@@ -71,37 +76,52 @@ class CombinedModel(nn.Module):
             inputs = llm_tokenizer(" " * 14, return_tensors="pt")
             
             # Inject our initial embeddings to the first layer of the llm
-            self.inject_layer(model=self.llm, layer_hs=x, layer_num=1, name="decoder")
+            self.llm = self.inject_layer(model=self.llm, layer_hs=x, layer_num=1, name="decoder")
             
             # Calculates the final embeddings
             outputs = self.llm(**inputs, output_hidden_states=True)
-            
+                        
             # Lastly, get the final embeddings of the llm for our injected input
             llm_last_hidden_state = outputs.hidden_states[-1]
             
+            # print(llm_last_hidden_state)
         # TODO - Ensure its 15 Tokens as well
         
         # Transform it (embeddings of output sentence in language 2) to the initial embeddings of translator2
         x = self.transformer2(llm_last_hidden_state)
         # print(f"x.shape = {x.shape}")
+        # print(f"x = {x}")
         
         with torch.no_grad():
             # Do the same trick as before
             inputs = tokenizer2("a " * 14, return_tensors="pt")
             
-            print(f"inputs.input_ids = {inputs.input_ids}")
+            # print(f"inputs.input_ids = {inputs.input_ids}")
+            
+            # English to Hebrew translator
+            En_He_model_name = "Helsinki-NLP/opus-mt-en-he"
+            En_He_tokenizer = MarianTokenizer.from_pretrained(En_He_model_name)
+            translator2 = MarianMTModel.from_pretrained(En_He_model_name)
+            
+            original = translator2.base_model.encoder.layers[1]
             
             self.inject_layer(model=translator2, layer_hs=x, layer_num=1, name="encoder")
+            
 
+            # print(f"original = {original},\nAfter injection = {translator2.base_model.decoder.layers[1]}")
+            # print(f"original = After injection? {original == translator2.base_model.encoder.layers[1]}")
+            
             # Ensure the attention mask is correctly shaped
             attention_mask = torch.ones((1, 15)).to(x.device)
             inputs['attention_mask'] = attention_mask
 
-            print(f"attention_mask = {inputs['attention_mask']}\nShape = {attention_mask.shape}")
-            ids = translator2.generate(inputs.input_ids)[0]
+            # print(f"attention_mask = {inputs['attention_mask']}\nShape = {attention_mask.shape}")
+            
+            # out2 = translator2.generate(**inputs)[0]
+            # print(f"translated tokens {out2}  = {tokenizer2.convert_ids_to_tokens(out2)}")
             
             # return the probability for each word in the dictionary for each vector in the final embeddings of translator2
-            l, p = generate_with_logits(translator2,En_He_tokenizer,ids,attention_mask)
+            l, p = generate_with_logits(translator2,En_He_tokenizer,inputs,attention_mask)
             
             
             # TODO - why  the logits stay the same
@@ -128,7 +148,8 @@ class CombinedModel(nn.Module):
             model.base_model.decoder.layers[layer_num] = wrapped_layer
         else:
             model.model.encoder.layers[layer_num] = wrapped_layer
-    
+
+        return model
     
 def hebrew_to_input(h_text, hebrew_translator_tokenizer,hebrew_translator_model):
     # Translator
@@ -163,6 +184,7 @@ def translate_to_english(model, tokenizer, sentence):
     translated_sentence = tokenizer.decode(translated_tokens[0], skip_special_tokens=True)
     return translated_sentence
 
+
 def translate_to_hebrew(model, tokenizer, sentence):
     inputs = tokenizer(sentence, return_tensors="pt", padding=True, truncation=True)
     translated_tokens = model.generate(**inputs)
@@ -189,12 +211,12 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
             
             # Outputs the first layer of the En_He_translator using transformer1
             logits, distribution = model(
-                hebrew_sentence,
-                He_En_tokenizer,
-                He_En_model,
-                llm_tokenizer,
-                En_He_tokenizer,
-                En_He_model)
+                                        hebrew_sentence,
+                                        He_En_tokenizer,
+                                        He_En_model,
+                                        llm_tokenizer,
+                                        En_He_tokenizer,
+                                        En_He_model)
 
             # print(f"hebrew_ids = {generated_output[0]}")
             
@@ -213,9 +235,32 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
             # TODO - Pad the tensors to 15 so their size will match
                         
             # Calculate the loss
-            print(f"logits = {logits.squeeze(0)[1:2,:]}")
-            loss = criterion(logits.squeeze(0)[1:2,:], target_ids.squeeze(0)[:1])
-        
+            # print(f"shape(logits) = {logits.squeeze(0)[1:2,:]}")
+            # print(f"logits = {logits.squeeze(0)[1:2,:]}")
+            
+            # Get the top 3 logits for each position
+            top_n_logits = torch.topk(logits, 3, dim=-1).indices
+            
+            # Decode the top 3 logits into words
+            top_n_words = []
+            for i in range(top_n_logits.size(1)):
+                words = [En_He_tokenizer.decode([token_id.item()]) for token_id in top_n_logits[0, i]]
+                top_n_words.append(words)
+                
+            print(f"sentence {index} = {top_n_words}")
+            
+            # for t in logits.squeeze(0)[1:2]:
+            #     print(f"translated logits {t} = {En_He_tokenizer.convert_ids_to_tokens(t)}")
+            
+            # print(logits.squeeze(0)[1:,:].shape, target_ids.squeeze(0)[:].shape)
+            
+            max_left = logits.squeeze(0)[1:,:].shape[0]
+            max_right = target_ids.squeeze(0)[:].shape[0]
+            
+            desired_len = min(max_left,max_right, 14)
+            
+            loss = criterion(logits.squeeze(0)[1:desired_len + 1,:], target_ids.squeeze(0)[:desired_len])
+
             # Back Propagation
             optimizer.zero_grad()
             loss.backward()
@@ -228,7 +273,6 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
         print(f"Epoch {epoch}, Loss = {train_loss}")
 
 
-
 def my_cross_entropy(dist, target):
     # return sum([(math.log(dist[0,index,token_id])) if index < 15 else 0 for index, token_id in enumerate(target.squeeze(0))])
     # print(target.view(-1))
@@ -237,7 +281,9 @@ def my_cross_entropy(dist, target):
 
 def save_model(model, to_path):
     joblib.dump(model, to_path)
-    
+
+
+
 # Hebrew to english translator
 He_En_model_name = "Helsinki-NLP/opus-mt-tc-big-he-en"
 
@@ -257,8 +303,8 @@ llm = OPTForCausalLM.from_pretrained(llm_model_name).to(device)
 
 # Transformer 2
 # t2 = joblib.load('transformer_2/model_name.pkl')
-t2 = HiddenStateTransformer2(input_size=512,output_size=512, num_layers=1, num_heads=2, dim_feedforward=256, dropout=0.15)
-
+# t2 = HiddenStateTransformer2(input_size=512,output_size=512, num_layers=1, num_heads=2, dim_feedforward=256, dropout=0.15)
+t2 = joblib.load('C:\\Users\\orelz\\OneDrive\\שולחן העבודה\\work\\Ariel\\HebrewLLM\\transformer_2\\pretranedModels\\models\\15Tokens\\model_15_tokens_talia.pkl')
 
 # English to Hebrew translator
 En_He_model_name = "Helsinki-NLP/opus-mt-en-he"
@@ -274,13 +320,13 @@ combined_model = CombinedModel(transformer1=t1,transformer2=t2,llm=llm)
 
 
 # optimizer = optim.Adam(combined_model.parameters(), lr=0.001)
-optimizer = optim.Adam(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=1e-4)
+optimizer = optim.Adam(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=0.005)
 
 criterion = nn.CrossEntropyLoss()
 # criterion = my_cross_entropy
 
 train_combined_model('wikipedia_data.csv',
-                     30,
+                     80,
                      combined_model,
                      He_En_translator_model,
                      En_He_translator_model,
@@ -290,6 +336,6 @@ train_combined_model('wikipedia_data.csv',
                      optimizer,
                      3)
 
-num = 1
-save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_wiki_{num}.pkl')
+# num = 1
+# save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_wiki_{num}.pkl')
 

@@ -14,6 +14,7 @@ class Transformer(ABC, nn.Module):
         self.dim_feedforward = dim_feedforward
         self.dropout = dropout
         self.activation = activation
+        
 
     @abstractmethod
     def build_transformer_encoder(self):
