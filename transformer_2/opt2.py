@@ -313,23 +313,13 @@ if __name__ == '__main__':
     # study = optuna.create_study(direction='minimize')
     # study.optimize(objective, n_trials=50)
     #
-    # print("Best hyperparameters:", study.best_params)
-    #
-    # # Train the model with the best hyperparameters
-    # best_params = study.best_params
-    # model, _ = train_transformer(train_loader, val_loader, input_dim, output_dim, best_params['num_layers'],
-    #                              best_params['num_heads'], best_params['dim_feedforward'], best_params['dropout'],
-    #                              epochs=20, learning_rate=best_params['learning_rate'])
-    # torch.save(model, 'best_model.pth')
-
-    # Evaluate the model
     model = torch.load('best_model.pth')
     model.eval()
     # criterion = nn.MSELoss()
     # evaluate_model(model, test_loader, criterion)
 
     print("--------- CHECK ----------")
-    prompt = "can"
+    prompt = "steel"
     opt_inputs = opt_tokenizer(prompt, return_tensors="pt")
     opt_outputs = opt_model(**opt_inputs, output_hidden_states=True)
     opt_hidden_state = opt_outputs.hidden_states[opt_layer]
