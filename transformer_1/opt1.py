@@ -4,8 +4,11 @@ from transformers import AutoModelForSeq2SeqLM, AutoModel, AutoTokenizer, OPTFor
 import torch.nn as nn
 from torch.nn import TransformerEncoder, TransformerEncoderLayer
 import torch.nn.functional as F
-# import embeddingsToOPT
-# from embeddingsToOPT import CustomLayerWrapper
+from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader, Dataset
+from torch.nn.utils.rnn import pad_sequence
+import embeddingsToOPT
+from embeddingsToOPT import CustomLayerWrapper
 
 # load data
 # activateTrans1(0,0)
@@ -18,60 +21,21 @@ df = df.dropna()
 device = "cuda" if torch.cuda.is_available() else "cpu"
 src_model_name = "Helsinki-NLP/opus-mt-tc-big-he-en"
 tgt_model_name = "facebook/opt-350m"
-src_model = AutoModelForSeq2SeqLM.from_pretrained(src_model_name).to(device)
-tgt_model = AutoModel.from_pretrained(tgt_model_name).to(device)
-model = OPTForCausalLM.from_pretrained(tgt_model_name).to(device)
+translator_He_En_model = AutoModelForSeq2SeqLM.from_pretrained(src_model_name).to(device)
+# OPT_model = AutoModel.from_pretrained(tgt_model_name).to(device)
+OPT_model = OPTForCausalLM.from_pretrained(tgt_model_name).to(device)
 
 # Set input_size and output_size based on the model configurations
-input_size = src_model.config.hidden_size
+input_size = 3072 #translator_He_En_model.config.hidden_size
 # print(input_size)
-output_size = tgt_model.config.hidden_size
+output_size = 1024 #OPT_model.config.hidden_size
 # print(output_size)
 
 # Tokenize sentences
-src_tokenizer = AutoTokenizer.from_pretrained(src_model_name)
-tgt_tokenizer = AutoTokenizer.from_pretrained(tgt_model_name)
+translator_He_En_tokenizer = AutoTokenizer.from_pretrained(src_model_name)
+OPT_tokenizer = AutoTokenizer.from_pretrained(tgt_model_name)
 
-lkjd = df['statement'].tolist()
-max_length = 2  # Example length, adjust as needed
-src_inputs0 = src_tokenizer.batch_encode_plus(df['statement'].tolist(), padding='max_length', max_length=max_length,
-                                              return_tensors='pt', truncation=True).to(device)
-tgt_inputs0 = tgt_tokenizer.batch_encode_plus(df['translation'].tolist(), padding='max_length', max_length=max_length,
-                                              return_tensors='pt', truncation=True).to(device)
-
-
-# for i in range(tgt_inputs['input_ids'].shape[0]):
-#     input_word = df['translation'].tolist()[i]
-#     inputs = tgt_tokenizer(input_word, return_tensors="pt")
-#     # Using OPTForCausalLM
-#     outputs = model(**inputs, output_hidden_states=True)
-#     tgt_hidden_states = outputs.hidden_states[0][0,0,:]  # First layer's hidden states
-#     print(tgt_hidden_states)
-#     generated_text = tgt_tokenizer.decode(torch.argmax(tgt_hidden_states).item(), skip_special_tokens=True)
-#     # print(torch.argmax(tgt_hidden_states).item())
-#     print("Generated Text: ", generated_text)
-#     tgt_hidden_states = outputs.hidden_states[0][0,1,:]  # First layer's hidden states
-#     print(tgt_hidden_states)
-#     generated_text = tgt_tokenizer.decode(torch.argmax(tgt_hidden_states).item(), skip_special_tokens=True)
-#     # print(torch.argmax(tgt_hidden_states).item())
-#     print("Generated Text: ", generated_text)
-
-#     # Using AutoModel
-#     tgt_input = tgt_inputs['input_ids'][i].unsqueeze(0).to(device)
-#     tgt_output = tgt_model(input_ids=tgt_input, output_hidden_states=True)
-#     tgt_hidden_states = tgt_output.hidden_states[0][0,0,:]  # First layer's hidden states
-#     print(tgt_hidden_states)
-#     generated_text = tgt_tokenizer.decode(torch.argmax(tgt_hidden_states).item(), skip_special_tokens=True)
-#     print("Generated Text: ", generated_text)
-#     tgt_hidden_states = tgt_output.hidden_states[0][0,1,:]  # First layer's hidden states
-#     print(tgt_hidden_states)
-#     generated_text = tgt_tokenizer.decode(torch.argmax(tgt_hidden_states).item(), skip_special_tokens=True)
-#     print("Generated Text: ", generated_text)
-#     # token_ids = outputs.logits.argmax(-1)
-#     # generated_text = tgt_tokenizer.decode(token_ids[0], skip_special_tokens=True)
-#     # print("Generated Text: ", generated_text)
-
-
+   
 # Transformer
 class HiddenStateTransformer(nn.Module):
     def __init__(self, input_size, output_size, num_layers, num_heads, dim_feedforward, dropout=0.1):
@@ -88,7 +52,7 @@ class HiddenStateTransformer(nn.Module):
                                                       enable_nested_tensor=1 - (num_heads % 2))
 
         # Linear layer to map to the target hidden size
-        self.fc = nn.Linear(input_size, 512)
+        self.fc = nn.Linear(input_size, output_size)
 
     def forward(self, src):
         # src shape: (seq_length, batch_size, input_size)
@@ -101,91 +65,30 @@ class HiddenStateTransformer(nn.Module):
         return output
 
 
-def train_model(src_model, tgt_model, hidden_state_transformer, optimizer, criterion, num_epochs, device):
-    dataSize = int(0.8 * src_inputs0['input_ids'].shape[0])
-    # dataSize = 100
-    src_hidden_states = torch.empty((dataSize, 2, 1024))
-    tgt_hidden_states = torch.empty((dataSize, 2, 1024))
-    # new_tgt_hidden_states = torch.empty((dataSize,1,1024))
-
-    # for i in range(dataSize):
-    #     # Prepare the inputs
-    #     src_input = src_inputs0['input_ids'][i].unsqueeze(0).to(device)
-    #     tgt_input = tgt_inputs0['input_ids'][i].unsqueeze(0).to(device)
-
-    #     # Forward pass through the source model to get hidden states
-    #     with torch.no_grad():
-    #         src_output = src_model.generate(src_input, output_hidden_states=True, return_dict_in_generate=True, max_length=max_length)
-    #         src_hidden_states[i] = src_output.encoder_hidden_states[-1][0,:,:]  # Last layer's hidden states
-    #         #print(src_hidden_states[i])
-    #     # print(src_output)
-    #     # print(src_output.encoder_hidden_states[1])
-    #     # print(src_hidden_states[i])
-
-    #     # Forward pass through the target model to get target hidden states
-    #     with torch.no_grad():
-    #         tgt_output = tgt_model(input_ids=tgt_input, output_hidden_states=True)
-    #         tgt_hidden_states[i] = tgt_output.hidden_states[1][0,:,:]  # First layer's hidden states
-    #         # src_hidden_states[i][0][0] = tgt_hidden_states[i][0][0]
-    # # new_tgt_hidden_states = torch.empty((src_inputs['input_ids'].shape[0],1,1,1024))
-    # new_tgt_hidden_states = tgt_hidden_states[:, 1, :].unsqueeze(1).to(device)
-
-    # torch.save(src_hidden_states, 'srcHSNew.pth')
-    # torch.save(new_tgt_hidden_states,'tgtHSNew.pth')
-
-    src_hidden_states = torch.load('C:\\Users\\relwe\\OneDrive\\Documents\\GitHub\\HebrewLLM\\transformer_1\\srcHSNew.pth')
-    new_tgt_hidden_states = torch.load('C:\\Users\\relwe\\OneDrive\\Documents\\GitHub\\HebrewLLM\\transformer_1\\tgtHSNew.pth')
-    mean_values = torch.mean(new_tgt_hidden_states, dim=0)
-
-    # Expand the mean values back to the original shape
-    avg_hs = mean_values.unsqueeze(0).expand_as(new_tgt_hidden_states)
-    loss = criterion(avg_hs, new_tgt_hidden_states)
-    print(loss.item())
-
-    # #Existing words
-    # text_file_path = "SVLM_Hebrew_Wikipedia_Corpus.txt"
-    # # Open the text file and read its content
-    # with open(text_file_path, 'r', encoding='utf-8') as text_file:
-    #     text_content = text_file.read()
-    # words = text_content.split()[dataSize:2*dataSize]
-    # src_inputs = src_tokenizer.batch_encode_plus(words, return_tensors="pt", truncation=True, padding=True).to(device)
-
-    # twords = [None]*dataSize
-
-    # for i in range(dataSize):
-    #     with torch.no_grad():
-    #         src_input = src_inputs['input_ids'][i,:2].unsqueeze(0).to(device)
-    #         translated_tokens = src_model.generate(src_input, output_hidden_states=True,
-    #                                            return_dict_in_generate=True, max_length=max_length)
-    #         src_hidden_states2[i] = translated_tokens.encoder_hidden_states[-1][0,:,:] # Last layer's hidden states
-    #     twords[i] = src_tokenizer.decode(translated_tokens[0][0], skip_special_tokens=True)
-
-    # tgt_inputs = tgt_tokenizer.batch_encode_plus(twords, padding='max_length', max_length=max_length, return_tensors='pt', truncation=True).to(device)
-    # for i in range(dataSize):
-    #     tgt_input = tgt_inputs['input_ids'][i].unsqueeze(0).to(device)
-    #     tgt_output = tgt_model(input_ids=tgt_input, output_hidden_states=True)
-    #     tgt_hidden_state = tgt_output.hidden_states[1] # First layer's hidden states
-    #     new_tgt_hidden_states2[i] = tgt_hidden_state[0, 1, :].unsqueeze(0).to(device)
-    #     outputs, generated_text = embeddingsToOPT.OPT_activation_different_layer(tgt_hidden_state, 0)
-    #     print(generated_text)
-
-    # torch.save(src_hidden_states2, 'srcHS0.pth')
-    # torch.save(new_tgt_hidden_states2,'tgtHS0.pth')
-
+def train_model(train_loader, hidden_state_transformer, optimizer, criterion, num_epochs):
+    total_loss = 0
+    for X_batch, Y_batch in train_loader:
+        mean_values = torch.mean(Y_batch, dim=0)
+        # Expand the mean values back to the original shape
+        avg_hs = mean_values.unsqueeze(0).expand_as(Y_batch)
+        loss = criterion(avg_hs, Y_batch)
+        total_loss += loss.item()
+    total_loss /= len(train_loader)
+    print("The loss on the Avg. value is: ", total_loss)
     for epoch in range(num_epochs):
-        optimizer.zero_grad()
-        predicted_tgt_hidden_states = hidden_state_transformer(src_hidden_states)
-        new_predicted_tgt_hidden_states = predicted_tgt_hidden_states.view(dataSize, 1, -1)
+        hidden_state_transformer.train()
+        total_loss = 0
+        for X_batch, Y_batch in train_loader:
+            optimizer.zero_grad()
+            predicted_value = hidden_state_transformer(X_batch)
+            loss = criterion(predicted_value, Y_batch)
+            total_loss += loss.item()
+            # Backpropagation
+            loss.backward()
+            optimizer.step()
 
-        loss = criterion(new_predicted_tgt_hidden_states, new_tgt_hidden_states)
-
-        # Backpropagation
-        # new_predicted_tgt_hidden_states.detach()
-        # loss.backward(retain_graph=True)
-        loss.backward()
-        optimizer.step()
-
-        print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {loss.item()}")
+        total_loss /= len(train_loader)
+        print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {total_loss}")
 
 
 def infer_hidden_states(hidden_state_transformer, src_model, src_tokenizer, input_word, device):
@@ -202,7 +105,7 @@ def infer_hidden_states(hidden_state_transformer, src_model, src_tokenizer, inpu
     # Forward pass through the source model to get hidden states
     with torch.no_grad():
         src_output = src_model.generate(tokenized_input, output_hidden_states=True, return_dict_in_generate=True,
-                                        max_length=max_length)
+                                        max_length=2)
         src_hidden_states = src_output.encoder_hidden_states[-1][0, :, :]  # Last layer's hidden states
 
         # print(src_hidden_states.shape)
@@ -216,13 +119,31 @@ def infer_hidden_states(hidden_state_transformer, src_model, src_tokenizer, inpu
 
 
 # Function to load the model
-def load_hidden_state_transformer(model_path, input_size, output_size, num_layers, num_heads, dim_feedforward, dropout,
-                                  device):
-    model = HiddenStateTransformer(input_size, output_size, num_layers, num_heads, dim_feedforward, dropout)
-    model.load_state_dict(torch.load(model_path, map_location=device))
+def load_hidden_state_transformer(model_path, input_size, output_size, num_layers, num_heads, dim_feedforward, device):
+    model = HiddenStateTransformer(input_size, output_size, num_heads, num_layers, dim_feedforward)
+    
+    model.load_state_dict(torch.load(model_path, map_location=device),strict=False)
     model.to(device)
+
+    # Set the model to evaluation mode
+    model.eval()
     return model
 
+class TensorDataset(Dataset):
+    def __init__(self, data):
+        self.data = data
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        return self.data[idx]
+
+def custom_collate_fn(batch):
+    X_batch, Y_batch = zip(*batch)
+    X_padded = pad_sequence([x.squeeze(0) for x in X_batch], batch_first=True, padding_value=0)
+    Y_padded = pad_sequence([y.squeeze(0) for y in Y_batch], batch_first=True, padding_value=0)
+    return X_padded, Y_padded
 
 def main():
     model_save_path = "hidden_state_transformer2500.pth"
@@ -234,9 +155,14 @@ def main():
     dropout = 0.1  # Example, you can tune this
 
     # Initialize the transformer model
-    hidden_state_transformer = HiddenStateTransformer(input_size, output_size, num_layers, num_heads, dim_feedforward,
-                                                      dropout).to(device)
-    # hidden_state_transformer.load_state_dict(torch.load(model_save_path))
+    hidden_state_transformer = HiddenStateTransformer(input_size, output_size, num_layers, num_heads, dim_feedforward, dropout)
+    data = torch.load('C:\\Users\\relwe\\OneDrive\\Documents\\GitHub\\HebrewLLM\\transformer_1\\hidden_state_transformer2500.pth')
+    train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
+    # Create data loaders
+    batch_size = 32  # Reduce batch size for memory optimization
+    train_loader = DataLoader(TensorDataset(train_data), batch_size=batch_size, shuffle=True,
+                              collate_fn=custom_collate_fn)
+
     hidden_state_transformer.train()
 
     # Initialize the loss function and optimizer
@@ -245,60 +171,37 @@ def main():
     # criterion = nn.KLDivLoss(reduction="batchmean")
     optimizer = torch.optim.Adam(hidden_state_transformer.parameters(), lr=0.001)  # You can tune the learning rate
     # optimizer = torch.optim.SGD(hidden_state_transformer.parameters(), lr=0.1, momentum=0.9)
-    num_epochs = 100  # Set the number of epochs for training
+    num_epochs = 10  # Set the number of epochs for training
 
     # hidden_state_transformer = load_hidden_state_transformer(model_save_path, input_size, output_size, num_layers,
     #                                                          num_heads, dim_feedforward, dropout, device)
     # Call the training function
-    train_model(src_model, tgt_model, hidden_state_transformer, optimizer, criterion, num_epochs, device)
+    train_model(train_loader, hidden_state_transformer, optimizer, criterion, num_epochs)
     # Saving the weights of the HiddenStateTransformer
+    
     torch.save(hidden_state_transformer.state_dict(), model_save_path)
+    # torch.save(hidden_state_transformer, model_save_path)
 
     # Loading the model
     hidden_state_transformer = load_hidden_state_transformer(model_save_path, input_size, output_size, num_layers,
-                                                             num_heads, dim_feedforward, dropout, device)
-
-    lll = len(df['statement'].tolist())
-
-    input_word = df['statement'].tolist()[1]
-    converted_hidden_states0 = infer_hidden_states(hidden_state_transformer, src_model, src_tokenizer, input_word,
-                                                   device)
-    tgt_input = tgt_inputs0['input_ids'][1].unsqueeze(0).to(device)
-    with torch.no_grad():
-        tgt_output = tgt_model(input_ids=tgt_input, output_hidden_states=True)
-        tgt_hidden_state0 = tgt_output.hidden_states[1]  # First layer's hidden states
-
-    dataSize = int(0.8 * src_inputs0['input_ids'].shape[0])
-    src_hidden_states = torch.load('C:\\Users\\relwe\\OneDrive\\Documents\\GitHub\\HebrewLLM\\transformer_1\\srcHSNew.pth')
-    new_tgt_hidden_states = torch.load('C:\\Users\\relwe\\OneDrive\\Documents\\GitHub\\HebrewLLM\\transformer_1\\tgtHSNew.pth')
-    predicted_tgt_hidden_states = hidden_state_transformer(src_hidden_states)
-    new_predicted_tgt_hidden_states = predicted_tgt_hidden_states.view(dataSize, 1, -1)
-    loss = criterion(new_predicted_tgt_hidden_states, new_tgt_hidden_states)
-    print("Loss on train data is: ", loss.item())
-    dataSize = int(0.2 * src_inputs0['input_ids'].shape[0])
-    # src_hidden_states = torch.empty((dataSize,max_length,1024))
-    # tgt_hidden_states = torch.empty((dataSize,max_length,1024))
-    # for i in range(dataSize):
-    #     # Prepare the inputs
-    #     src_input = src_inputs0['input_ids'][lll-1-i].unsqueeze(0).to(device)
-    #     tgt_input = tgt_inputs0['input_ids'][lll-1-i].unsqueeze(0).to(device)
-
-    #     # Forward pass through the source model to get hidden states
-    #     with torch.no_grad():
-    #         src_output = src_model.generate(src_input, output_hidden_states=True, return_dict_in_generate=True, max_length=max_length)
-    #         src_hidden_states[i] = src_output.encoder_hidden_states[-1][0,:,:]  # Last layer's hidden states
-
-    #     # Forward pass through the target model to get target hidden states
-    #     with torch.no_grad():
-    #         tgt_output = tgt_model(input_ids=tgt_input, output_hidden_states=True)
-    #         tgt_hidden_states[i] = tgt_output.hidden_states[1][0,:,:]  # First layer's hidden states
-    # new_tgt_hidden_states = tgt_hidden_states[:, 1, :].unsqueeze(1).to(device)
-    src_hidden_states = torch.load('C:\\Users\\relwe\\OneDrive\\Documents\\GitHub\\HebrewLLM\\transformer_1\\srcHSNew_test.pth')
-    new_tgt_hidden_states = torch.load('C:\\Users\\relwe\\OneDrive\\Documents\\GitHub\\HebrewLLM\\transformer_1\\tgtHSNew_test.pth')
-    predicted_tgt_hidden_states = hidden_state_transformer(src_hidden_states)
-    new_predicted_tgt_hidden_states = predicted_tgt_hidden_states.view(dataSize, 1, -1)
-    loss = criterion(new_predicted_tgt_hidden_states, new_tgt_hidden_states)
-    print("Loss on test data is: ", loss.item())
-
+                                                             num_heads, dim_feedforward, device)
+    
+    text = "הולך"
+    translator_inputs = translator_He_En_tokenizer.encode_plus(text, return_tensors='pt', truncation=True)
+    translator_outputs = translator_He_En_model.generate(input_ids=translator_inputs.input_ids,
+                                                              attention_mask=translator_inputs.attention_mask,
+                                                              # decoder_input_ids=decoder_input_ids,
+                                                              # max_length=16,  # adjust max_length as needed
+                                                              num_beams=5,  # adjust num_beams as needed
+                                                              early_stopping=True,
+                                                              output_hidden_states=True)
+    translator_outputs1 = translator_He_En_model(input_ids=translator_inputs.input_ids,
+                                              decoder_input_ids=translator_outputs, output_hidden_states=True)
+    translator_hidden_state = translator_outputs1.decoder_hidden_states[-1]
+    # OPT_hidden_state = torch.empty(1,2,1024)
+    OPT_hidden_state = hidden_state_transformer(translator_hidden_state)
+    outputs, generated_text = embeddingsToOPT.OPT_activation_different_layer(OPT_hidden_state, 0)
+    print(generated_text)
+    
 if __name__ == '__main__':
     main()
