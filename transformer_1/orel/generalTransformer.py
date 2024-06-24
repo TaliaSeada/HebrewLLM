@@ -55,6 +55,7 @@ class CustomLayerWrapper2(nn.Module):
         self.hs = hidden_states  # transformer's result
 
     def forward(self, hidden_states, attention_mask=None, **kwargs):
+
         # Modify hidden_states before passing them to the layer
         modified_hidden_states = your_input_modification(self.hs)
 
