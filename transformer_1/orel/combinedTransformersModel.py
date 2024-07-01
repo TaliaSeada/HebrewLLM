@@ -388,7 +388,7 @@ class CombinedModel(nn.Module):
         self.transformer2 = transformer2
         
         self.tokenizer2 = tokenizer2
-        self.translator2 = translator2
+        self.translator2: MarianMTModel = translator2
 
         # Freeze Translator1 parameters
         for param in self.translator1.parameters():
@@ -418,9 +418,9 @@ class CombinedModel(nn.Module):
             # Get the final embedding of translator1 for the text input (language1)
             x, _ = self.hebrew_to_input(text)
             # print(f"Text = {text}\nInput = {x}")
-
-        if x.shape[0] > 15:
-            return None, None
+        
+        if x.shape[1] > 15:
+            return None
         
         # Transform it to the llm initial embeddings for the sentence in language2 
         x = self.transformer1(x)
@@ -445,14 +445,14 @@ class CombinedModel(nn.Module):
         # Transform it (embeddings of output sentence in language 2) to the initial embeddings of translator2
         x = self.transformer2(llm_last_hidden_state)
 
-        with torch.no_grad():
-            # Inject our initial embeddings to the first layer of Transformer2
-            self.inject_layer(layer_hs=x, layer_num=1, name="encoder")
-            
-            # return the probability for each word in the dictionary for each vector in the final embeddings of translator2
-            l, p = self.generate_with_logits()
+        # with torch.with_grad():
+        # Inject our initial embeddings to the first layer of Transformer2
+        self.inject_layer(layer_hs=x, layer_num=1, name="encoder")
+        
+        # return the probability for each word in the dictionary for each vector in the final embeddings of translator2
+        q = self.generate_predicted_distribution()
 
-        return l, p
+        return q
 
     def test(self):
         pass
@@ -506,48 +506,49 @@ class CombinedModel(nn.Module):
         return data_padded, clean_token_num
 
 
-    def generate_with_logits(self):
-        # Trick Translator by giving it a dummy that contain the desired number of tokens (In our case 15)
-        # and replace the first layer as it got other word embedding.
+    def generate_predicted_distribution(self):
+        # # Trick Translator by giving it a dummy that contain the desired number of tokens (In our case 15)
+        # # and replace the first layer as it got other word embedding.
         inputs = self.tokenizer2("a " * 14, return_tensors="pt")
-            
-        # Ensure the attention mask is correctly shaped
-        attention_mask = torch.ones((1, 15))
-        inputs['attention_mask'] = attention_mask
         
-        # Prepare decoder_input_ids, starting with the <pad> token
-        decoder_input_ids = torch.full(
-            (inputs.input_ids.size(0), 15), self.tokenizer2.pad_token_id, dtype=torch.long
-        )
+        
+        # # Ensure the attention mask is correctly shaped
+        # attention_mask = torch.ones((1, 15))
+        # inputs['attention_mask'] = attention_mask
+        
+        # # Prepare decoder_input_ids, starting with the <pad> token
+        # decoder_input_ids = torch.full(
+        #     (inputs.input_ids.size(0), 15), self.tokenizer2.pad_token_id, dtype=torch.long
+        # )
 
-        # Concatenate with input_ids shifted right
-        decoder_input_ids = torch.cat([decoder_input_ids, inputs.input_ids], dim=1)
+        # # Concatenate with input_ids shifted right
+        # decoder_input_ids = torch.cat([decoder_input_ids, ids.input_ids], dim=1)
 
         # print(f"decoder_input_ids = {decoder_input_ids},\nShape = {decoder_input_ids.shape}")
 
-        # Forward pass to get the logits
-        outputs = self.translator2(
-            input_ids=inputs.input_ids,
-            attention_mask=attention_mask,
-            decoder_input_ids=decoder_input_ids,
-            output_hidden_states=True
+        # # Forward pass to get the logits
+        # outputs = self.translator2(
+        #     input_ids=inputs.input_ids,
+        #     attention_mask=attention_mask,
+        #     decoder_input_ids=decoder_input_ids,
+        #     output_hidden_states=True
+        # )
+        
+        # print(f"outputs.keys() = {outputs.keys()}")
+        
+        
+        model_output = self.translator2.generate(
+            inputs.input_ids,
+            return_dict_in_generate=True,
+            output_scores=True
         )
-
-        logits = outputs.logits
         
-        # Access the generated token IDs
-        token_ids = outputs.logits.argmax(-1)
-        # # Decode the token IDs using the tokenizer
-        generated_text = self.tokenizer2.decode(token_ids[0], skip_special_tokens=True)
+        # Predicted distribution
+        q = torch.stack(model_output.scores, dim=1)[0].softmax(dim=-1)
         
-        print(f"Output token_ids {token_ids} = {generated_text}")
+        # print(f"q = {q}")
 
-        logits = logits.requires_grad_()
-
-        # Apply softmax to get probabilities
-        probabilities = F.log_softmax(logits, dim=-1)
-
-        return logits, probabilities
+        return q
 
     # def generate_with_logits(self):
     #     # Trick Translator by giving it a dummy that contain the desired number of tokens (In our case 15)
@@ -614,66 +615,46 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
     for epoch in range(epochs):
         model.train()  # Set the model to training mode
         train_loss = 0
+        counter = 0
 
         for index, row in df.iterrows():
             if index > stop_index:
                 break
             hebrew_sentence = row['Hebrew sentence']
             target_hebrew_sentence = row['Hebrew sentence'] + " " + row['label']
-
-            # TODO ==== Black box -> New Hebrew Sentence outputs ====
             
-            print(f"hebrew_sentence = {hebrew_sentence}, index = {index}")
+            if index % 10 == 0:
+                
+                print(f"hebrew_sentence = {hebrew_sentence}, index = {index}")
 
-            # Outputs the first layer of the En_He_translator using transformer1
-            logits, distribution = model(hebrew_sentence)
+            # =================== Calculate the loss ===================
             
-            if logits is None:
+            # Outputs predicted distribution for each token
+            q = model(hebrew_sentence)
+            
+            if q is None:
                 continue
-
-            # print(f"hebrew_ids = {generated_output[0]}")
-
-            # # Translation for us
-            # hebrew_sentence = En_He_tokenizer.decode(generated_output[0], skip_special_tokens=True)
-            # print(f"generated_text = {hebrew_sentence}")
+            
+            counter += 1
 
             # ==== calc loss =====
 
             # Get the tokens for the target sentence
             target_ids = En_He_tokenizer(text_target=target_hebrew_sentence, return_tensors="pt")
 
-            # print(target_ids[:,:15].squeeze(0).shape)
-
-            # TODO - Pad the tensors to 15 so their size will match
-
-            # Calculate the loss
-            # print(f"shape(logits) = {logits.squeeze(0)[1:2,:]}")
-            # print(f"logits = {logits.squeeze(0)[1:2,:]}")
-
-            # Get the top 3 logits for each position
-            top_n_logits = torch.topk(logits, 3, dim=-1).indices
-
-            # Decode the top 3 logits into words
-            top_n_words = []
-            for i in range(top_n_logits.size(1)):
-                words = [En_He_tokenizer.decode([token_id.item()]) for token_id in top_n_logits[0, i]]
-                top_n_words.append(words)
-
-            # print(f"sentence {index} = {top_n_words}")
-
-            # This is the vector that represent the word in index 1
-            for t in logits.squeeze(0)[1:2]:
-                # print(f"translated logits {t} = {En_He_tokenizer.convert_ids_to_tokens(t)}")
-                print(f"logits {t}")
-
-            # print(logits.squeeze(0)[1:,:].shape, target_ids.squeeze(0)[:].shape)
-
-            max_left = logits.squeeze(0)[1:, :].shape[0]
+            # print(f"q.shape = {q.shape}")
+            max_left = q[1:, :].shape[0]
             max_right = target_ids.input_ids.squeeze(0).shape[0]
 
             desired_len = min(max_left, max_right, 14)
-
-            loss = criterion(logits.squeeze(0)[1:desired_len + 1, :], target_ids.input_ids.squeeze(0)[:desired_len])
+            
+            actual = q[1:desired_len + 1, :]
+            expected = target_ids.input_ids.squeeze(0)[:desired_len]
+            
+            actual.requires_grad_()
+            # expected.requires_grad_()
+            
+            loss = criterion(actual, expected)
 
             # Back Propagation
             optimizer.zero_grad()
@@ -683,7 +664,7 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
             train_loss += loss.item()
             # print(f"Loss: {loss}")
 
-        train_loss /= stop_index
+        train_loss /= counter
         print(f"=========================== Epoch {epoch}, Loss = {train_loss} ===========================")
 
 
