@@ -455,7 +455,7 @@ class CombinedModel(nn.Module):
         self.inject_layer(layer_hs=x, layer_num=1, name="encoder")
         
         # return the probability for each word in the dictionary for each vector in the final embeddings of translator2
-        q = self.generate_predicted_distribution()
+        q = self.generate_predicted_distribution(text)
 
         return q
 
@@ -501,47 +501,71 @@ class CombinedModel(nn.Module):
         return data_padded, clean_token_num
 
 
-    def generate_predicted_distribution(self):
+    def generate_predicted_distribution(self, text):
+        
+        # Get the tokens for the target sentence
+        known_target_ids = self.tokenizer2(text_target=text, return_tensors="pt").input_ids
+        
+        # Get the padding token ID
+        pad_token_id = self.tokenizer2.pad_token_id
+
+        # Create a tensor filled with pad token IDs, with the desired length
+        max_length = 15
+        # batch_size = known_target_ids.size(0)
+        # decoder_input_ids = torch.full((batch_size, max_length - known_target_ids.shape[1]), pad_token_id, dtype=torch.long)
+
+            
         # # Trick Translator by giving it a dummy that contain the desired number of tokens (In our case 15)
         # # and replace the first layer as it got other word embedding.
         inputs = self.tokenizer2("a " * 14, return_tensors="pt")
         
         
-        # # Ensure the attention mask is correctly shaped
-        # attention_mask = torch.ones((1, 15))
-        # inputs['attention_mask'] = attention_mask
+        # Ensure the attention mask is correctly shaped
+        attention_mask = torch.ones((1, 15))
+        inputs['attention_mask'] = attention_mask
         
-        # # Prepare decoder_input_ids, starting with the <pad> token
-        # decoder_input_ids = torch.full(
-        #     (inputs.input_ids.size(0), 15), self.tokenizer2.pad_token_id, dtype=torch.long
-        # )
+        # Prepare decoder_input_ids, starting with the <pad> token
+        decoder_input_ids = torch.full(
+            (inputs.input_ids.size(0),  max_length - known_target_ids.shape[1]), self.tokenizer2.pad_token_id, dtype=torch.long
+        )
 
-        # # Concatenate with input_ids shifted right
-        # decoder_input_ids = torch.cat([decoder_input_ids, ids.input_ids], dim=1)
+        # Concatenate with input_ids shifted right
+        decoder_input_ids = torch.cat([known_target_ids, decoder_input_ids], dim=1)
 
         # print(f"decoder_input_ids = {decoder_input_ids},\nShape = {decoder_input_ids.shape}")
 
-        # # Forward pass to get the logits
-        # outputs = self.translator2(
-        #     input_ids=inputs.input_ids,
-        #     attention_mask=attention_mask,
-        #     decoder_input_ids=decoder_input_ids,
-        #     output_hidden_states=True
-        # )
+        # Forward pass to get the logits
+        outputs = self.translator2(
+            input_ids=inputs.input_ids,
+            attention_mask=attention_mask,
+            decoder_input_ids=decoder_input_ids,
+            output_hidden_states=True
+        )
         
         # print(f"outputs.keys() = {outputs.keys()}")
         
+        # Getting the logits (usually the last hidden state contains the logits for token predictions)
+        logits = outputs.logits
         
-        model_output = self.translator2.generate(
-            inputs.input_ids,
-            return_dict_in_generate=True,
-            output_scores=True
-        )
+        # # Apply softmax to get probabilities
+        # q = torch.softmax(logits, dim=-1)
         
-        # Predicted distribution
-        q = torch.stack(model_output.scores, dim=1)[0].softmax(dim=-1)
+        q = logits
+        # print(f"q = {q}")
+        
+        # =========================================================
+        
+        # model_output = self.translator2.generate(
+        #     inputs.input_ids,
+        #     return_dict_in_generate=True,
+        #     output_scores=True
+        # )
+        
+        # # Predicted distribution
+        # q = torch.stack(model_output.scores, dim=1)[0].softmax(dim=-1)
         
         # print(f"q = {q}")
+        # =========================================================
 
         return q
 
@@ -639,21 +663,23 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
             # Get the tokens for the target sentence
             target_ids = En_He_tokenizer(text_target=target_hebrew_sentence, return_tensors="pt")
 
+
+            # print(f"target_ids = {target_ids}")
             # print(f"q.shape = {q.shape}")
-            max_left = q[1:, :].shape[0]
+            max_left = q[0, 1:, :].shape[0]
             max_right = target_ids.input_ids.squeeze(0).shape[0]
 
             desired_len = min(max_left, max_right, 14)
             
-            actual = q[1:desired_len + 1, :]
+            actual = q[0,1:desired_len + 1, :]
             expected = target_ids.input_ids.squeeze(0)[:desired_len]
             
             actual.requires_grad_()
             # expected.requires_grad_()
             
-            # One-hot encode the expected tokens
-            num_classes = actual.shape[-1]
-            expected_one_hot = one_hot_encode(expected, num_classes)
+            # # One-hot encode the expected tokens
+            # num_classes = actual.shape[-1]
+            # expected_one_hot = one_hot_encode(expected, num_classes)
             
             # print(f"actual_log_probs = {actual_log_probs}")
             # print(f"expected_one_hot = {expected_one_hot}")
@@ -662,11 +688,11 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
             # print(f"sum = {expected_one_hot.sum()}")
             
             # Calculate the loss
-            loss = criterion(actual, expected_one_hot)
+            # loss = criterion(actual, expected_one_hot)
             
             
             
-            # loss = criterion(actual, expected)
+            loss = criterion(actual, expected)
 
             # Back Propagation
             optimizer.zero_grad()
@@ -737,7 +763,8 @@ combined_model = CombinedModel(tokenizer1=He_En_tokenizer,
 
 lr=0.0005
 
-optimizer = optim.Adam(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
+# optimizer = optim.Adam(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
+optimizer = optim.Adam(combined_model.parameters(), lr=lr)
 
 # optimizer = optim.SGD(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
 
@@ -748,7 +775,7 @@ path = 'transformer_1/orel/wikipedia_data_15.csv'
 # path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\wikipedia_data.csv'
 
 train_combined_model(path,
-                     2000,
+                     100,
                      combined_model,
                      He_En_translator_model,
                      En_He_translator_model,
