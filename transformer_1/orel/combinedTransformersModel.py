@@ -524,9 +524,11 @@ class CombinedModel(nn.Module):
         attention_mask = torch.ones((1, 15))
         inputs['attention_mask'] = attention_mask
         
+        decoder_len = max((max_length - known_target_ids.shape[1]), 0)
+        
         # Prepare decoder_input_ids, starting with the <pad> token
         decoder_input_ids = torch.full(
-            (inputs.input_ids.size(0),  max_length - known_target_ids.shape[1]), self.tokenizer2.pad_token_id, dtype=torch.long
+            (inputs.input_ids.size(0),  decoder_len), self.tokenizer2.pad_token_id, dtype=torch.long
         )
 
         # Concatenate with input_ids shifted right
@@ -629,7 +631,8 @@ def translate_to_hebrew(model, tokenizer, sentence):
 def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_model, En_He_model, He_En_tokenizer,
                          En_He_tokenizer, criterion, optimizer, epochs):
     df = pd.read_csv(dataset_path)
-
+    print_every = 100
+    
     # Train the model
     for epoch in range(epochs):
         model.train()  # Set the model to training mode
@@ -644,7 +647,7 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
             hebrew_sentence = row['Hebrew sentence']
             target_hebrew_sentence = row['Hebrew sentence'] + " " + row['label']
             
-            if index % 50 == 0:
+            if index % print_every == 0:
                 
                 print(f"hebrew_sentence = {hebrew_sentence}, index = {index}")
 
@@ -690,7 +693,16 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
             # Calculate the loss
             # loss = criterion(actual, expected_one_hot)
             
-            
+            if index % print_every == 0:
+                # Get the top 3 logits for each position
+                top_n_logits = torch.topk(q, 3, dim=-1).indices
+
+                # Decode the top 3 logits into words
+                top_n_words = []
+                for i in range(top_n_logits.size(1)):
+                    words = [En_He_tokenizer.decode([token_id.item()]) for token_id in top_n_logits[0, i]]
+                    top_n_words.append(words)
+                print(f"sentence {index} = {top_n_words}")
             
             loss = criterion(actual, expected)
 
@@ -709,7 +721,8 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
             
         train_loss /= counter
         print(f"=========================== Epoch {epoch}, Loss = {train_loss} ===========================")
-
+    # save_model(model, "combined_model_1.pkl")
+    return train_loss
 
 def save_model(model, to_path):
     joblib.dump(model, to_path)
@@ -717,79 +730,83 @@ def save_model(model, to_path):
 def one_hot_encode(indices, num_classes):
     return nn.functional.one_hot(indices, num_classes=num_classes).float()
 
-# Hebrew to english translator
-He_En_model_name = "Helsinki-NLP/opus-mt-tc-big-he-en"
-He_En_tokenizer = MarianTokenizer.from_pretrained(He_En_model_name)
-He_En_translator_model = MarianMTModel.from_pretrained(He_En_model_name)
 
-# Transformer 1
-t1 = joblib.load('transformer_1/orel/pretrainedModels/models/10Tokens/general_model.pkl')
-# t1 = joblib.load('C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\transformer_1\\orel\\pretrainedModels\\models\\10Tokens'
-#                  '\\general_model.pkl')
 
-# LLM model
-llm_model_name = "facebook/opt-350m"
-llm_tokenizer = AutoTokenizer.from_pretrained(llm_model_name)
-llm = OPTForCausalLM.from_pretrained(llm_model_name)
 
-# Transformer 2
-# t2 = joblib.load('transformer_2/model_name.pkl')
-# t2 = HiddenStateTransformer2(input_size=512,output_size=512, num_layers=1, num_heads=2, dim_feedforward=256, dropout=0.15)
-t2 = joblib.load('C:\\Users\\orelz\\OneDrive\\שולחן העבודה\\work\\Ariel\\HebrewLLM\\transformer_2\\pretranedModels\\models\\15Tokens\\model_15_tokens_talia.pkl')
-# t2 = joblib.load(
-#     'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\transformer_2\\pretranedModels\\models\\15Tokens'
-#     '\\model_15_tokens_talia.pkl')
 
-# English to Hebrew translator
-En_He_model_name = "Helsinki-NLP/opus-mt-en-he"
-En_He_tokenizer = MarianTokenizer.from_pretrained(En_He_model_name)
-En_He_translator_model = MarianMTModel.from_pretrained(En_He_model_name)
+# # Hebrew to english translator
+# He_En_model_name = "Helsinki-NLP/opus-mt-tc-big-he-en"
+# He_En_tokenizer = MarianTokenizer.from_pretrained(He_En_model_name)
+# He_En_translator_model = MarianMTModel.from_pretrained(He_En_model_name)
 
-combined_model = CombinedModel(tokenizer1=He_En_tokenizer,
-                               translator1=He_En_translator_model,
-                               transformer1=t1,
-                               llm_tokenizer=llm_tokenizer,
-                               llm=llm,
-                               transformer2=t2,
-                               tokenizer2=En_He_tokenizer,
-                               translator2=En_He_translator_model
-                               )
+# # Transformer 1
+# t1 = joblib.load('transformer_1/orel/pretrainedModels/models/10Tokens/general_model.pkl')
+# # t1 = joblib.load('C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\transformer_1\\orel\\pretrainedModels\\models\\10Tokens'
+# #                  '\\general_model.pkl')
+
+# # LLM model
+# llm_model_name = "facebook/opt-350m"
+# llm_tokenizer = AutoTokenizer.from_pretrained(llm_model_name)
+# llm = OPTForCausalLM.from_pretrained(llm_model_name)
+
+# # Transformer 2
+# # t2 = joblib.load('transformer_2/model_name.pkl')
+# # t2 = HiddenStateTransformer2(input_size=512,output_size=512, num_layers=1, num_heads=2, dim_feedforward=256, dropout=0.15)
+# t2 = joblib.load('C:\\Users\\orelz\\OneDrive\\שולחן העבודה\\work\\Ariel\\HebrewLLM\\transformer_2\\pretranedModels\\models\\15Tokens\\model_15_tokens_talia.pkl')
+# # t2 = joblib.load(
+# #     'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\transformer_2\\pretranedModels\\models\\15Tokens'
+# #     '\\model_15_tokens_talia.pkl')
+
+# # English to Hebrew translator
+# En_He_model_name = "Helsinki-NLP/opus-mt-en-he"
+# En_He_tokenizer = MarianTokenizer.from_pretrained(En_He_model_name)
+# En_He_translator_model = MarianMTModel.from_pretrained(En_He_model_name)
+
+# combined_model = CombinedModel(tokenizer1=He_En_tokenizer,
+#                                translator1=He_En_translator_model,
+#                                transformer1=t1,
+#                                llm_tokenizer=llm_tokenizer,
+#                                llm=llm,
+#                                transformer2=t2,
+#                                tokenizer2=En_He_tokenizer,
+#                                translator2=En_He_translator_model
+#                                )
+
+# # for name, param in combined_model.named_parameters():
+# #     if param.requires_grad:
+# #         print(f'{name} requires grad')
+
+
+
+# lr=0.001
+
+# # optimizer = optim.Adam(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
+# optimizer = optim.Adam(combined_model.parameters(), lr=lr)
+
+# # optimizer = optim.SGD(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
+
+# criterion = nn.CrossEntropyLoss()
+# # criterion = my_cross_entropy
+
+# path = 'transformer_1/orel/wikipedia_data_15.csv'
+# # path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\wikipedia_data.csv'
+
+# train_combined_model(path,
+#                      100,
+#                      combined_model,
+#                      He_En_translator_model,
+#                      En_He_translator_model,
+#                      He_En_tokenizer,
+#                      En_He_tokenizer,
+#                      criterion,
+#                      optimizer,
+#                      5)
+
+# print(f"lr = {lr}")
 
 # for name, param in combined_model.named_parameters():
 #     if param.requires_grad:
 #         print(f'{name} requires grad')
 
-
-
-lr=0.0005
-
-# optimizer = optim.Adam(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
-optimizer = optim.Adam(combined_model.parameters(), lr=lr)
-
-# optimizer = optim.SGD(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
-
-criterion = nn.CrossEntropyLoss()
-# criterion = my_cross_entropy
-
-path = 'transformer_1/orel/wikipedia_data_15.csv'
-# path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\wikipedia_data.csv'
-
-train_combined_model(path,
-                     100,
-                     combined_model,
-                     He_En_translator_model,
-                     En_He_translator_model,
-                     He_En_tokenizer,
-                     En_He_tokenizer,
-                     criterion,
-                     optimizer,
-                     5)
-
-print(f"lr = {lr}")
-
-for name, param in combined_model.named_parameters():
-    if param.requires_grad:
-        print(f'{name} requires grad')
-
-# num = 1
-# save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_wiki_{num}.pkl')
+# # num = 1
+# # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_wiki_{num}.pkl')
