@@ -413,11 +413,10 @@ class CombinedModel(nn.Module):
 
 
     def forward(self, text):
-
-        with torch.no_grad():
-            # Get the final embedding of translator1 for the text input (language1)
-            x, _ = self.hebrew_to_input(text)
-            # print(f"Text = {text}\nInput = {x}")
+        
+        # Get the final embedding of translator1 for the text input (language1)
+        x, _ = self.hebrew_to_input(text)
+        # print(f"Text = {text}\nInput = {x}")
         
         if x.shape[1] > 15:
             return None
@@ -425,27 +424,33 @@ class CombinedModel(nn.Module):
         # Transform it to the llm initial embeddings for the sentence in language2 
         x = self.transformer1(x)
         
-        # Ensure LLM does not compute gradients
-        with torch.no_grad():
+        # # Ensure LLM does not compute gradients
 
-            # Trick llm by giving it a dummy that contain the desired number of tokens (In our case 15)
-            # and replace the first layer as it got other word embedding.
-            inputs = self.llm_tokenizer(" " * 14, return_tensors="pt")
+        # Trick llm by giving it a dummy that contain the desired number of tokens (In our case 15)
+        # and replace the first layer as it got other word embedding.
+        inputs = self.llm_tokenizer(" " * 14, return_tensors="pt")
 
-            # Inject our initial embeddings to the first layer of the llm
-            self.inject_layer(layer_hs=x, layer_num=1, name="decoder")
-                        
-            # Calculates the final embeddings
-            outputs = self.llm(**inputs, output_hidden_states=True)
+        # Inject our initial embeddings to the first layer of the llm
+        self.inject_layer(layer_hs=x, layer_num=1, name="decoder")
+                    
+        # Calculates the final embeddings
+        outputs = self.llm(**inputs, output_hidden_states=True)
 
-            # Lastly, get the final embeddings of the llm for our injected input
-            llm_last_hidden_state = outputs.hidden_states[-1]
-            
+        # # Getting the predicted tokens (usually the last hidden state contains the logits for token predictions)
+        # predicted_tokens = outputs.logits.argmax(dim=-1)
+
+        # # Convert tokens to words
+        # predicted_words = self.llm_tokenizer.decode(predicted_tokens[0], skip_special_tokens=True)
+
+        # print(f"predicted_words = {predicted_words}")
+
+        # Lastly, get the final embeddings of the llm for our injected input
+        llm_last_hidden_state = outputs.hidden_states[-1]
+
 
         # Transform it (embeddings of output sentence in language 2) to the initial embeddings of translator2
         x = self.transformer2(llm_last_hidden_state)
 
-        # with torch.with_grad():
         # Inject our initial embeddings to the first layer of Transformer2
         self.inject_layer(layer_hs=x, layer_num=1, name="encoder")
         
@@ -454,28 +459,18 @@ class CombinedModel(nn.Module):
 
         return q
 
+
     def test(self):
         pass
 
-    def inject_layer(self, layer_hs, layer_num, name="decoder"):
-        # if name == "decoder":
-        #     original_layer = self.llm.base_model.decoder.layers[layer_num]
-        #     wrapped_layer = CustomLayerWrapper(original_layer, layer_hs)
-        # else:
-        #     original_layer = self.translator2.model.encoder.layers[layer_num]
-        #     wrapped_layer = CustomLayerWrapper2(original_layer, layer_hs)
 
-        # Wrap the layer inside the custom wrapper
+    def inject_layer(self, layer_hs, layer_num, name="decoder"):
 
         # Replace the layer with the wrapped layer
         if name == "decoder":
-            # print(type( self.llm.base_model.decoder.layers[layer_num]))
             self.llm.base_model.decoder.layers[layer_num].hs = layer_hs
-            # self.llm.base_model.decoder.layers[layer_num] = wrapped_layer
         else:
-            # print(type(self.translator2.model.encoder.layers[layer_num]))
             self.translator2.model.encoder.layers[layer_num].hs = layer_hs
-            # self.translator2.model.encoder.layers[layer_num] = wrapped_layer
 
 
     def hebrew_to_input(self,h_text):
@@ -617,13 +612,15 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
         train_loss = 0
         counter = 0
 
+        before_params = model.transformer2.parameters()
+        
         for index, row in df.iterrows():
             if index > stop_index:
                 break
             hebrew_sentence = row['Hebrew sentence']
             target_hebrew_sentence = row['Hebrew sentence'] + " " + row['label']
             
-            if index % 10 == 0:
+            if index % 50 == 0:
                 
                 print(f"hebrew_sentence = {hebrew_sentence}, index = {index}")
 
@@ -654,7 +651,22 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
             actual.requires_grad_()
             # expected.requires_grad_()
             
-            loss = criterion(actual, expected)
+            # One-hot encode the expected tokens
+            num_classes = actual.shape[-1]
+            expected_one_hot = one_hot_encode(expected, num_classes)
+            
+            # print(f"actual_log_probs = {actual_log_probs}")
+            # print(f"expected_one_hot = {expected_one_hot}")
+
+            # print(f"expected_one_hot.shape = {expected_one_hot.shape}")
+            # print(f"sum = {expected_one_hot.sum()}")
+            
+            # Calculate the loss
+            loss = criterion(actual, expected_one_hot)
+            
+            
+            
+            # loss = criterion(actual, expected)
 
             # Back Propagation
             optimizer.zero_grad()
@@ -663,20 +675,21 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
 
             train_loss += loss.item()
             # print(f"Loss: {loss}")
+            
+            after_params = model.transformer2.parameters()
 
+            # print(f"params are equals? {before_params == after_params}")
+
+            
         train_loss /= counter
         print(f"=========================== Epoch {epoch}, Loss = {train_loss} ===========================")
-
-
-def my_cross_entropy(dist, target):
-    # return sum([(math.log(dist[0,index,token_id])) if index < 15 else 0 for index, token_id in enumerate(target.squeeze(0))])
-    # print(target.view(-1))
-    return F.nll_loss(dist, target)
 
 
 def save_model(model, to_path):
     joblib.dump(model, to_path)
 
+def one_hot_encode(indices, num_classes):
+    return nn.functional.one_hot(indices, num_classes=num_classes).float()
 
 # Hebrew to english translator
 He_En_model_name = "Helsinki-NLP/opus-mt-tc-big-he-en"
@@ -721,8 +734,12 @@ combined_model = CombinedModel(tokenizer1=He_En_tokenizer,
 #         print(f'{name} requires grad')
 
 
-# optimizer = optim.Adam(combined_model.parameters(), lr=0.001)
-optimizer = optim.Adam(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=0.01)
+
+lr=0.0005
+
+optimizer = optim.Adam(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
+
+# optimizer = optim.SGD(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
 
 criterion = nn.CrossEntropyLoss()
 # criterion = my_cross_entropy
@@ -731,7 +748,7 @@ path = 'transformer_1/orel/wikipedia_data_15.csv'
 # path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\wikipedia_data.csv'
 
 train_combined_model(path,
-                     80,
+                     2000,
                      combined_model,
                      He_En_translator_model,
                      En_He_translator_model,
@@ -740,6 +757,12 @@ train_combined_model(path,
                      criterion,
                      optimizer,
                      5)
+
+print(f"lr = {lr}")
+
+for name, param in combined_model.named_parameters():
+    if param.requires_grad:
+        print(f'{name} requires grad')
 
 # num = 1
 # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_wiki_{num}.pkl')
