@@ -40,6 +40,9 @@ class CustomLayerWrapper(nn.Module):
 
     def forward(self, hidden_states, attention_mask=None, layer_head_mask=None,
                 past_key_value=None, output_attentions=None, use_cache=None):
+        if self.hs.shape[1]>15:
+            return self.layer(hidden_states, attention_mask, layer_head_mask,
+                          past_key_value, output_attentions, use_cache)
         # Apply modifications to hidden_states here
         modified_hidden_states = your_input_modification(self.hs)
 
@@ -55,6 +58,8 @@ class CustomLayerWrapper2(nn.Module):
         self.hs = hidden_states  # transformer's result
 
     def forward(self, hidden_states, attention_mask=None, **kwargs):
+        if self.hs.shape[1]>15:
+            return self.layer(hidden_states, attention_mask, **kwargs)
         # Modify hidden_states before passing them to the layer
         modified_hidden_states = your_input_modification(self.hs)
 
