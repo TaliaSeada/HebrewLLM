@@ -368,6 +368,7 @@ from model.HiddenStateTransformer import HiddenStateTransformer, HiddenStateTran
 from generalTransformer import CustomLayerWrapper, CustomLayerWrapper2
 import torch.nn.functional as F
 import math
+import pickle
 
 import os
 
@@ -729,9 +730,8 @@ def save_model(model, to_path):
 def one_hot_encode(indices, num_classes):
     return nn.functional.one_hot(indices, num_classes=num_classes).float()
 
-
-
-
+# Trying to use saved model
+loadPath = 'C:\\Users\\relwe\\Documents\\HebrewLLM\\transformer_1\\orel\\pretrainedModels\\models\\full_model1.pkl'
 
 # Hebrew to english translator
 He_En_model_name = "Helsinki-NLP/opus-mt-tc-big-he-en"
@@ -771,41 +771,56 @@ combined_model = CombinedModel(tokenizer1=He_En_tokenizer,
                                translator2=En_He_translator_model
                                )
 
-# for name, param in combined_model.named_parameters():
-#     if param.requires_grad:
-#         print(f'{name} requires grad')
+# Load weights from the .pkl file
+# with open(loadPath, 'rb') as f:
+weights = joblib.load(loadPath)
+
+# Assuming weights are stored as a state_dict
+combined_model.load_state_dict(weights)
+
+# Set the model to evaluation mode if you are not training
+combined_model.eval()
+
+# Example: Predict using the model
+input_text = "הסוכנות הפכה להנהגת היישוב היהודי"
+output = combined_model(input_text)
+print(output)
+
+# # for name, param in combined_model.named_parameters():
+# #     if param.requires_grad:
+# #         print(f'{name} requires grad')
 
 
 
-lr=0.001
+# lr=0.001
 
-# optimizer = optim.Adam(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
-optimizer = optim.Adam(combined_model.parameters(), lr=lr)
+# # optimizer = optim.Adam(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
+# optimizer = optim.Adam(combined_model.parameters(), lr=lr)
 
-# optimizer = optim.SGD(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
+# # optimizer = optim.SGD(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
 
-criterion = nn.CrossEntropyLoss()
-# criterion = my_cross_entropy
+# criterion = nn.CrossEntropyLoss()
+# # criterion = my_cross_entropy
 
-path = 'C:\\Users\\relwe\\Documents\\HebrewLLM\\wikipedia_data.csv'
-# path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\wikipedia_data.csv'
+# path = 'C:\\Users\\relwe\\Documents\\HebrewLLM\\wikipedia_data.csv'
+# # path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\wikipedia_data.csv'
 
-train_combined_model(path,
-                     100,
-                     combined_model,
-                     He_En_translator_model,
-                     En_He_translator_model,
-                     He_En_tokenizer,
-                     En_He_tokenizer,
-                     criterion,
-                     optimizer,
-                     5)
+# train_combined_model(path,
+#                      100,
+#                      combined_model,
+#                      He_En_translator_model,
+#                      En_He_translator_model,
+#                      He_En_tokenizer,
+#                      En_He_tokenizer,
+#                      criterion,
+#                      optimizer,
+#                      5)
 
-# print(f"lr = {lr}")
+# # print(f"lr = {lr}")
 
-# for name, param in combined_model.named_parameters():
-#     if param.requires_grad:
-#         print(f'{name} requires grad')
+# # for name, param in combined_model.named_parameters():
+# #     if param.requires_grad:
+# #         print(f'{name} requires grad')
 
-# num = 1
-# save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_wiki_{num}.pkl')
+# # num = 1
+# # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_wiki_{num}.pkl')
