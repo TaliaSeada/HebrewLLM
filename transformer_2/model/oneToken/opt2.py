@@ -248,7 +248,7 @@ if __name__ == '__main__':
     # data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\resources\\dict.csv'
     # data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\English_Hebrew_one_token.csv'
     # data_path = '/home/ubuntu/PycharmProjects/HebrewLLM/English_one_token.csv'
-    data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\English_one_token.csv'
+    data_path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\resources\\English_one_token.csv'
     df = pd.read_csv(data_path)
     # df['translation'] = df['translation'].astype(str)
     df['English'] = df['English'].astype(str)
