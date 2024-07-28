@@ -1,4 +1,14 @@
+
+# import os
+# import sys
 from data.dataManipulation import pad
+
+# # Add the parent directory to sys.path
+# parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+# if parent_dir not in sys.path:
+#     sys.path.insert(0, parent_dir)
+
+
 import torch
 import torch.nn as nn
 
@@ -28,4 +38,5 @@ def findMean(datasetPath: str, criterion):
 
 criterion = nn.MSELoss()
 # findMean("resources/datasets/up_to_ten_tokens_dataset.pt", criterion)
-findMean("resources/datasets/dataset_wiki_up_to_15_tokens.pt", criterion)
+# findMean("resources/datasets/dataset_wiki_up_to_15_tokens.pt", criterion)
+findMean('resources/datasets/dataset_wiki_up_to_15_tokens_36000.pt', criterion)

@@ -412,7 +412,7 @@ class CombinedModel(nn.Module):
         self.translator2.model.encoder.layers[1] = wrapped_layer2
 
 
-    def forward(self, text):
+    def forward(self, text, target=None):
         
         # Get the final embedding of translator1 for the text input (language1)
         x, _ = self.hebrew_to_input(text)
@@ -455,8 +455,11 @@ class CombinedModel(nn.Module):
         self.inject_layer(layer_hs=x, layer_num=1, name="encoder")
         
         # return the probability for each word in the dictionary for each vector in the final embeddings of translator2
-        q = self.generate_predicted_distribution(text)
-
+        if target is None:
+            q = self.generate_predicted_distribution(text)
+        else:
+            q = self.generate_predicted_distribution(target)
+            
         return q
 
 
@@ -631,7 +634,7 @@ def translate_to_hebrew(model, tokenizer, sentence):
 def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_model, En_He_model, He_En_tokenizer,
                          En_He_tokenizer, criterion, optimizer, epochs):
     df = pd.read_csv(dataset_path)
-    print_every = 100
+    print_every = 350
     
     # Train the model
     for epoch in range(epochs):
@@ -639,7 +642,7 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
         train_loss = 0
         counter = 0
 
-        before_params = model.transformer2.parameters()
+        # before_params = model.transformer2.parameters()
         
         for index, row in df.iterrows():
             if index > stop_index:
@@ -647,14 +650,14 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
             hebrew_sentence = row['Hebrew sentence']
             target_hebrew_sentence = row['Hebrew sentence'] + " " + row['label']
             
-            if index % print_every == 0:
-                
-                print(f"hebrew_sentence = {hebrew_sentence}, index = {index}")
+            # if index % print_every == 0:
+            #     curr_loss = train_loss / counter if counter > 0 else train_loss
+            #     print(f"index = {index}, current loss = {curr_loss}")
 
             # =================== Calculate the loss ===================
             
             # Outputs predicted distribution for each token
-            q = model(hebrew_sentence)
+            q = model(hebrew_sentence, target_hebrew_sentence)
             
             if q is None:
                 continue
@@ -693,16 +696,16 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
             # Calculate the loss
             # loss = criterion(actual, expected_one_hot)
             
-            if index % print_every == 0:
-                # Get the top 3 logits for each position
-                top_n_logits = torch.topk(q, 3, dim=-1).indices
+            # if index % print_every == 0:
+                # # Get the top 3 logits for each position
+                # top_n_logits = torch.topk(q, 3, dim=-1).indices
 
-                # Decode the top 3 logits into words
-                top_n_words = []
-                for i in range(top_n_logits.size(1)):
-                    words = [En_He_tokenizer.decode([token_id.item()]) for token_id in top_n_logits[0, i]]
-                    top_n_words.append(words)
-                print(f"sentence {index} = {top_n_words}")
+                # # Decode the top 3 logits into words
+                # top_n_words = []
+                # for i in range(top_n_logits.size(1)):
+                #     words = [En_He_tokenizer.decode([token_id.item()]) for token_id in top_n_logits[0, i]]
+                #     top_n_words.append(words)
+                # print(f"sentence {index} = {top_n_words}")
             
             loss = criterion(actual, expected)
 
@@ -714,7 +717,7 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
             train_loss += loss.item()
             # print(f"Loss: {loss}")
             
-            after_params = model.transformer2.parameters()
+            # after_params = model.transformer2.parameters()
 
             # print(f"params are equals? {before_params == after_params}")
 
@@ -733,6 +736,17 @@ def one_hot_encode(indices, num_classes):
 
 
 
+# lr=0.006334926670051613
+# train_size = 100
+
+
+# # print(f"======================= transformer1: old, transformer2: old, lr: {lr}, train_size: {train_size} =======================")
+# # print(f"======================= transformer1: new, transformer2: old, lr: {lr}, train_size: {train_size} =======================")
+# # print(f"======================= transformer1: old, transformer2: none, lr: {lr}, train_size: {train_size} =======================")
+# # print(f"======================= transformer1: new, transformer2: none, lr: {lr}, train_size: {train_size} =======================")
+# print(f"======================= transformer1: none, transformer2: none, lr: {lr}, train_size: {train_size} =======================")
+
+
 
 # # Hebrew to english translator
 # He_En_model_name = "Helsinki-NLP/opus-mt-tc-big-he-en"
@@ -740,7 +754,9 @@ def one_hot_encode(indices, num_classes):
 # He_En_translator_model = MarianMTModel.from_pretrained(He_En_model_name)
 
 # # Transformer 1
-# t1 = joblib.load('transformer_1/orel/pretrainedModels/models/10Tokens/general_model.pkl')
+# t1 = HiddenStateTransformer(input_size=1024,output_size=1024, num_layers=1, num_heads=4, dim_feedforward=256, dropout=0.25)
+# # t1 = joblib.load('transformer_1/orel/pretrainedModels/models/10Tokens/general_model.pkl')
+# # t1 = joblib.load('transformer_1/orel/pretrainedModels/models/15Tokens\model_wiki_10414_36000.pkl')
 # # t1 = joblib.load('C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\transformer_1\\orel\\pretrainedModels\\models\\10Tokens'
 # #                  '\\general_model.pkl')
 
@@ -751,8 +767,8 @@ def one_hot_encode(indices, num_classes):
 
 # # Transformer 2
 # # t2 = joblib.load('transformer_2/model_name.pkl')
-# # t2 = HiddenStateTransformer2(input_size=512,output_size=512, num_layers=1, num_heads=2, dim_feedforward=256, dropout=0.15)
-# t2 = joblib.load('C:\\Users\\orelz\\OneDrive\\שולחן העבודה\\work\\Ariel\\HebrewLLM\\transformer_2\\pretranedModels\\models\\15Tokens\\model_15_tokens_talia.pkl')
+# t2 = HiddenStateTransformer2(input_size=512,output_size=512, num_layers=1, num_heads=2, dim_feedforward=256, dropout=0.15)
+# # t2 = joblib.load('C:\\Users\\orelz\\OneDrive\\שולחן העבודה\\work\\Ariel\\HebrewLLM\\transformer_2\\pretranedModels\\models\\15Tokens\\model_15_tokens_talia.pkl')
 # # t2 = joblib.load(
 # #     'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\transformer_2\\pretranedModels\\models\\15Tokens'
 # #     '\\model_15_tokens_talia.pkl')
@@ -778,7 +794,6 @@ def one_hot_encode(indices, num_classes):
 
 
 
-# lr=0.001
 
 # # optimizer = optim.Adam(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
 # optimizer = optim.Adam(combined_model.parameters(), lr=lr)
@@ -788,11 +803,14 @@ def one_hot_encode(indices, num_classes):
 # criterion = nn.CrossEntropyLoss()
 # # criterion = my_cross_entropy
 
-# path = 'transformer_1/orel/wikipedia_data_15.csv'
+# # path = 'transformer_1/orel/wikipedia_data_15.csv'
+# path = 'transformer_1/orel/sampled_data.csv'
 # # path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\wikipedia_data.csv'
 
+
+
 # train_combined_model(path,
-#                      100,
+#                      train_size,
 #                      combined_model,
 #                      He_En_translator_model,
 #                      En_He_translator_model,
@@ -804,9 +822,12 @@ def one_hot_encode(indices, num_classes):
 
 # print(f"lr = {lr}")
 
-# for name, param in combined_model.named_parameters():
-#     if param.requires_grad:
-#         print(f'{name} requires grad')
+# # for name, param in combined_model.named_parameters():
+# #     if param.requires_grad:
+# #         print(f'{name} requires grad')
 
-# # num = 1
-# # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_wiki_{num}.pkl')
+# # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_old_old.pkl')
+# # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_new_old.pkl')
+# # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_old_none.pkl')
+# # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_new_none.pkl')
+# save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_none_none.pkl')

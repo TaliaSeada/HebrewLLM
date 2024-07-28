@@ -35,11 +35,15 @@ En_He_translator_model = MarianMTModel.from_pretrained(En_He_model_name)
 def find_best_hypers(criterion, trial, dataset_path: str, stop_index, epochs, test_size):
 
     # Define the hyperparameters to tune
-    lr = trial.suggest_float('lr', 1e-6, 1e-1, log=True)
+    # lr = trial.suggest_float('lr', 5e-4, 5e-3, log=True)
+    lr = trial.suggest_categorical('lr', [5e-4, 3e-4, 1e-4])
+
 
     t1 = joblib.load('transformer_1/orel/pretrainedModels/models/10Tokens/general_model.pkl')
 
     t2 = joblib.load('C:\\Users\\orelz\\OneDrive\\שולחן העבודה\\work\\Ariel\\HebrewLLM\\transformer_2\\pretranedModels\\models\\15Tokens\\model_15_tokens_talia.pkl')
+    
+    combined_model = None
     
     # Create the model, criterion, and optimizer
     combined_model = CombinedModel(tokenizer1=He_En_tokenizer,
@@ -53,6 +57,9 @@ def find_best_hypers(criterion, trial, dataset_path: str, stop_index, epochs, te
                                 )
 
     optimizer = optim.Adam(combined_model.parameters(), lr=lr)
+    # optimizer = optim.AdamW(combined_model.parameters(), lr=lr)
+    # optimizer = optim.SGD(combined_model.parameters(), lr=lr)
+    # optimizer = optim.RAdam(combined_model.parameters(), lr=lr)
 
     
     for epoch in range(epochs):
@@ -77,7 +84,7 @@ def find_best_hypers(criterion, trial, dataset_path: str, stop_index, epochs, te
 
 def findBest(criterion, dataset_path: str, stop_index, epochs, test_size):
     study = optuna.create_study(direction='minimize')
-    study.optimize(lambda trial: find_best_hypers(criterion,trial,dataset_path,stop_index,epochs,test_size), n_trials=100)
+    study.optimize(lambda trial: find_best_hypers(criterion,trial,dataset_path,stop_index,epochs,test_size), n_trials=5)
 
     # Print best hyperparameters
     print(study.best_params)
@@ -127,8 +134,9 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, criteri
 
         train_loss += loss.item()
 
+    if counter > 0:
         train_loss /= counter
-        return train_loss
+    return train_loss
     
     
 def test_combined_model(dataset_path, start_index, stop_index, model: CombinedModel, criterion, optimizer):
@@ -171,18 +179,13 @@ def test_combined_model(dataset_path, start_index, stop_index, model: CombinedMo
             
             loss = criterion(actual, expected)
 
-            # Back Propagation
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
             test_loss += loss.item()
-
-    test_loss /= counter
+    if counter > 0:
+        test_loss /= counter
     return test_loss
     
 
 criterion = nn.CrossEntropyLoss()
-dataset_path = 'transformer_1/orel/wikipedia_data_15.csv'
+dataset_path = 'transformer_1/orel/sampled_data.csv'
 
-findBest(criterion, dataset_path, 200, 5, 200)
+findBest(criterion, dataset_path, 100, 3, 100)
