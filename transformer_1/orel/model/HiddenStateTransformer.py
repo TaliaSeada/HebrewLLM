@@ -21,8 +21,10 @@ class HiddenStateTransformer(AbstractHiddenStateTransformer):
         self.transformer_encoder = self.build_transformer_encoder()
 
     def build_transformer_encoder(self):
-        encoder_layers = nn.TransformerEncoderLayer(d_model=self.input_size, nhead=self.num_heads,
-                                                    dim_feedforward=self.dim_feedforward, dropout=self.dropout, activation=self.activation)
+
+        # encoder_layers = nn.TransformerEncoderLayer(d_model=1024, nhead=2)
+
+        encoder_layers = nn.TransformerEncoderLayer(d_model=self.input_size, nhead=self.num_heads,dim_feedforward=self.dim_feedforward, dropout=self.dropout, activation=self.activation)
         encoder_layers.self_attn.batch_first = True
         transformer_encoder = nn.TransformerEncoder(encoder_layers, self.num_layers)
         return transformer_encoder
@@ -70,8 +72,11 @@ def train_model(model, criterion, optimizer, dataset_path: str, epochs=EPOCHS, b
     for epoch in range(epochs):
         model.train()  # Set the model to training mode
         train_loss = 0
+        flag = True
         for data, labels, data_masks, labels_masks in train_loader:
-
+            # if epoch % 1000 == 0 and flag:
+            #     print(f"Epoch {epoch}, Train loss = {train_loss}")
+            #     flag = False
             optimizer.zero_grad()  # Zero out any gradients from previous steps
             # output = model(data[:,:2,:], src_key_padding_mask=data_masks[:,:2])  # Ensure masks are used
             output = model(data, src_key_padding_mask=data_masks)  # Ensure masks are used
@@ -91,10 +96,12 @@ def train_model(model, criterion, optimizer, dataset_path: str, epochs=EPOCHS, b
             with torch.no_grad():  # No gradient calculation
                 # output = model(data[:,:2,:], src_key_padding_mask=data_masks[:,:2])  # Use masks during validation as well
                 output = model(data, src_key_padding_mask=data_masks)  # Use masks during validation as well
+                prev_loss = validation_loss
                 validation_loss += criterion(output, labels).item()  # Accumulate validation loss
+                print(f"curr val loss = {validation_loss - prev_loss}")
         validation_loss /= len(val_loader)
         
-        print(f"Epoch {epoch+1}, Validation Loss: {validation_loss:.4f}")
+        print(f"Epoch {epoch+1}, train_loss = {train_loss}, Validation Loss: {validation_loss:.4f}")
     
     return model, test_loader, train_loader, val_loader
 

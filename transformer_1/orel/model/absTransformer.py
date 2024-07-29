@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
 import torch.nn as nn
+import torch
 import torch.nn.functional as F
 from model.config import DROPOUT, EPOCHS, BATCH_SIZE
 
 
 class Transformer(ABC, nn.Module):
-    def __init__(self, input_size=1024, output_size=None, num_layers=2, num_heads=1, dim_feedforward=128, dropout=DROPOUT, activation=F.relu):
+    def __init__(self, input_size=1024, output_size=None, num_layers=2, num_heads=1, dim_feedforward=128, dropout=DROPOUT, activation=F.relu, device=torch.device('cpu'), dtype=torch.float32):
         super(Transformer, self).__init__()
         self.input_size = input_size
         self.output_size = output_size if output_size else input_size
@@ -14,6 +15,8 @@ class Transformer(ABC, nn.Module):
         self.dim_feedforward = dim_feedforward
         self.dropout = dropout
         self.activation = activation
+        self.device = device
+        self.dtype = dtype
         
 
     @abstractmethod

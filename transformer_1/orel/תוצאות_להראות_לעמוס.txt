@@ -1,0 +1,323 @@
+Hebrew text: של
+tensor([[58504, 25568]])
+Generated Output 0: זה,,,,,,
+
+Hebrew text: את
+tensor([[34053, 25568]])
+Generated Output 1: עלה את,,,,,,,,
+
+Hebrew text: על
+tensor([[54387, 25568]])
+Generated Output 2: , ל - - - -, יותר יותר
+
+Hebrew text: הוא
+tensor([[38316, 25568]])
+Generated Output 3: ים יותר יותריםים אתים
+
+Hebrew text: ידי
+tensor([[45227, 25568]])
+Generated Output 4: או, אני,, או,,,,
+
+Hebrew text: היא
+tensor([[38920, 25568]])
+Generated Output 5: את היא מה -,,ה את,ה, את את
+
+Hebrew text: בין
+tensor([[34950, 25568]])
+Generated Output 6: מה עם על על זה -,, זה -,,,,,
+
+Hebrew text: עם
+tensor([[54420, 25568]])
+Generated Output 7: ..,,., יותר יותר יותר כל, כל יותר -,
+
+Hebrew text: גם
+tensor([[36589, 25568]])
+Generated Output 8: ,,, זה -, זה זה,,
+
+Hebrew text: כי
+tensor([[46229, 25568]])
+Generated Output 9: ............ים......, זה זה זה את, יותר,
+
+Hebrew text: או
+tensor([[32647, 25568]])
+Generated Output 10: ,,,,,,,,,,,,,,
+
+Hebrew text: היה
+tensor([[38947, 25568]])
+Generated Output 11: את ה ה ה ה הוא את ה ה הוא,, הוא
+
+Hebrew text: לא
+tensor([[46641, 25568]])
+Generated Output 12: הוא הוא הוא הוא,, הוא,, יותר,
+
+Hebrew text: כל
+tensor([[46304, 25568]])
+Generated Output 13: מקצוע   הוא, את, את הוא,,,,,
+
+Hebrew text: הייתה
+tensor([[39018, 25568]])
+Generated Output 14: ,, היא,ה את  ה,, ה ה,,,
+
+Hebrew text: בשנת
+tensor([[36158, 25568]])
+Generated Output 15: כי של את על על ה על ה בשנת בשנת החל על, את,
+
+Hebrew text: ביותר
+tensor([[34887, 25568]])
+Generated Output 16: יותרים הוא כן הוא זה, זה הואה, הוא זה, כן
+
+Hebrew text: יותר
+tensor([[45413, 25568]])
+Generated Output 17: יותר, כל את זה יש את כל,, את, את,,
+
+Hebrew text: עד
+tensor([[54102, 25568]])
+Generated Output 18: מספר ו כל  מה הוא - -,,,, מה,
+
+Hebrew text: מספר
+tensor([[50883, 25568]])
+Generated Output 19: ,ה - - - -, לא, -, -, -
+
+Hebrew text: היו
+tensor([[38956, 25568]])
+Generated Output 20: ,.ים -יםיםים זה זה, זה,,,,
+
+Hebrew text: הם
+tensor([[39413, 25568]])
+Generated Output 21: הם הם כל הםים יותרים -, כל את,,,
+
+Hebrew text: יש
+tensor([[45935, 25568]])
+Generated Output 22: 
+
+Hebrew text: זו
+tensor([[43697, 25568]])
+Generated Output 23: ,,,,,,,,
+
+Hebrew text: זה
+tensor([[43689, 25568]])
+Generated Output 24: את זה כל זה את,, זה זה זה זה את
+
+Hebrew text: רק
+tensor([[57523, 25568]])
+Generated Output 25: זה הוא זה כן - - - - זה - זה -
+
+Hebrew text: באמצעות
+tensor([[34195, 25568]])
+Generated Output 26: לללהלה,לל,, את,, יותר
+
+Hebrew text: כלל
+tensor([[46334, 25568]])
+Generated Output 27: כל. כל,, את,,,,, כל,,
+
+Hebrew text: אחד
+tensor([[32952, 25568]])
+Generated Output 28: זה כן זה זה זה זה כן זה,,,
+
+Hebrew text: שני
+tensor([[58814, 25568]])
+Generated Output 29: ,,,,,, כן,,,,,,,
+
+Hebrew text: ניתן
+tensor([[52696, 25568]])
+Generated Output 30: את את - - את,,, את,,,,
+
+Hebrew text: מאוד
+tensor([[48869, 25568]])
+Generated Output 31: , את,, את, יותר, יותר,, די,
+
+Hebrew text: באופן
+tensor([[34122, 25568]])
+Generated Output 32: וב או  על ה על יותר -ה, כל כל יותר יותר
+
+Hebrew text: העולם
+tensor([[40600, 25568]])
+Generated Output 33: על ה ה,,,,,,,,
+
+Hebrew text: רבים
+tensor([[56953, 25568]])
+Generated Output 34: אחרים, אחרים יותר זה היו יותר, יותר,,,,
+
+Hebrew text: לכל
+tensor([[47834, 25568]])
+Generated Output 35: ל ל ול ל ל ל - ל ל ל ל ול ל ל לזה
+
+Hebrew text: בעיקר
+tensor([[35647, 25568]])
+Generated Output 36: הוא,ה, -, זה,,,,, את,,
+
+Hebrew text: הארץ
+tensor([[37647, 25568]])
+Generated Output 37: היא ה את זה,ה,, היא,,,
+
+Hebrew text: הן
+tensor([[40162, 25568]])
+Generated Output 38: הן הן כן, כל כל כל,,,,,,,
+
+Hebrew text: מערכת
+tensor([[51058, 25568]])
+Generated Output 39: .... פעולה שינוי, את   - -,,,,,
+
+Hebrew text: אשר
+tensor([[34040, 25568]])
+Generated Output 40: ו את את - -. - - - - זה - את,,
+
+Hebrew text: אחת
+tensor([[33012, 25568]])
+Generated Output 41: ,, זה זה זה זה זה, זה, זה,,,
+
+Hebrew text: חלק
+tensor([[44426, 25568]])
+Generated Output 42: זה זה זה,, זה,,,
+
+Hebrew text: שונים
+tensor([[58094, 25568]])
+Generated Output 43: הההל הה יותר על את, כל יותר, ה יותר
+
+Hebrew text: רבות
+tensor([[56947, 25568]])
+Generated Output 44: עלות זאת את את זה זה - זה,, את,, את
+
+Hebrew text: מן
+tensor([[50648, 25568]])
+Generated Output 45: . זה אחר הוא הוא,, הוא את - הוא את את- הוא
+
+Hebrew text: כאשר
+tensor([[46055, 25568]])
+Generated Output 46: , היה זה - - -, אני - זה, -,,
+
+Hebrew text: כדי
+tensor([[46111, 25568]])
+Generated Output 47: ליםה הה ה, - -,, -, -
+
+Hebrew text: החל
+tensor([[38748, 25568]])
+Generated Output 48: שינוי, זה זה, זה זה,,, זה,,,
+
+Hebrew text: השמש
+tensor([[41803, 25568]])
+Generated Output 49: ה,... את ה, זה ה,,,,
+
+Hebrew text: כדור
+tensor([[46103, 25568]])
+Generated Output 50: מה כל או את, כל את,,,,
+
+Hebrew text: בכל
+tensor([[35076, 25568]])
+Generated Output 51: ב, ב ב זה - - - - זה - - -,,
+
+Hebrew text: במהלך
+tensor([[35220, 25568]])
+Generated Output 52: ה על על עם היה על היה על יותר על יותר גם.,
+
+Hebrew text: דרך
+tensor([[37208, 25568]])
+Generated Output 53: דרך דרך דרךהה - - דרך -הה את,,ה
+
+Hebrew text: אותו
+tensor([[32917, 25568]])
+Generated Output 54: הוא את לים זה היה את את לא את יותר, את היה,
+
+Hebrew text: אלו
+tensor([[33374, 25568]])
+Generated Output 55: ,ים, הם, כן -,,,,,,,,
+
+Hebrew text: אל
+tensor([[33347, 25568]])
+Generated Output 56: ה, יי  -ייה הוא -, הוא
+
+Hebrew text: כך
+tensor([[46295, 25568]])
+Generated Output 57: יותר יותר, יותר יותר,,,,
+
+Hebrew text: כבר
+tensor([[46087, 25568]])
+Generated Output 58: ?, הוא - הוא - - - כל,, -,,,
+
+Hebrew text: פי
+tensor([[55022, 25568]])
+Generated Output 59: בי, או, או,, או,,,,,,,
+
+Hebrew text: פני
+tensor([[55271, 25568]])
+Generated Output 60: פניםהיהההה,,,ה יותר,,,
+
+Hebrew text: תורת
+tensor([[59554, 25568]])
+Generated Output 61: עלהההה,ה הואה לאה הה,,
+
+Hebrew text: שימוש
+tensor([[58345, 25568]])
+Generated Output 62: ו  כל זה זה זה זה,,,,,,,
+
+Hebrew text: עבור
+tensor([[54072, 25568]])
+Generated Output 63: ל ל לה ל,, יותרים, יותר ל,
+
+Hebrew text: שלו
+tensor([[58518, 25568]])
+Generated Output 64: הוא הוא לו, הוא הוא,,,, הוא, הוא
+
+Hebrew text: הברית
+tensor([[37840, 25568]])
+Generated Output 65: עם על לאחר על על היא על היא היא היא היא את על על על
+
+Hebrew text: הראשונה
+tensor([[41386, 25568]])
+Generated Output 66: אני אני הוא אני,, זה, את,,,
+
+Hebrew text: בעלי
+tensor([[35661, 25568]])
+Generated Output 67: עלים ב ל,, - -, זה,, -,,
+
+Hebrew text: בשל
+tensor([[36126, 25568]])
+Generated Output 68: ה, היה ב ב הוא, הוא, - היה היהה,,
+
+Hebrew text: לפי
+tensor([[48374, 25568]])
+Generated Output 69: לה ל ל ל או ל ל ל ל ל ל יותר ל,
+
+Hebrew text: שלא
+tensor([[58506, 25568]])
+Generated Output 70: ... זה היה, היה היה היה היה הוא,,, היה,,
+
+Hebrew text: ישראל
+tensor([[45977, 25568]])
+Generated Output 71: יםוההים זה זה זהים זה זהה זה זה
+
+Hebrew text: בתוך
+tensor([[36195, 25568]])
+Generated Output 72: ב את ב ב עם יותר ב יותר הוא עםים הוא, יותר,
+
+Hebrew text: החיים
+tensor([[38727, 25568]])
+Generated Output 73: יםים על, את,, זה,, כל את כל
+
+Hebrew text: בשם
+tensor([[36139, 25568]])
+Generated Output 74: ו את את את את, לא את
+
+Hebrew text: בארץ
+tensor([[34235, 25568]])
+Generated Output 75: אחרתה בה על עלההה יותר יותר על יותרה,
+
+Hebrew text: לפני
+tensor([[48389, 25568]])
+Generated Output 76: ,, על ל - - -,, - ה,ה -,
+
+Hebrew text: אך
+tensor([[33320, 25568]])
+Generated Output 77: ..הה זההה זה -ה את את זה זה זה
+
+Hebrew text: רבה
+tensor([[56943, 25568]])
+Generated Output 78: יותרוה על - לא - או - -, זה,,,
+
+Hebrew text: בדרך
+tensor([[34427, 25568]])
+Generated Output 79: אוההההה בה יותר על, יותר בה אחר
+
+Hebrew text: כוכבי
+tensor([[46151, 25568]])
+Generated Output 80: יה אתה אתה,,הה, את,,

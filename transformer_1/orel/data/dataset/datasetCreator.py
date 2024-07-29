@@ -53,7 +53,7 @@ def createHebrewWordsArrayFromWiki(df: pd.DataFrame, i: int):
     return createHebrewWordsArray(sentence_list)
 
 
-def create_up_to_fixed_token_dataset(fromIndex: int, toIndex:int, df: pd.DataFrame, dataset_path: str, log_file_path: str, hebrew_english_dict = {}, desired_token_number = DISIRED_TOKEN_NUMBER, dataset_name = "songs"):
+def create_up_to_fixed_token_dataset(fromIndex: int, toIndex:int, df: pd.DataFrame, dataset_path: str, log_file_path: str, hebrew_english_dict = {}, desired_token_number = DISIRED_TOKEN_NUMBER, dataset_name = "wiki"):
     # Hebrew to english translator
     translator_model_name = "Helsinki-NLP/opus-mt-tc-big-he-en"
 
@@ -80,11 +80,15 @@ def create_up_to_fixed_token_dataset(fromIndex: int, toIndex:int, df: pd.DataFra
         
         
         
-        token_number = desired_token_number if len(hebrew_words) > desired_token_number and desired_token_number != -1 else len(hebrew_words) - 1
+        # token_number = desired_token_number if len(hebrew_words) > desired_token_number and desired_token_number != -1 else len(hebrew_words) - 1
         
-        text_size = (i % token_number) + 1
+        # text_size = (i % token_number) + 1
         
         # text_size = token_number
+        
+        text_size = 4
+        
+        
         counter = 0
         text = ""
         
@@ -146,7 +150,7 @@ def create_up_to_fixed_token_dataset(fromIndex: int, toIndex:int, df: pd.DataFra
                 append_to_pt_file(hebrew_english_dict, i, dataset_path, log_file_path)
 
 
-def create_dataset(fromIndex: int, toIndex:int, existing_dataset_path: str, log_file_path: str, dataPath = 'resources/HeSongsWords.csv', desired_token_num:int = -1):
+def create_dataset(fromIndex: int, toIndex:int, existing_dataset_path: str, log_file_path: str, dataPath, desired_token_num:int = -1):
     
     df = pd.read_csv(dataPath)
     df = df.dropna()
@@ -158,7 +162,7 @@ def create_dataset(fromIndex: int, toIndex:int, existing_dataset_path: str, log_
     if os.path.exists(existing_dataset_path):
         data_dict = torch.load(existing_dataset_path)
             
-    dataset_name = "wiki" if dataPath == 'wikipedia_data.csv' else "songs"
+    dataset_name = "wiki"
     
     print(f"Starting to create dataset based on {dataset_name} data, from: {fromIndex}, to: {toIndex}")
     
@@ -166,13 +170,22 @@ def create_dataset(fromIndex: int, toIndex:int, existing_dataset_path: str, log_
     create_up_to_fixed_token_dataset(fromIndex, toIndex, df, existing_dataset_path, log_file_path, data_dict, desired_token_num, dataset_name)
 
 
+output_path = "resources/datasets/dataset_wiki_up_to_15_tokens_10414.pt"
+logs_path = "resources/logs/used_dataset_wiki_up_to_15_tokens_10414.log"
+dataset_csv_path = 'wikipedia_data.csv'
+desired_token_num = 14
+
+
+create_dataset(0,10414,output_path,logs_path, dataset_csv_path, desired_token_num=8)
+
 
 # # # create_dataset(8,50,"resources/datasets/up_to_ten_tokens_dataset.pt","resources/logs/used_songs_ten_tokens_dataset.log", desired_token_num=8)
-# create_dataset(34000,36000,"resources/datasets/dataset_wiki_up_to_15_tokens.pt","resources/logs/used_dataset_wiki_up_to_15_tokens.log", 'wikipedia_data.csv', desired_token_num=14)
+# create_dataset(0,36000,output_path,logs_path,dataset_csv_path, desired_token_num)
 
-# # Load and check contents
+# Load and check contents
 # loaded_data = torch.load('resources/datasets/dataset_wiki_up_to_15_tokens.pt')
-# print(len(loaded_data.keys()))  # Should show both 'tensor1' and 'tensor2'
+loaded_data = torch.load(output_path)
+print(len(loaded_data.keys()))  # Should show both 'tensor1' and 'tensor2'
 
 # for key, (hs1, hs2) in loaded_data.items():
 #     print(key,hs1.shape, hs2.shape)

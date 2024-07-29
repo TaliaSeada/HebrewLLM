@@ -62,8 +62,8 @@ class CustomLayerWrapper2(nn.Module):
         # Ensure that attention_mask and any other necessary arguments are forwarded
         return self.layer(modified_hidden_states, attention_mask, **kwargs)
 
-    
-    
+
+
 def generate_test_inputs(curr_song):
     # Translator
     inputs = translator_tokenizer(curr_song, return_tensors="pt")
@@ -74,10 +74,10 @@ def generate_test_inputs(curr_song):
     # Translation to english
     english_text = translator_tokenizer.decode(generated_ids[0], skip_special_tokens=True)
     
-    print(f"Tokenizer1 : {generated_ids[0]}")
+    # print(f"Tokenizer1 : {generated_ids[0]}")
     
     english_text = english_text if english_text[-1] != '.' else english_text[:-1]
-    print(english_text)
+    print(f"Hebrew to English translation = {english_text}")
     
     # OPT
     opt_inputs = OPT_tokenizer(english_text, return_tensors="pt")
@@ -98,10 +98,10 @@ def generate_test_inputs(curr_song):
     token_ids = opt_outputs.logits.argmax(-1)
     # Decode the token IDs using the tokenizer
     
-    print(f"OPT tokens: {token_ids[0]}")
+    # print(f"OPT tokens: {token_ids[0]}")
     generated_text = OPT_tokenizer.decode(token_ids[0], skip_special_tokens=True)
     # Print the generated text
-    print("OPT Generated Text: ", generated_text)    
+    print("OPT Generated Text without directly on plane english without transformer 1: ", generated_text)    
     
     # ============================== end of opt output ======================
     
@@ -114,22 +114,23 @@ def generate_test_inputs(curr_song):
     # Extract the first hidden state from OPT
     opt_first_hidden_state = opt_outputs.hidden_states[1]
     
-    print(translator_last_hidden_state.shape, opt_first_hidden_state.shape)
+    # print(translator_last_hidden_state.shape, opt_first_hidden_state.shape)
     data = [(pad(translator_last_hidden_state),pad(opt_first_hidden_state))]
     data_padded, labels_padded, data_masks, labels_masks = pad_and_mask(data,10)
     
-    print(data_padded.shape, labels_padded.shape)
+    # print(data_padded.shape, labels_padded.shape)
     # data_padded, labels_padded, data_masks, labels_masks = ge.pad_and_mask(opt_first_hidden_state,10)
     return data_padded, labels_padded, len(generated_ids[0])
 
 
 
-def create_model(criterion, model_path: str, loader_path: str, model_num, num_layers=2, num_heads=1, dim_feedforward=32, dropout=0.2, lr=0.0010074747982683552, dataset_path: str = "", epochs = 10, batch_size = 16):
+def create_model(model_path: str, loader_path: str, model_num, num_layers=2, num_heads=1, dim_feedforward=32, dropout=0.2, lr=0.0010074747982683552, dataset_path: str = "", epochs = 10, batch_size = 16):
     
     print(f"model_path = {model_path}, num_layers = {num_layers}, num_heads = {num_heads}, dim_feedforward = {dim_feedforward}, dropout = {dropout}, lr = {lr}, batch_size = {batch_size}")
     # Create the model, criterion, and optimizer
     model = HiddenStateTransformer(num_layers=num_layers, num_heads=num_heads, dim_feedforward=dim_feedforward, dropout=dropout)
-    optimizer = optim.Adam(model.parameters(), lr=lr)
+    # optimizer = optim.Adam(model.parameters(), lr=lr)
+    optimizer = optim.Adam(model.parameters(), lr=0.002676001187706025)
     criterion = nn.MSELoss()
 
     model, test_loader, train_loader, val_loader = train_model(model,criterion,optimizer,dataset_path,epochs,batch_size)
@@ -201,16 +202,32 @@ def test(my_model, h_text):
             print(flag + begin + spaces + flag + end)
 
 
-num = 20
-model_path = f'transformer_1/orel/pretrainedModels/models/15Tokens/model_wiki_{num}.pkl'
-loader_path = f'transformer_1/orel/pretrainedModels/loaders/15Tokens/'
+# num = 7054
+
+# # dataset_path = 'resources/datasets/dataset_wiki_up_to_15_tokens.pt'
+# dataset_path = 'resources/datasets/dataset_wiki_up_to_15_tokens_10414.pt'
+# model_path = f'transformer_1/orel/pretrainedModels/models/15Tokens/model_wiki_{num}_36000.pkl'
+# loader_path = f'transformer_1/orel/pretrainedModels/loaders/15Tokens/'
+
+# loaded_data = torch.load(dataset_path)
+# print(len(loaded_data.items()))
 
 
-# create_model(model_path, loader_path,num,1,4,256,0.25,0.002676001187706025,'resources/datasets/dataset_wiki_up_to_15_tokens.pt',10,32)
+# create_model(model_path=model_path, 
+#             loader_path=loader_path,
+#             model_num=num,
+#             num_layers=1,
+#             num_heads=4,
+#             dim_feedforward=256,
+#             dropout=0.25,
+#             lr=0.002676001187706025,
+#             dataset_path=dataset_path,
+#             epochs=10,
+#             batch_size=32)
 
-# create_model(model_path, loader_path,num,1,8,256,0.15,0.004827586123698931,'resources/datasets/dataset_wiki_up_to_15_tokens.pt',15,32)
+# # create_model(model_path, loader_path,num,1,8,256,0.15,0.004827586123698931,'resources/datasets/dataset_wiki_up_to_15_tokens.pt',15,32)
 
-# ge.test_model(model, test_loader, criterion)
+# # ge.test_model(model, test_loader, criterion)
 
 # # h_text = "ןגל אב אבא"
 # h_text = "אני רוצה לישון הרבה מאוד"
@@ -224,7 +241,7 @@ loader_path = f'transformer_1/orel/pretrainedModels/loaders/15Tokens/'
 
 # # # create_model(1, 1, 128, 0.15, 0.013256841285324495, "resources/up_to_ten_tokens_dataset.pt", 20)
 # print("\n\n ========== 10 Tokens Model ==========\n\n")
-# model2 = joblib.load('transformer_1/orel/model_10Tokens_1/general_model0.pkl')
+# model2 = joblib.load(model_path)
 # test(model2, h_text)
 
 # criterion = nn.MSELoss()
@@ -258,6 +275,3 @@ loader_path = f'transformer_1/orel/pretrainedModels/loaders/15Tokens/'
 
 
 
-num = 20
-model_path = f'transformer_1/orel/pretrainedModels/models/15Tokens/model_wiki_{num}.pkl'
-loader_path = f'transformer_1/orel/pretrainedModels/loaders/15Tokens/'
