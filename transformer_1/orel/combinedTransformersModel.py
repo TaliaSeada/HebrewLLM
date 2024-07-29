@@ -463,8 +463,13 @@ class CombinedModel(nn.Module):
         return q
 
 
-    def test(self):
-        pass
+    def generate(self, hebrew_text: str):
+        logits = self(hebrew_text)
+        token_ids = logits.argmax(-1)
+
+        generated_text = self.tokenizer2.decode(token_ids[0], skip_special_tokens=True)
+
+        return generated_text
 
 
     def inject_layer(self, layer_hs, layer_num, name="decoder"):
@@ -675,7 +680,8 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
             max_left = q[0, 1:, :].shape[0]
             max_right = target_ids.input_ids.squeeze(0).shape[0]
 
-            desired_len = min(max_left, max_right, 14)
+            # desired_len = min(max_left, max_right, 14)
+            desired_len = min(max_left, max_right, 2)            # <<<<<<<<<<< Change!! it learns only 2 words
             
             actual = q[0,1:desired_len + 1, :]
             expected = target_ids.input_ids.squeeze(0)[:desired_len]
@@ -737,14 +743,14 @@ def one_hot_encode(indices, num_classes):
 
 
 # lr=0.006334926670051613
-# train_size = 100
+# train_size = 750
 
 
-# # print(f"======================= transformer1: old, transformer2: old, lr: {lr}, train_size: {train_size} =======================")
-# # print(f"======================= transformer1: new, transformer2: old, lr: {lr}, train_size: {train_size} =======================")
-# # print(f"======================= transformer1: old, transformer2: none, lr: {lr}, train_size: {train_size} =======================")
-# # print(f"======================= transformer1: new, transformer2: none, lr: {lr}, train_size: {train_size} =======================")
-# print(f"======================= transformer1: none, transformer2: none, lr: {lr}, train_size: {train_size} =======================")
+# # # print(f"======================= transformer1: old, transformer2: old, lr: {lr}, train_size: {train_size} =======================")
+# # # print(f"======================= transformer1: new, transformer2: old, lr: {lr}, train_size: {train_size} =======================")
+# # # print(f"======================= transformer1: old, transformer2: none, lr: {lr}, train_size: {train_size} =======================")
+# # # print(f"======================= transformer1: new, transformer2: none, lr: {lr}, train_size: {train_size} =======================")
+# # print(f"======================= transformer1: none, transformer2: none, lr: {lr}, train_size: {train_size} =======================")
 
 
 
@@ -754,9 +760,9 @@ def one_hot_encode(indices, num_classes):
 # He_En_translator_model = MarianMTModel.from_pretrained(He_En_model_name)
 
 # # Transformer 1
-# t1 = HiddenStateTransformer(input_size=1024,output_size=1024, num_layers=1, num_heads=4, dim_feedforward=256, dropout=0.25)
+# # t1 = HiddenStateTransformer(input_size=1024,output_size=1024, num_layers=1, num_heads=4, dim_feedforward=256, dropout=0.25)
 # # t1 = joblib.load('transformer_1/orel/pretrainedModels/models/10Tokens/general_model.pkl')
-# # t1 = joblib.load('transformer_1/orel/pretrainedModels/models/15Tokens\model_wiki_10414_36000.pkl')
+# t1 = joblib.load('transformer_1/orel/pretrainedModels/models/15Tokens\model_wiki_10414_36000.pkl')
 # # t1 = joblib.load('C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\transformer_1\\orel\\pretrainedModels\\models\\10Tokens'
 # #                  '\\general_model.pkl')
 
@@ -788,9 +794,9 @@ def one_hot_encode(indices, num_classes):
 #                                translator2=En_He_translator_model
 #                                )
 
-# # for name, param in combined_model.named_parameters():
-# #     if param.requires_grad:
-# #         print(f'{name} requires grad')
+# # # for name, param in combined_model.named_parameters():
+# # #     if param.requires_grad:
+# # #         print(f'{name} requires grad')
 
 
 
@@ -822,12 +828,14 @@ def one_hot_encode(indices, num_classes):
 
 # print(f"lr = {lr}")
 
-# # for name, param in combined_model.named_parameters():
-# #     if param.requires_grad:
-# #         print(f'{name} requires grad')
+# # # for name, param in combined_model.named_parameters():
+# # #     if param.requires_grad:
+# # #         print(f'{name} requires grad')
 
-# # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_old_old.pkl')
-# # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_new_old.pkl')
-# # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_old_none.pkl')
-# # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_new_none.pkl')
-# save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_none_none.pkl')
+# # # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_old_old.pkl')
+# # # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_new_old.pkl')
+# # # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_old_none.pkl')
+# # # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_new_none.pkl')
+# # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_none_none.pkl')
+
+# save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_new_none_2words_learning.pkl')

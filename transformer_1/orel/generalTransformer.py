@@ -62,8 +62,8 @@ class CustomLayerWrapper2(nn.Module):
         # Ensure that attention_mask and any other necessary arguments are forwarded
         return self.layer(modified_hidden_states, attention_mask, **kwargs)
 
-    
-    
+
+
 def generate_test_inputs(curr_song):
     # Translator
     inputs = translator_tokenizer(curr_song, return_tensors="pt")
