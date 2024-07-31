@@ -38,36 +38,40 @@ model = MarianMTModel.from_pretrained(model_name)
 
 
 def translator_activation_different_layer(hidden_states, attention_mask, nlayer=1, max_length=15):
-    # Load the model and tokenizer
-    model_name = "Helsinki-NLP/opus-mt-en-he"
-    tokenizer = MarianTokenizer.from_pretrained(model_name)
-    model = MarianMTModel.from_pretrained(model_name)
-
     original_layer = model.model.encoder.layers[nlayer]
     wrapped_layer = CustomLayerWrapper(original_layer, hidden_states)
     model.model.encoder.layers[nlayer] = wrapped_layer
 
-    # Example input sentence
-    sentence = "0" * 14
-
+    sentence = "0" * (max_length-1)
     inputs = tokenizer(sentence, return_tensors="pt", padding='max_length', truncation=True, max_length=max_length)
     attention_mask = inputs['attention_mask']
     decoder_start_token_id = model.config.decoder_start_token_id
     decoder_input_ids = torch.full((inputs.input_ids.size(0), 1), decoder_start_token_id, dtype=torch.long).to(inputs.input_ids.device)
 
-    # Custom model call
     outputs = model(input_ids=inputs.input_ids, attention_mask=attention_mask, decoder_input_ids=decoder_input_ids, output_hidden_states=True)
 
-    generated_ids = model.generate(inputs.input_ids, attention_mask=attention_mask, max_length=max_length, num_beams=4, early_stopping=True)
+    eos_token_id = tokenizer.eos_token_id
+
+    generated_ids = model.generate(
+        inputs.input_ids,
+        attention_mask=attention_mask,
+        max_length=max_length,
+        num_beams=4,
+        length_penalty=1.0,
+        early_stopping=True,
+        eos_token_id=eos_token_id
+    )
 
     generated_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
+
     return outputs, generated_text
 
 
 # if __name__ == '__main__':
 #     # Test the function with multi-token input
-#     sentence = "It is presented as"
-#     inputs = tokenizer(sentence, return_tensors="pt", padding='max_length', truncation=True, max_length=15)
+#     sentence = "Maybe if you can"
+#     max_length = 15
+#     inputs = tokenizer(sentence, return_tensors="pt", padding='max_length', truncation=True, max_length=max_length)
 #     attention_mask = inputs['attention_mask']
 #     decoder_start_token_id = model.config.decoder_start_token_id
 #     decoder_input_ids = torch.full((inputs.input_ids.size(0), 1), decoder_start_token_id, dtype=torch.long).to(
@@ -78,7 +82,7 @@ def translator_activation_different_layer(hidden_states, attention_mask, nlayer=
 #
 #     layer = 1
 #     hs = outputs.encoder_hidden_states[layer]
+#     print(hs)
 #
 #     output, generated_text = translator_activation_different_layer(hidden_states=hs, attention_mask=attention_mask,
-#                                                                    nlayer=layer, max_length=15)
-#     print(generated_text)
+#                                                                    nlayer=layer, max_length=max_length)
