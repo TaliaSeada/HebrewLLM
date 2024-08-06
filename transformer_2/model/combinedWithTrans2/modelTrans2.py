@@ -56,7 +56,7 @@ if __name__ == '__main__':
         '''-------------------------- LLM --------------------------'''
         model = torch.load(
             'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\transformer_2\\model\\multipleTokens\\best_model.pth')
-        num_of_tokens = 15
+        num_of_tokens = 5
         generated_text, attention_mask, hidden_states = check_opt_hidden_state(en_sent, opt_model, opt_tokenizer,
                                                                                opt_layer)
 
@@ -69,7 +69,7 @@ if __name__ == '__main__':
         outputs, res_generated_text = translator_activation_different_layer(hidden_states=hidden_states,
                                                                             attention_mask=attention_mask,
                                                                             nlayer=layer,
-                                                                            max_length=15)
+                                                                            max_length=num_of_tokens)
 
         '''-------------------------- output --------------------------'''
         print("Input: " + prompt)

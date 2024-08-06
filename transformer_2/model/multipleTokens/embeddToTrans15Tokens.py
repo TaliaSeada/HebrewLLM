@@ -37,7 +37,7 @@ tokenizer = MarianTokenizer.from_pretrained(model_name)
 model = MarianMTModel.from_pretrained(model_name)
 
 
-def translator_activation_different_layer(hidden_states, attention_mask, nlayer=1, max_length=15):
+def translator_activation_different_layer(hidden_states, attention_mask, nlayer=1, max_length=5):
     original_layer = model.model.encoder.layers[nlayer]
     wrapped_layer = CustomLayerWrapper(original_layer, hidden_states)
     model.model.encoder.layers[nlayer] = wrapped_layer
@@ -70,7 +70,7 @@ def translator_activation_different_layer(hidden_states, attention_mask, nlayer=
 # if __name__ == '__main__':
 #     # Test the function with multi-token input
 #     sentence = "Maybe if you can"
-#     max_length = 15
+#     max_length = 5
 #     inputs = tokenizer(sentence, return_tensors="pt", padding='max_length', truncation=True, max_length=max_length)
 #     attention_mask = inputs['attention_mask']
 #     decoder_start_token_id = model.config.decoder_start_token_id
