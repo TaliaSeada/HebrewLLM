@@ -639,7 +639,7 @@ def translate_to_hebrew(model, tokenizer, sentence):
 def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_model, En_He_model, He_En_tokenizer,
                          En_He_tokenizer, criterion, optimizer, epochs):
     df = pd.read_csv(dataset_path)
-    print_every = 350
+    print_every = 1000
     
     # Train the model
     for epoch in range(epochs):
@@ -655,9 +655,9 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
             hebrew_sentence = row['Hebrew sentence']
             target_hebrew_sentence = row['Hebrew sentence'] + " " + row['label']
             
-            # if index % print_every == 0:
-            #     curr_loss = train_loss / counter if counter > 0 else train_loss
-            #     print(f"index = {index}, current loss = {curr_loss}")
+            if index % print_every == 0:
+                curr_loss = train_loss / counter if counter > 0 else train_loss
+                print(f"index = {index}, current loss = {curr_loss}")
 
             # =================== Calculate the loss ===================
             
@@ -681,7 +681,8 @@ def train_combined_model(dataset_path, stop_index, model: CombinedModel, He_En_m
             max_right = target_ids.input_ids.squeeze(0).shape[0]
 
             # desired_len = min(max_left, max_right, 14)
-            desired_len = min(max_left, max_right, 2)            # <<<<<<<<<<< Change!! it learns only 2 words
+            desired_len = min(max_left, max_right, 5)
+            # desired_len = min(max_left, max_right, 2)            # <<<<<<<<<<< Change!! it learns only 2 words
             
             actual = q[0,1:desired_len + 1, :]
             expected = target_ids.input_ids.squeeze(0)[:desired_len]
@@ -742,57 +743,62 @@ def one_hot_encode(indices, num_classes):
 
 
 
-lr=0.006334926670051613
-train_size = 750
+# lr=0.006334926670051613
+# train_size = 30210
 
 
-# # print(f"======================= transformer1: old, transformer2: old, lr: {lr}, train_size: {train_size} =======================")
-# # print(f"======================= transformer1: new, transformer2: old, lr: {lr}, train_size: {train_size} =======================")
-# # print(f"======================= transformer1: old, transformer2: none, lr: {lr}, train_size: {train_size} =======================")
+# # # # print(f"======================= transformer1: old, transformer2: old, lr: {lr}, train_size: {train_size} =======================")
+# # # # print(f"======================= transformer1: new, transformer2: old, lr: {lr}, train_size: {train_size} =======================")
+# # # # print(f"======================= transformer1: old, transformer2: none, lr: {lr}, train_size: {train_size} =======================")
 # # print(f"======================= transformer1: new, transformer2: none, lr: {lr}, train_size: {train_size} =======================")
-# print(f"======================= transformer1: none, transformer2: none, lr: {lr}, train_size: {train_size} =======================")
+# # # print(f"======================= transformer1: none, transformer2: none, lr: {lr}, train_size: {train_size} =======================")
 
 
 
-# Hebrew to english translator
-He_En_model_name = "Helsinki-NLP/opus-mt-tc-big-he-en"
-He_En_tokenizer = MarianTokenizer.from_pretrained(He_En_model_name)
-He_En_translator_model = MarianMTModel.from_pretrained(He_En_model_name)
+# # Hebrew to english translator
+# He_En_model_name = "Helsinki-NLP/opus-mt-tc-big-he-en"
+# He_En_tokenizer = MarianTokenizer.from_pretrained(He_En_model_name)
+# He_En_translator_model = MarianMTModel.from_pretrained(He_En_model_name)
 
-# Transformer 1
-# t1 = HiddenStateTransformer(input_size=1024,output_size=1024, num_layers=1, num_heads=4, dim_feedforward=256, dropout=0.25)
-# t1 = joblib.load('transformer_1/orel/pretrainedModels/models/10Tokens/general_model.pkl')
-t1 = joblib.load('transformer_1/orel/pretrainedModels/models/15Tokens\model_wiki_10414_36000.pkl')
-# t1 = joblib.load('C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\transformer_1\\orel\\pretrainedModels\\models\\10Tokens'
-#                  '\\general_model.pkl')
+# # # Transformer 1
+# # # t1 = HiddenStateTransformer(input_size=1024,output_size=1024, num_layers=1, num_heads=4, dim_feedforward=256, dropout=0.25)
+# # # t1 = joblib.load('transformer_1/orel/pretrainedModels/models/10Tokens/general_model.pkl')
+# # # t1 = joblib.load('transformer_1/orel/pretrainedModels/models/15Tokens/model_wiki_10414_36000.pkl')
 
-# LLM model
-llm_model_name = "facebook/opt-350m"
-llm_tokenizer = AutoTokenizer.from_pretrained(llm_model_name)
-llm = OPTForCausalLM.from_pretrained(llm_model_name)
+# t1 = joblib.load('/home/ddn1/Documents/GitHub/HebrewLLM/transformer_1/orel/pretrainedModels/models/15Tokens/model_wiki_10414_36000.pkl')
 
-# Transformer 2
-# t2 = joblib.load('transformer_2/model_name.pkl')
-t2 = HiddenStateTransformer2(input_size=512,output_size=512, num_layers=1, num_heads=2, dim_feedforward=256, dropout=0.15)
-# t2 = joblib.load('C:\\Users\\orelz\\OneDrive\\שולחן העבודה\\work\\Ariel\\HebrewLLM\\transformer_2\\pretranedModels\\models\\15Tokens\\model_15_tokens_talia.pkl')
-# t2 = joblib.load(
-#     'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\transformer_2\\pretranedModels\\models\\15Tokens'
-#     '\\model_15_tokens_talia.pkl')
+# # # t1 = joblib.load('C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\transformer_1\\orel\\pretrainedModels\\models\\10Tokens'
+# # #                  '\\general_model.pkl')
 
-# English to Hebrew translator
-En_He_model_name = "Helsinki-NLP/opus-mt-en-he"
-En_He_tokenizer = MarianTokenizer.from_pretrained(En_He_model_name)
-En_He_translator_model = MarianMTModel.from_pretrained(En_He_model_name)
+# # LLM model
+# llm_model_name = "facebook/opt-350m"
+# llm_tokenizer = AutoTokenizer.from_pretrained(llm_model_name)
+# llm = OPTForCausalLM.from_pretrained(llm_model_name)
 
-combined_model = CombinedModel(tokenizer1=He_En_tokenizer,
-                               translator1=He_En_translator_model,
-                               transformer1=t1,
-                               llm_tokenizer=llm_tokenizer,
-                               llm=llm,
-                               transformer2=t2,
-                               tokenizer2=En_He_tokenizer,
-                               translator2=En_He_translator_model
-                               )
+# # Transformer 2
+# # t2 = joblib.load('transformer_2/model_name.pkl')
+# t2 = HiddenStateTransformer2(input_size=512,output_size=512, num_layers=1, num_heads=2, dim_feedforward=256, dropout=0.15)
+# # t2 = joblib.load('C:\\Users\\orelz\\OneDrive\\שולחן העבודה\\work\\Ariel\\HebrewLLM\\transformer_2\\pretranedModels\\models\\15Tokens\\model_15_tokens_talia.pkl')
+# # t2 = joblib.load(
+# #     'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\transformer_2\\pretranedModels\\models\\15Tokens'
+# #     '\\model_15_tokens_talia.pkl')
+
+# # English to Hebrew translator
+# En_He_model_name = "Helsinki-NLP/opus-mt-en-he"
+# En_He_tokenizer = MarianTokenizer.from_pretrained(En_He_model_name)
+# En_He_translator_model = MarianMTModel.from_pretrained(En_He_model_name)
+
+# print("Building the model")
+
+# combined_model = CombinedModel(tokenizer1=He_En_tokenizer,
+#                                translator1=He_En_translator_model,
+#                                transformer1=t1,
+#                                llm_tokenizer=llm_tokenizer,
+#                                llm=llm,
+#                                transformer2=t2,
+#                                tokenizer2=En_He_tokenizer,
+#                                translator2=En_He_translator_model
+#                                )
 
 # # for name, param in combined_model.named_parameters():
 # #     if param.requires_grad:
@@ -801,32 +807,35 @@ combined_model = CombinedModel(tokenizer1=He_En_tokenizer,
 
 
 
-# optimizer = optim.Adam(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
-optimizer = optim.Adam(combined_model.parameters(), lr=lr)
+# # optimizer = optim.Adam(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
+# optimizer = optim.Adam(combined_model.parameters(), lr=lr)
 
-# optimizer = optim.SGD(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
+# # optimizer = optim.SGD(filter(lambda p: p.requires_grad, combined_model.parameters()), lr=lr)
 
-criterion = nn.CrossEntropyLoss()
-# criterion = my_cross_entropy
+# criterion = nn.CrossEntropyLoss()
+# # criterion = my_cross_entropy
 
-# path = 'transformer_1/orel/wikipedia_data_15.csv'
-path = 'transformer_1/orel/sampled_data.csv'
-# path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\wikipedia_data.csv'
+# # # path = 'transformer_1/orel/wikipedia_data_15.csv'
+# # # path = 'transformer_1/orel/sampled_data.csv'
+# path = '/home/ddn1/Documents/GitHub/HebrewLLM/wikipedia_data_15.csv'
+# # # path = 'sampled_data_15.csv'
+# # # path = 'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\wikipedia_data.csv'
 
 
+# # print("Starting training")
 
-train_combined_model(path,
-                     train_size,
-                     combined_model,
-                     He_En_translator_model,
-                     En_He_translator_model,
-                     He_En_tokenizer,
-                     En_He_tokenizer,
-                     criterion,
-                     optimizer,
-                     5)
+# train_combined_model(path,
+#                      train_size,
+#                      combined_model,
+#                      He_En_translator_model,
+#                      En_He_translator_model,
+#                      He_En_tokenizer,
+#                      En_He_tokenizer,
+#                      criterion,
+#                      optimizer,
+#                      5)
 
-print(f"lr = {lr}")
+# print(f"lr = {lr}")
 
 # # for name, param in combined_model.named_parameters():
 # #     if param.requires_grad:
@@ -838,4 +847,4 @@ print(f"lr = {lr}")
 # # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_new_none.pkl')
 # save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_none_none.pkl')
 
-save_model(combined_model, f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_{train_size}_new_none_2words_learning.pkl')
+# save_model(combined_model, f'/home/ddn1/Documents/GitHub/HebrewLLM/transformer_1/orel/pretrainedModels/models/15Tokens/model_wiki_30211_{train_size}_new_none_15words_learning.pkl')

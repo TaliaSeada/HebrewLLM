@@ -29,6 +29,8 @@ for index, row in df.iterrows():
         # append data frame to CSV file
         # df.to_csv('wikipedia_data_15.csv', mode='a', index=False, header=True)
         new_data.append(row)
+    else:
+        pass # Save the test data that we didn't use here (about 6K rows out of 36K)
 
     if index % 100 == 0:
         
