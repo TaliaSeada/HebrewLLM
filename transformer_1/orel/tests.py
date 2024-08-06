@@ -54,13 +54,13 @@ hebrew_words = ['של', 'את', 'על', 'הוא', 'ידי', 'היא', 'בין', 
        'לפני', 'אך', 'רבה', 'בדרך', 'כוכבי']
 
 
-for index, h_text in enumerate(hebrew_words):
+# for index, h_text in enumerate(hebrew_words):
     
     
-    printHeTokenizerIds(h_text)
+#     printHeTokenizerIds(h_text)
     
-    generated_text = testCombined(h_text, combined_model)
+#     generated_text = testCombined(h_text, combined_model)
     
-    # Print the generated text
-    print(f"Generated Output {index}: {generated_text}\n")
+#     # Print the generated text
+#     print(f"Generated Output {index}: {generated_text}\n")
 
