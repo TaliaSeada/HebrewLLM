@@ -1,5 +1,5 @@
 
-from Scores.modelTester import test
+from modelTester import test
 
 
 path = 'wikipedia_test_data.csv'

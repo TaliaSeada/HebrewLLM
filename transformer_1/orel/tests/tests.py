@@ -1,7 +1,15 @@
 
 import joblib
+import sys
+import os.path
+
+sys.path.append(os.path.dirname(os.path.realpath("orel")))
+
+# print(sys.path)
+
 
 from combinedTransformersModel import CombinedModel
+
 from transformers import AutoTokenizer, AutoModel, MarianTokenizer, MarianMTModel, AutoTokenizer, OPTForCausalLM
 
 
@@ -61,7 +69,8 @@ def printHeTokenizerIds(text: str):
 
 
 # combined_model = joblib.load(f'transformer_1/orel/pretrainedModels/models/combined/model_sampled_wiki_750_new_none_2words_learning.pkl')
-combined_model = joblib.load(f'transformer_1/orel/pretrainedModels/models/15Tokens/model_wiki_30211_30210_new_none_2words_learning.pkl')
+# combined_model = joblib.load(f'transformer_1/orel/pretrainedModels/models/15Tokens/model_wiki_30211_30210_new_none_2words_learning.pkl')
+combined_model = joblib.load(f'/home/ddn1/Documents/GitHub/HebrewLLM/transformer_1/orel/pretrainedModels/models/15Tokens/model_wiki_30211_30210_new_none_2words_learning.pkl')
 # combined_model = joblib.load(f'transformer_1/orel/pretrainedModels/models/15Tokens/model_wiki_30211_30210_new_none_5words_learning.pkl')
 
 
@@ -77,16 +86,16 @@ hebrew_words = ['של', 'את', 'על', 'הוא', 'ידי', 'היא', 'בין', 
        'לפני', 'אך', 'רבה', 'בדרך', 'כוכבי']
 
 
-# # for index, h_text in enumerate(hebrew_words):
+for index, h_text in enumerate(hebrew_words):
     
     
-# #     printHeTokenizerIds(h_text)
+    # printHeTokenizerIds(h_text)
     
-#     # generated_text = testCombined(h_text, combined_model)
+    # generated_text = testCombined(h_text, combined_model)
     
-#     # # Print the generated text
-#     # print(f"Generated Output {index}: {generated_text}\n")
+    # # Print the generated text
+    # print(f"Generated Output {index}: {generated_text}\n")
     
-#     getNextWord(h_text, combined_model, 1)
+    getNextWord(h_text, combined_model, 1)
 
-# # print(En_He_tokenizer.get_vocab())
+# print(En_He_tokenizer.get_vocab())

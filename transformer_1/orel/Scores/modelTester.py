@@ -24,12 +24,12 @@ En_He_translator_model = MarianMTModel.from_pretrained(En_He_model_name)
 
 """
     This is the direct approach:
-    [Hebrew Sentence -> OPT -> Hebrew Output]
+    [Hebrew Sentence -> OPT -> Next Hebrew word]
 """
 def optNextWord(hebrew_input):
     
     llm_inputs = llm_tokenizer(hebrew_input, return_tensors="pt")
-    llm_out_ids = llm.generate(llm_inputs.input_ids)
+    llm_out_ids = llm.generate(llm_inputs.input_ids, max_length=100)
     llm_answer = llm_tokenizer.decode(llm_out_ids[0],skip_special_tokens=True)
     # print(f"LLM answer: {llm_answer}")
 
@@ -42,7 +42,7 @@ def optNextWord(hebrew_input):
 
 """
     This is the basic 2 way translation (Not trainable):
-    [Hebrew Sentence -> Translator -> OPT -> Translator -> Hebrew Output] 
+    [Hebrew Sentence -> Translator -> OPT -> Translator -> Next Hebrew word] 
 """
 def basicModelNextWord(hebrew_input):
     
@@ -74,7 +74,7 @@ def basicModelNextWord(hebrew_input):
 
 """
     This is the full model:
-    [Hebrew Sentence -> Translator -> Transformer 1 -> OPT -> Transformer 2 -> Translator -> Hebrew Output]
+    [Hebrew Sentence -> Translator -> Transformer 1 -> OPT -> Transformer 2 -> Translator -> Next Hebrew word]
 """
 def fullModelNextWord(h_text, model):
 
@@ -83,8 +83,14 @@ def fullModelNextWord(h_text, model):
     logits = model(h_text)
 
     # Extract sentence - Translate back to hebrew
-    token_ids = logits.argmax(-1)
-    output_sentence = En_He_tokenizer.decode(token_ids[0], skip_special_tokens=True)
+    output_sentence = ""
+    try:
+        
+        token_ids = logits.argmax(-1)
+        output_sentence = En_He_tokenizer.decode(token_ids[0], skip_special_tokens=True)
+    except:
+        print(h_text)
+        
 
     # Return next word
     input_size = len(h_text.split(' '))
@@ -93,11 +99,38 @@ def fullModelNextWord(h_text, model):
     return output_words[input_size] if len(output_words) > input_size else None
 
 
-def test(hebrew_dataset_path, model_type = "basic", model = None, stop_index=float('inf'), input_size = 1):
+"""
+    This is the OPT finetune model:
+    [Hebrew Sentence -> Finetune OPT -> Next Hebrew word]
+"""
+def finetunedModelNextWord(h_text, tokenizer, model):
+    
+    model.eval()
+    
+    # Prepare the input data
+    inputs = tokenizer(h_text, return_tensors="pt", padding=True, truncation=True)
+
+    # Generate predictions
+    outputs = model.generate(**inputs, max_length=50)
+
+    # Decode the output
+    predicted_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    
+    
+    # Return next word
+    input_size = len(h_text.split(' '))
+    output_words = predicted_text.split(' ')
+    
+    return output_words[input_size] if len(output_words) > input_size else None
+
+
+def test(hebrew_dataset_path, model_type = "basic", model = None, stop_index=float('inf'), input_size = 2, tokenizer = None):
     
     if input_size < 1:
         print("Input size must be > 1")
         return
+    
+    print(f"\n Number of input Hebrew words = {input_size}, Model tested = {model_type} \n\n")
     
     df = pd.read_csv(hebrew_dataset_path)
 
@@ -126,10 +159,12 @@ def test(hebrew_dataset_path, model_type = "basic", model = None, stop_index=flo
             actual = basicModelNextWord(he_input)
         elif model_type == "full":
             # Our pretrained model 
-            actual = fullModelNextWord(model, he_input)
-        else:
+            actual = fullModelNextWord(he_input, model)
+        elif model_type == "direct":
             # Direct hebrew to OPT
             actual = optNextWord(he_input)
+        else:
+            actual = finetunedModelNextWord(he_input, tokenizer, model)
 
         if actual:
             if actual == target:
@@ -139,3 +174,4 @@ def test(hebrew_dataset_path, model_type = "basic", model = None, stop_index=flo
         if index % 1000 == 0:
             print(f"Current test size = {test_size}/{index + 1}, Success: {success_counter}")
     print(f"Test size = {test_size}/{min(stop_index, df.shape[0])}, Success: {success_counter}")
+    

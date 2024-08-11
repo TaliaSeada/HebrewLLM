@@ -1,0 +1,13 @@
+
+input = 1 word
+target = word 2
+
+Direct to OPT
+
+Current test size = 1/1, Success: 0
+Current test size = 981/1001, Success: 2
+Current test size = 1964/2001, Success: 2
+Current test size = 2955/3001, Success: 2
+Current test size = 3939/4001, Success: 2
+Current test size = 4918/5001, Success: 3
+Test size = 5751/5846, Success: 3

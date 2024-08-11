@@ -1,0 +1,15 @@
+
+input = 1 word
+target = word 2
+
+Trans -> OPT -> Trans
+
+Current test size = 1/1, Success: 0
+Current test size = 996/1001, Success: 8
+Current test size = 1990/2001, Success: 19
+Current test size = 2981/3001, Success: 30
+Current test size = 3974/4001, Success: 46
+Current test size = 4962/5001, Success: 55
+Test size = 5800/5846, Success: 56
+
+
