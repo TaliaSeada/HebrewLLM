@@ -254,37 +254,37 @@ if __name__ == '__main__':
     df['English'] = df['English'].astype(str)
 
     # Prepare data
-    # data = []
-    # for i, row in df.iterrows():
-    #     # if i > 500:
-    #     #     break
-    #     # prompt = row['translation']
-    #     prompt = row['English']
-    #
-    #     # OPT last layer
-    #     opt_inputs = opt_tokenizer(prompt, return_tensors="pt")
-    #     opt_outputs = opt_model(**opt_inputs, output_hidden_states=True)
-    #     opt_hidden_state = opt_outputs.hidden_states[opt_layer]
-    #
-    #     # Translator first layer
-    #     translator_inputs = translator_tokenizer(prompt, return_tensors="pt")
-    #     decoder_start_token_id = translator_tokenizer.pad_token_id
-    #     decoder_input_ids = torch.full((translator_inputs.input_ids.size(0), 1), decoder_start_token_id,
-    #                                    dtype=torch.long)
-    #     translator_outputs = translator_model(input_ids=translator_inputs.input_ids,
-    #                                           decoder_input_ids=decoder_input_ids, output_hidden_states=True)
-    #     translator_hidden_state = translator_outputs.encoder_hidden_states[translator_layer]
-    #
-    #     # # Filter out long words
-    #     # if opt_hidden_state.shape[1] != 2 or translator_hidden_state.shape[1] != 2:
-    #     #     continue
-    #     # a = [opt_hidden_state[0][1]]
-    #     # data.append((a, translator_hidden_state))
-    #     data.append((opt_hidden_state, translator_hidden_state))
-    #
-    # # Split data into train, validation, and test sets
-    # train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
-    # train_data, val_data = train_test_split(train_data, test_size=0.2, random_state=42)
+    #     # data = []
+    #     # for i, row in df.iterrows():
+    #     #     # if i > 500:
+    #     #     #     break
+    #     #     # prompt = row['translation']
+    #     #     prompt = row['English']
+    #     #
+    #     #     # OPT last layer
+    #     #     opt_inputs = opt_tokenizer(prompt, return_tensors="pt")
+    #     #     opt_outputs = opt_model(**opt_inputs, output_hidden_states=True)
+    #     #     opt_hidden_state = opt_outputs.hidden_states[opt_layer]
+    #     #
+    #     #     # Translator first layer
+    #     #     translator_inputs = translator_tokenizer(prompt, return_tensors="pt")
+    #     #     decoder_start_token_id = translator_tokenizer.pad_token_id
+    #     #     decoder_input_ids = torch.full((translator_inputs.input_ids.size(0), 1), decoder_start_token_id,
+    #     #                                    dtype=torch.long)
+    #     #     translator_outputs = translator_model(input_ids=translator_inputs.input_ids,
+    #     #                                           decoder_input_ids=decoder_input_ids, output_hidden_states=True)
+    #     #     translator_hidden_state = translator_outputs.encoder_hidden_states[translator_layer]
+    #     #
+    #     #     # # Filter out long words
+    #     #     # if opt_hidden_state.shape[1] != 2 or translator_hidden_state.shape[1] != 2:
+    #     #     #     continue
+    #     #     # a = [opt_hidden_state[0][1]]
+    #     #     # data.append((a, translator_hidden_state))
+    #     #     data.append((opt_hidden_state, translator_hidden_state))
+    #     #
+    #     # # Split data into train, validation, and test sets
+    #     # train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
+    #     # train_data, val_data = train_test_split(train_data, test_size=0.2, random_state=42)
     #
     # # Save data
     # torch.save((train_data, val_data, test_data), 'data1.pt')
@@ -329,7 +329,7 @@ if __name__ == '__main__':
     # evaluate_model(model, test_loader, criterion)
 
     print("--------- CHECK ----------")
-    prompt = "steel"
+    prompt = "above"
     opt_inputs = opt_tokenizer(prompt, return_tensors="pt")
     opt_outputs = opt_model(**opt_inputs, output_hidden_states=True)
     opt_hidden_state = opt_outputs.hidden_states[opt_layer]

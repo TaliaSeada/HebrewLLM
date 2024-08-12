@@ -7,8 +7,8 @@ import pandas as pd
 import torch
 from transformers import MarianTokenizer, MarianMTModel, OPTForCausalLM, AutoTokenizer
 
-from transformer_2.model.multipleTokens.upto15Tokens import check_opt_hidden_state, HiddenStateTransformer
-from transformer_2.model.multipleTokens.embeddToTrans15Tokens import translator_activation_different_layer
+from transformer_2.model.multipleTokens.upto5Tokens import check_opt_hidden_state, HiddenStateTransformer
+from transformer_2.model.multipleTokens.embeddToTrans5Tokens import translator_activation_different_layer
 
 
 device = "cpu"
@@ -54,13 +54,13 @@ if __name__ == '__main__':
         print(en_sent)
 
         '''-------------------------- LLM --------------------------'''
-        model = torch.load(
-            'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\transformer_2\\model\\multipleTokens\\best_model.pth')
         num_of_tokens = 5
         generated_text, attention_mask, hidden_states = check_opt_hidden_state(en_sent, opt_model, opt_tokenizer,
                                                                                opt_layer)
 
         '''-------------------------- transformer --------------------------'''
+        model = torch.load(
+            'C:\\Users\\talia\\PycharmProjects\\HebrewLLM\\transformer_2\\model\\multipleTokens\\best_model.pth')
         hidden_states = model(hidden_states)
 
         '''-------------------------- translator --------------------------'''
