@@ -137,6 +137,9 @@ def test(hebrew_dataset_path, model_type = "basic", model = None, stop_index=flo
     success_counter = 0
     test_size = 0
     
+    
+    targets = []
+    
     # Iterate dataset rows
     for index, row in df.iterrows():
         if index >= stop_index:
@@ -166,6 +169,8 @@ def test(hebrew_dataset_path, model_type = "basic", model = None, stop_index=flo
         else:
             actual = finetunedModelNextWord(he_input, tokenizer, model)
 
+        targets.append(actual)
+        
         if actual:
             if actual == target:
                 success_counter += 1
@@ -174,4 +179,10 @@ def test(hebrew_dataset_path, model_type = "basic", model = None, stop_index=flo
         if index % 1000 == 0:
             print(f"Current test size = {test_size}/{index + 1}, Success: {success_counter}")
     print(f"Test size = {test_size}/{min(stop_index, df.shape[0])}, Success: {success_counter}")
+    
+    # Convert list to DataFrame
+    new_df = pd.DataFrame(targets)
+
+    # Save DataFrame to CSV
+    new_df.to_csv('output.csv', index=False, encoding='utf-8')
     

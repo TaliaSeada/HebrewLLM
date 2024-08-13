@@ -1,2 +1,8 @@
 *.csv
 *.pth
+.venv
+*.idea
+finetuned_opt_350m_custom
+.vscode
+logs
+results

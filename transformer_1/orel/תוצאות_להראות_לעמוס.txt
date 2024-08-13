@@ -70,6 +70,6 @@ Test size = 2499/5846, Success: 2
 
 2. do the same with GPT.
 
-3. Train like the full model like the fine tune model.
+3. Train the full model like the fine tune model.
 
 4. What is the most common target word?
